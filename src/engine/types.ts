@@ -1,4 +1,4 @@
-import { State } from "./state";
+import { PlayerId, State } from "./state";
 
 export type CommandResult = "none" | "partial" | "full";
 
@@ -7,19 +7,12 @@ export type Command = {
   do: (state: State) => [State, CommandResult];
 };
 
-export type Action = {
-  print: string;
-  do: (state: State) => Promise<State>;
-  choices: Tree<Command>;
-  simulate: (state: State) => [State, CommandResult][];
+export type Engine = {
+  choosePlayer: (player: PlayerId) => Promise<PlayerId>;
 };
 
-export type Tree<T> =
-  | {
-      item: T;
-      children?: never;
-    }
-  | {
-      item?: never;
-      children: Tree<T>[];
-    };
+export type Action = {
+  print: string;
+  do: (state: State, engine: Engine) => Promise<State>;
+  commands: (state: State) => Array<{ cmd: Command; next: Action[] }>;
+};

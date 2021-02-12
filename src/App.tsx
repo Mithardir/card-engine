@@ -4,31 +4,6 @@ import { createView } from "./engine/view";
 import { GameShow } from "./components/GameShow";
 import { gimli, gloin, legolas, thalin } from "./cards/sets/core/heroes";
 
-const testCard: Card = () => {
-  return {
-    back: {
-      image: "X",
-      abilities: [],
-      keywords: { ranged: false, sentinel: false },
-      traits: [],
-    },
-    face: {
-      image: "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/Aragorn.jpg",
-      abilities: [
-        {
-          description: "+1 A",
-          activate: (v) => (v.cards[0].props.attack! += 1),
-        },
-      ],
-      keywords: { ranged: false, sentinel: false },
-      traits: [],
-      type: "hero",
-      attack: 5,
-    },
-    orientation: "portrait",
-  };
-};
-
 function App() {
   const [state, setState] = useState(createInitState({ cards: [gimli, legolas] }, { cards: [thalin, gloin] }));
   const view = createView(state);
@@ -45,7 +20,13 @@ function App() {
         view={view}
         onAction={async (action) => {
           console.log(action.print);
-          setState(await action.do(state));
+          setState(
+            await action.do(state, {
+              choosePlayer: async (chooser) => {
+                return chooser;
+              },
+            })
+          );
         }}
       />
       {/* <CardShow card={view.cards[0]} content="image" /> */}

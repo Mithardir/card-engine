@@ -66,7 +66,7 @@ export const ZoneShow = (
           !zone.stack &&
           zone.cards
             //.filter((c) => !c.attachedTo)
-            .map((cardId) => <CardBox cards={props.view.cards.filter((c) => c.id === cardId)} />)}
+            .map((cardId) => <CardBox key={cardId} cards={props.view.cards.filter((c) => c.id === cardId)} />)}
 
         {zone.cards.length !== 0 && zone.stack && (
           <CardShow content="image" card={props.view.cards.find((c) => c.id === zone.cards[0])!} />

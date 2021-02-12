@@ -1,8 +1,8 @@
 import { Paper, Typography } from "@material-ui/core";
 import produce from "immer";
 import * as React from "react";
-import { GameZoneType, PlayerId, PlayerZoneType, Side, State, ZoneState, ZoneType } from "../engine/state";
-import { Action, Command, CommandResult, Tree } from "../engine/types";
+import { GameZoneType, PlayerId, PlayerZoneType, Side, State, ZoneState } from "../engine/state";
+import { Action, Command, CommandResult } from "../engine/types";
 import { View } from "../engine/view";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
@@ -54,61 +54,39 @@ function simpleAction(cmd: Command): Action {
   return {
     print: cmd.print,
     do: async (s) => cmd.do(s)[0],
-    choices: { item: cmd },
-    simulate: (s) => [cmd.do(s)],
+    commands: () => [{ cmd, next: [] }],
   };
-}
-
-function joinTrees<T>(tree1: Tree<T>, tree2: Tree<T>): Tree<T> {
-  if (tree1.children && tree1.children.length === 0) {
-    return tree2;
-  }
-
-  throw new Error();
 }
 
 function sequence(...actions: Action[]): Action {
   return {
     print: `sequence(${actions.map((a) => a.print).join(", ")})`,
-    do: async (init) => {
+    do: async (init, egine) => {
       let state = init;
       for (const act of actions) {
-        state = await act.do(state);
+        state = await act.do(state, egine);
       }
       return state;
     },
-    get choices() {
-      let tree: Tree<Command> = { children: [] };
-
-      for (const act of actions) {
-        tree = joinTrees(tree, act.choices);
-      }
-
-      return tree;
-    },
-    simulate: (init) => {
-      let possibles: [State, CommandResult][] = [[init, "full"]];
-      for (const act of actions) {
-        possibles = possibles.flatMap((p) => act.simulate(p[0]));
-      }
-      return possibles;
+    commands: (s) => {
+      const cmds = actions[0].commands(s);
+      return cmds.map((c) => {
+        return { cmd: c.cmd, next: [...c.next, ...actions.slice(1)] };
+      });
     },
   };
 }
 
-function batch(...cmds: Command[]): Command {
+function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => Action): Action {
   return {
-    print: `batch(${cmds.map((c) => c.print).join(", ")})`,
-    do: (init) => {
-      let state = init;
-      const results: CommandResult[] = [];
-      for (const cmd of cmds) {
-        const result = cmd.do(state);
-        state = result[0];
-        results.push(result[1]);
-      }
-
-      return [state, mergeCommandResults(results)];
+    print: `choosePlayerForCmd(${player}, ${factory(0).print})`,
+    do: async (state, engine) => {
+      const id = await engine.choosePlayer(player);
+      const action = factory(id);
+      return action.do(state, engine);
+    },
+    commands: (s) => {
+      return s.players.flatMap((p) => factory(p.id).commands(s));
     },
   };
 }
@@ -168,7 +146,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
 
         <button
           onClick={() => {
-            props.onAction(sequence(drawCard(2), drawCard(5)));
+            props.onAction(choosePlayerForAct(2, (player) => drawCard(player)));
           }}
         >
           Draw card

@@ -22,7 +22,7 @@ export function getZone(key: ZoneKey): (state: State) => ZoneState {
   };
 }
 
-function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
+export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
   return {
     print: `moveTopCard(from:${JSON.stringify(from)}, to:${JSON.stringify(from)}, side:${side})`,
     do: (s) => {
@@ -46,45 +46,70 @@ function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
   };
 }
 
-const drawCard: (player: PlayerId) => Action = (player) => {
-  return simpleAction(moveTopCard({ type: "library", player }, { type: "hand", player }, "face"));
+export const drawCard: (player: PlayerId) => Action = (player) => {
+  return simpleAction(
+    moveTopCard({ type: "library", player }, { type: "hand", player }, "face"),
+    `drawCard(player: ${player})`
+  );
 };
 
-function simpleAction(cmd: Command): Action {
+export function simpleAction(cmd: Command, print?: string): Action {
   return {
-    print: cmd.print,
-    do: async (s) => cmd.do(s)[0],
-    commands: () => [{ cmd, next: [] }],
+    print: print ?? cmd.print,
+    do: async (e) => e.exec(cmd),
+    results: (s) => [cmd.do(s)],
+    choices: (s) => [cmd.do(s)[0]],
+    commands: () => [{ first: cmd, next: [] }],
   };
 }
 
-function sequence(...actions: Action[]): Action {
+export function sequence(...actions: Action[]): Action {
   return {
     print: `sequence(${actions.map((a) => a.print).join(", ")})`,
-    do: async (init, egine) => {
-      let state = init;
+    do: async (engine) => {
       for (const act of actions) {
-        state = await act.do(state, egine);
+        await engine.do(act);
       }
-      return state;
+    },
+    results: (init) => {
+      let res = actions[0].results(init);
+
+      for (const act of actions.slice(1)) {
+        const next = res.flatMap((r) => act.results(r[0]));
+        res = next;
+      }
+
+      return res;
+    },
+    choices: (init) => {
+      let res = actions[0].results(init);
+
+      for (const act of actions.slice(1)) {
+        const next = res.flatMap((r) => act.results(r[0]));
+        res = next;
+      }
+
+      return res.map((r) => r[0]);
     },
     commands: (s) => {
       const cmds = actions[0].commands(s);
       return cmds.map((c) => {
-        return { cmd: c.cmd, next: [...c.next, ...actions.slice(1)] };
+        return { first: c.first, next: [...c.next, ...actions.slice(1)] };
       });
     },
   };
 }
 
-function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => Action): Action {
+export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => Action): Action {
   return {
-    print: `choosePlayerForCmd(${player}, ${factory(0).print})`,
-    do: async (state, engine) => {
+    print: `choosePlayerForAct(${player}, ${factory(0).print})`,
+    do: async (engine) => {
       const id = await engine.choosePlayer(player);
       const action = factory(id);
-      return action.do(state, engine);
+      return engine.do(action);
     },
+    results: (s) => s.players.flatMap((p) => factory(p.id).results(s)),
+    choices: (s) => s.players.flatMap((p) => factory(p.id).choices(s)),
     commands: (s) => {
       return s.players.flatMap((p) => factory(p.id).commands(s));
     },
@@ -146,7 +171,12 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
 
         <button
           onClick={() => {
-            props.onAction(choosePlayerForAct(2, (player) => drawCard(player)));
+            const action = sequence(
+              choosePlayerForAct(0, (id) => drawCard(id)),
+              choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id)))
+            );
+
+            props.onAction(action);
           }}
         >
           Draw card

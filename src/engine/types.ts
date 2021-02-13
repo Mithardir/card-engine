@@ -8,12 +8,16 @@ export type Command = {
 };
 
 export type Engine = {
+  exec: (command: Command) => void;
+  do: (action: Action) => Promise<void>;
   choosePlayer: (player: PlayerId) => Promise<PlayerId>;
 };
 
 export type Action = {
   print: string;
-  do: (state: State, engine: Engine) => Promise<State>;
+  do: (engine: Engine) => Promise<void>;
   //do2: (state: State, exec: (cmd: Command) => State) => Promise<void>;
-  commands: (state: State) => Array<{ cmd: Command; next: Action[] }>;
+  results: (state: State) => Array<[State, CommandResult]>;
+  choices: (state: State) => State[];
+  commands: (state: State) => Array<{ first: Command; next: Action[] }>;
 };

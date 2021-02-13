@@ -104,9 +104,8 @@ export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => 
   return {
     print: `choosePlayerForAct(${player}, ${factory(0).print})`,
     do: async (engine) => {
-      const id = await engine.choosePlayer(player);
-      const action = factory(id);
-      return engine.do(action);
+      const actions = engine.state.players.map((p) => ({ label: p.id.toString(), action: factory(p.id) }));
+      await engine.chooseNextAction("Choose player", actions);
     },
     results: (s) => s.players.flatMap((p) => factory(p.id).results(s)),
     choices: (s) => s.players.flatMap((p) => factory(p.id).choices(s)),
@@ -172,8 +171,8 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         <button
           onClick={() => {
             const action = sequence(
-              choosePlayerForAct(0, (id) => drawCard(id)),
-              choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id)))
+              choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id))),
+              choosePlayerForAct(0, (id) => drawCard(id))
             );
 
             props.onAction(action);

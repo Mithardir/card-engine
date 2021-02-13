@@ -8,9 +8,10 @@ export type Command = {
 };
 
 export type Engine = {
+  state: State;
   exec: (command: Command) => void;
   do: (action: Action) => Promise<void>;
-  choosePlayer: (player: PlayerId) => Promise<PlayerId>;
+  chooseNextAction: (title: string, actions: Array<{ label: string; action: Action }>) => Promise<void>;
 };
 
 export type Action = {

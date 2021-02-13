@@ -4,7 +4,7 @@ import { View } from "./view";
 
 export type CardId = Flavor<number, "Card">;
 
-export type PlayerId = Flavor<number, "Card">;
+export type PlayerId = Flavor<number, "Player">;
 
 export type GameZoneType =
   | "discardPile"

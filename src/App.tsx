@@ -5,7 +5,7 @@ import { choosePlayerForAct, drawCard, GameShow, sequence } from "./components/G
 import { gimli, gloin, legolas, thalin } from "./cards/sets/core/heroes";
 import { DialogsContext, DialogsContextProps } from "./components/DialogsContext";
 import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
-import { Engine } from "./engine/types";
+import { Action, Engine } from "./engine/types";
 
 function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (state: State) => void): Engine {
   console.log("crating engine");
@@ -13,6 +13,9 @@ function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (
   let state = init;
 
   const engine: Engine = {
+    get state() {
+      return state;
+    },
     exec: (cmd) => {
       console.log("exec", cmd.print);
       state = cmd.do(state)[0];
@@ -22,28 +25,45 @@ function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (
       console.log("do", action.print);
       await action.do(engine);
     },
-    choosePlayer: async (chooser) => {
-      return await dialog.openDialog<number>((dp) => (
+    chooseNextAction: async (label, actions) => {
+      console.log(
+        "choices",
+        actions.map((a) => a.action.choices(state))
+      );
+
+      console.log(
+        "commands",
+        actions.map((a) => a.action.commands(state))
+      );
+
+      console.log(
+        "results",
+        actions.map((a) => a.action.results(state))
+      );
+
+      const action = await dialog.openDialog<Action>((dp) => (
         <Dialog open={dp.open}>
-          <DialogTitle>Choose player</DialogTitle>
+          <DialogTitle>{label}</DialogTitle>
           <DialogContent>
             <List>
-              {state.players.map((p) => (
+              {actions.map((a) => (
                 <ListItem
                   button
-                  key={p.id}
+                  key={a.label}
                   onClick={() => {
-                    dp.onSubmit(p.id);
+                    dp.onSubmit(a.action);
                   }}
                   style={{ width: "auto" }}
                 >
-                  {p.id}
+                  {a.label}
                 </ListItem>
               ))}
             </List>
           </DialogContent>
         </Dialog>
       ));
+
+      engine.do(action);
     },
   };
 

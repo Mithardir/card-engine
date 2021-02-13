@@ -13,11 +13,14 @@ export const EngineProvider = (props: React.PropsWithChildren<{ engine: Engine }
   return <EngineContext.Provider value={props.engine}>{props.children}</EngineContext.Provider>;
 };
 
-function getActionResult(action: Action, init: State): CommandResult {
+export function getActionResult(action: Action, init: State): CommandResult {
   const cmds = action.commands(init);
 
   const results = cmds.map((c) => {
-    const firstResult = c.first.result(init);
+    const firstResult = c.first.result(init);    
+    if (c.next.length === 0) {
+      return firstResult;
+    }
     const nextState = c.first.do(init);
     const nextAction = sequence(...c.next);
     const nextResult = getActionResult(nextAction, nextState);
@@ -27,45 +30,24 @@ function getActionResult(action: Action, init: State): CommandResult {
   return mergeOrResults(results);
 }
 
-function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (state: State) => void) {
-  let state = init;
+export interface UI {
+  chooseOne: <T>(title: string, items: Array<{ label: string; value: T }>) => Promise<T>;
+}
 
-  const engine: Engine = {
-    get state() {
-      return state;
-    },
-    exec: (cmd) => {
-      console.log("cmd", cmd.print);
-      state = cmd.do(state);
-      onStateChange(state);
-    },
-    do: async (action) => {
-      console.log("act", action.print);
-      await action.do(engine);
-    },
-    chooseNextAction: async (label, actions) => {
-      const choices = actions.filter((a) => getActionResult(a.action, state) !== "none");
-
-      if (choices.length === 0) {
-        return;
-      }
-
-      // if (choices.length === 1) {
-      //   engine.do(choices[0].action);
-      //   return;
-      // }
-
-      const action = await dialog.openDialog<Action>((dp) => (
+export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
+  return {
+    chooseOne: async (title, items) => {
+      return await dialog.openDialog((dp) => (
         <Dialog open={dp.open}>
-          <DialogTitle>{label}</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogContent>
             <List>
-              {choices.map((a) => (
+              {items.map((a) => (
                 <ListItem
                   button
                   key={a.label}
                   onClick={() => {
-                    dp.onSubmit(a.action);
+                    dp.onSubmit(a.value);
                   }}
                   style={{ width: "auto" }}
                 >
@@ -76,8 +58,48 @@ function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (
           </DialogContent>
         </Dialog>
       ));
+    },
+  };
+};
 
-      engine.do(action);
+export function createEngine(ui: UI, init: State, onStateChange?: (state: State) => void) {
+  let state = init;
+
+  const engine: Engine = {
+    get state() {
+      return state;
+    },
+    exec: (cmd) => {
+      console.log("cmd", cmd.print);
+      state = cmd.do(state);
+      if (onStateChange) {
+        onStateChange(state);
+      }
+    },
+    do: async (action) => {
+      console.log("act", action.print);
+      await action.do(engine);
+    },
+    chooseNextAction: async (label, actions) => {
+      console.log(
+        "chooseNextAction",
+        actions.map((a) => getActionResult(a.value, state))
+      );
+
+      const choices = actions.filter((a) => getActionResult(a.value, state) !== "none");
+
+      if (choices.length === 0) {
+        return;
+      }
+
+      // if (choices.length === 1) {
+      //   engine.do(choices[0].action);
+      //   return;
+      // }
+
+      const action = await ui.chooseOne<Action>(label, choices);
+
+      await engine.do(action);
     },
   };
 
@@ -91,7 +113,7 @@ function App() {
   const dialog = useContext(DialogsContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const engine = useMemo(() => createEngine(dialog, state, setState), []);
+  const engine = useMemo(() => createEngine(reactUI(dialog), state, setState), []);
 
   return (
     <>

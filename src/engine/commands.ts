@@ -24,14 +24,32 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
   };
 }
 
-export function addToken(cardId: CardId, type: Token, amount: number = 1): Command {
+export function addToken(cardId: CardId, type: Token): Command {
   return {
-    print: `addToken(${cardId}, ${type}, ${amount})`,
+    print: `addToken(${cardId}, ${type})`,
     do: (s) => {
       return produce(s, (draft) => {
-        draft.cards.find((c) => c.id === cardId)![type] += amount;
+        draft.cards.find((c) => c.id === cardId)![type] += 1;
       });
     },
     result: () => "full",
+  };
+}
+
+export function removeToken(cardId: CardId, type: Token): Command {
+  return {
+    print: `removeToken(${cardId}, ${type})`,
+    do: (s) => {
+      return produce(s, (draft) => {
+        const card = draft.cards.find((c) => c.id === cardId)!;
+        if (card[type] >= 1) {
+          card[type] -= 1;
+        }
+      });
+    },
+    result: (s) => {
+      const card = s.cards.find((c) => c.id === cardId)!;
+      return card[type] >= 1 ? "full" : "none";
+    },
   };
 }

@@ -67,6 +67,18 @@ export type DeckInfo = {
   cards: Card[];
 };
 
+export function createCardState(id: CardId, card: Card, side: Side): CardState {
+  return {
+    id,
+    damage: 0,
+    progress: 0,
+    resources: 0,
+    sideUp: side,
+    tapped: false,
+    definition: card(id),
+  };
+}
+
 export function createInitState(...decks: DeckInfo[]): State {
   let id = 1;
 

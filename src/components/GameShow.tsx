@@ -36,9 +36,6 @@ export function simpleAction(cmd: Command, print?: string): Action {
   return {
     print: print ?? cmd.print,
     do: async (e) => e.exec(cmd),
-    results: (s) => [[cmd.do(s), cmd.result(s)]],
-    result: (s) => cmd.result(s),
-    choices: (s) => [cmd.do(s)],
     commands: () => [{ first: cmd, next: [] }],
   };
 }
@@ -51,31 +48,8 @@ export function sequence(...actions: Action[]): Action {
         await engine.do(act);
       }
     },
-    result: (init) => {
-      return "partial";
-    },
-    results: (init) => {
-      let res = actions[0].results(init);
-
-      for (const act of actions.slice(1)) {
-        const next = res.flatMap((r) => act.results(r[0]));
-        res = next;
-      }
-
-      return res;
-    },
-    choices: (init) => {
-      let res = actions[0].results(init);
-
-      for (const act of actions.slice(1)) {
-        const next = res.flatMap((r) => act.results(r[0]));
-        res = next;
-      }
-
-      return res.map((r) => r[0]);
-    },
     commands: (s) => {
-      if (actions[0] === undefined) {
+      if (actions.length === 0) {
         return [];
       }
       const cmds = actions[0].commands(s);
@@ -90,12 +64,9 @@ export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => 
   return {
     print: `choosePlayerForAct(${player}, ${factory(0).print})`,
     do: async (engine) => {
-      const actions = engine.state.players.map((p) => ({ label: p.id.toString(), action: factory(p.id) }));
+      const actions = engine.state.players.map((p) => ({ label: p.id.toString(), value: factory(p.id) }));
       await engine.chooseNextAction("Choose player", actions);
     },
-    result: (s) => mergeOrResults(s.players.map((p) => factory(p.id).result(s))),
-    results: (s) => s.players.flatMap((p) => factory(p.id).results(s)),
-    choices: (s) => s.players.flatMap((p) => factory(p.id).choices(s)),
     commands: (s) => {
       return s.players.flatMap((p) => factory(p.id).commands(s));
     },

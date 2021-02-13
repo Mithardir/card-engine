@@ -1,13 +1,101 @@
+import { createEngine, UI } from "../../../App";
+import { addToken, removeToken } from "../../../engine/commands";
+import {
+  Card,
+  createCardState,
+  createInitState,
+  GameZoneType,
+  PlayerState,
+  PlayerZoneType,
+  State,
+  ZoneState,
+} from "../../../engine/state";
+import { createView } from "../../../engine/view";
 import * as hero from "./heroes";
 
+const testUi: UI = {
+  chooseOne: async (title, items) => {
+    return items[0].value;
+  },
+};
+
+type GameCards = Partial<Record<GameZoneType, Card[]>>;
+
+type PlayerCards = Partial<Record<PlayerZoneType, Card[]>>;
+
+type TestSetup = GameCards & { players: PlayerCards[] };
+
+function createTestState(setup: TestSetup): State {
+  let id = 1;
+
+  const state: State = {
+    cards: [],
+    effects: [],
+    firstPlayer: 1,
+    players: [],
+    zones: {
+      activeLocation: { cards: [], stack: false },
+      discardPile: { cards: [], stack: true },
+      encounterDeck: { cards: [], stack: false },
+      quest: { cards: [], stack: false },
+      questDeck: { cards: [], stack: true },
+      stagingArea: { cards: [], stack: false },
+      victoryDisplay: { cards: [], stack: true },
+    },
+  };
+
+  const addCards = (factories: Card[] = [], zone: ZoneState) => {
+    if (factories) {
+      const cards = factories.map((factory) => createCardState(id++, factory, "face"));
+      const ids = cards.map((c) => c.id);
+      state.cards.push(...cards);
+      zone.cards = ids;
+    }
+  };
+
+  addCards(setup.activeLocation, state.zones.activeLocation);
+  addCards(setup.activeLocation, state.zones.activeLocation);
+  addCards(setup.activeLocation, state.zones.activeLocation);
+  addCards(setup.activeLocation, state.zones.activeLocation);
+  addCards(setup.activeLocation, state.zones.activeLocation);
+  addCards(setup.activeLocation, state.zones.activeLocation);
+
+  for (const playerCards of setup.players) {
+    const playerState: PlayerState = {
+      id: id++,
+      thread: 0,
+      zones: {
+        hand: { cards: [], stack: false },
+        library: { cards: [], stack: true },
+        playerArea: { cards: [], stack: false },
+        discardPile: { cards: [], stack: true },
+        engaged: { cards: [], stack: false },
+      },
+    };
+
+    addCards(playerCards.hand, playerState.zones.hand);
+    addCards(playerCards.library, playerState.zones.library);
+    addCards(playerCards.playerArea, playerState.zones.playerArea);
+    addCards(playerCards.discardPile, playerState.zones.discardPile);
+    addCards(playerCards.engaged, playerState.zones.engaged);
+  }
+
+  return state;
+}
+
 it("Gimli's attack bonus", () => {
-  // const game = new GameEngine();
-  // const gimli = game.addHero(hero.gimli);
-  // expect(gimli.props.attack).toEqual(2);
-  // gimli.update(addToken("damage"));
-  // expect(gimli.props.attack).toEqual(3);
-  // gimli.update(removeToken("damage"));
-  // expect(gimli.props.attack).toEqual(2);
+  const state = createTestState({ players: [{ playerArea: [hero.gimli] }] });
+  const engine = createEngine(testUi, state);
+
+  expect(createView(engine.state).cards[0].props.attack).toEqual(2);
+
+  engine.exec(addToken(2, "damage"));
+
+  expect(createView(engine.state).cards[0].props.attack).toEqual(3);
+
+  engine.exec(removeToken(2, "damage"));
+
+  expect(createView(engine.state).cards[0].props.attack).toEqual(2);
 });
 
 // it("Glorfindel's action", async () => {

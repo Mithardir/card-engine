@@ -1,9 +1,14 @@
 import * as React from "react";
+import { EngineContext } from "../App";
+import { addToken } from "../engine/commands";
 import { CardView } from "../engine/view";
 import { PropertyView } from "./PropertyView";
 
 export const CardText = (props: { card: CardView }) => {
   const c = props.card;
+
+  const engine = React.useContext(EngineContext);
+
   return (
     <table>
       <tbody>
@@ -16,8 +21,7 @@ export const CardText = (props: { card: CardView }) => {
             )}
             {c.props.type === "ally" && (
               <React.Fragment>
-                {c.props.name} [{c.id}] {c.props.unique && "(*)"}{" "}
-                {c.tapped && "E"} ({c.props.cost})
+                {c.props.name} [{c.id}] {c.props.unique && "(*)"} {c.tapped && "E"} ({c.props.cost})
               </React.Fragment>
             )}
             {c.props.type === "event" && (
@@ -56,11 +60,7 @@ export const CardText = (props: { card: CardView }) => {
         {(c.props.type === "location" || c.props.type === "quest") && (
           <React.Fragment>
             <PropertyView card={c} property="threat" label="Threat" />
-            <PropertyView
-              card={c}
-              property="questPoints"
-              label="Quest points"
-            />
+            <PropertyView card={c} property="questPoints" label="Quest points" />
             <tr>
               <td>Progress</td>
               <td>{c.progress}</td>
@@ -86,9 +86,7 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.damage}</td>
               <td>
-                {/* <button onClick={() => card.update(addToken("damage"))}>
-                  +
-                </button> */}
+                <button onClick={() => engine.exec(addToken(c.id, "damage", 1))}>+</button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>
@@ -108,9 +106,9 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.damage}</td>
               <td>
-                {/* <button onClick={() => card.update(addToken("damage"))}>
-                  +
-                </button> */}
+                <td>
+                  <button onClick={() => engine.exec(addToken(c.id, "damage", 1))}>+</button>
+                </td>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 import { createInitState, State } from "./engine/state";
 import { createView } from "./engine/view";
 import { GameShow, mergeAndResults, mergeOrResults, sequence } from "./components/GameShow";
@@ -6,6 +6,12 @@ import { gimli, legolas, thalin } from "./cards/sets/core/heroes";
 import { DialogsContext, DialogsContextProps } from "./components/DialogsContext";
 import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
 import { Action, CommandResult, Engine } from "./engine/types";
+
+export const EngineContext = createContext<Engine>(undefined as any);
+
+export const EngineProvider = (props: React.PropsWithChildren<{ engine: Engine }>) => {
+  return <EngineContext.Provider value={props.engine}>{props.children}</EngineContext.Provider>;
+};
 
 function getActionResult(action: Action, init: State): CommandResult {
   const cmds = action.commands(init);
@@ -89,12 +95,14 @@ function App() {
 
   return (
     <>
-      <GameShow
-        view={view}
-        onAction={async (action) => {
-          engine.do(action);
-        }}
-      />
+      <EngineProvider engine={engine}>
+        <GameShow
+          view={view}
+          onAction={async (action) => {
+            engine.do(action);
+          }}
+        />
+      </EngineProvider>
     </>
   );
 }

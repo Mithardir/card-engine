@@ -12,6 +12,13 @@ export const gimli: Card = (self) => {
       hitPoints: 5,
       traits: ["dwarf", "noble", "warrior"],
       sphere: "tactics",
+    },
+    {
+      description: "Gimli gets +1 [attack] for each damage token on him.",
+      activate: (v, s) => {
+        const card = v.cards.find((c) => c.id === self)!;
+        card.props.attack! += card.damage;
+      },
     }
     // modifySelf({
     //   description: "Gimli gets +1 [attack] for each damage token on him.",

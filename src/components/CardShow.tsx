@@ -3,9 +3,9 @@ import { CardView } from "../engine/view";
 import { CardText } from "./CardText";
 import { DetailContext } from "./DetailContext";
 
-const damegeImage = require("../Images/tokens/damage.png");
-const resourceImage = require("../Images/tokens/resource.png");
-const progressImage = require("../Images/tokens/progress.png");
+import damageImage from "../Images/tokens/damage.png";
+import resourceImage from "../Images/tokens/resource.png";
+import progressImage from "../Images/tokens/progress.png";
 
 export const CardShow = (props: {
   card: CardView;
@@ -150,7 +150,7 @@ export const CardShow = (props: {
                 margin: 2,
               }}
             >
-              <img src={damegeImage} width={40} height={40} alt="" />
+              <img src={damageImage} width={40} height={40} alt="" />
               <div
                 style={{
                   position: "absolute",

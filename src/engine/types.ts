@@ -4,7 +4,8 @@ export type CommandResult = "none" | "partial" | "full";
 
 export type Command = {
   print: string;
-  do: (state: State) => [State, CommandResult];
+  do: (state: State) => State;
+  result: (state: State) => CommandResult;
 };
 
 export type Engine = {
@@ -19,6 +20,7 @@ export type Action = {
   do: (engine: Engine) => Promise<void>;
   //do2: (state: State, exec: (cmd: Command) => State) => Promise<void>;
   results: (state: State) => Array<[State, CommandResult]>;
+  result: (state: State) => CommandResult;
   choices: (state: State) => State[];
   commands: (state: State) => Array<{ first: Command; next: Action[] }>;
 };

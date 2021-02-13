@@ -26,22 +26,19 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
   return {
     print: `moveTopCard(from:${JSON.stringify(from)}, to:${JSON.stringify(from)}, side:${side})`,
     do: (s) => {
-      let change: CommandResult = "none";
-      return [
-        produce(s, (draft) => {
-          const fromZone = getZone(from)(draft);
-          const toZone = getZone(to)(draft);
-
-          if (fromZone.cards.length > 0) {
-            const cardId = fromZone.cards.pop()!;
-            const card = draft.cards.find((c) => c.id === cardId)!;
-            card.sideUp = side;
-            toZone.cards.push(cardId);
-            change = "full";
-          }
-        }),
-        change,
-      ];
+      return produce(s, (draft) => {
+        const fromZone = getZone(from)(draft);
+        const toZone = getZone(to)(draft);
+        if (fromZone.cards.length > 0) {
+          const cardId = fromZone.cards.pop()!;
+          const card = draft.cards.find((c) => c.id === cardId)!;
+          card.sideUp = side;
+          toZone.cards.push(cardId);
+        }
+      });
+    },
+    result: (s) => {
+      return getZone(from)(s).cards.length > 0 ? "full" : "none";
     },
   };
 }
@@ -57,8 +54,9 @@ export function simpleAction(cmd: Command, print?: string): Action {
   return {
     print: print ?? cmd.print,
     do: async (e) => e.exec(cmd),
-    results: (s) => [cmd.do(s)],
-    choices: (s) => [cmd.do(s)[0]],
+    results: (s) => [[cmd.do(s), cmd.result(s)]],
+    result: (s) => cmd.result(s),
+    choices: (s) => [cmd.do(s)],
     commands: () => [{ first: cmd, next: [] }],
   };
 }
@@ -70,6 +68,9 @@ export function sequence(...actions: Action[]): Action {
       for (const act of actions) {
         await engine.do(act);
       }
+    },
+    result: (init) => {
+      return "partial";
     },
     results: (init) => {
       let res = actions[0].results(init);
@@ -92,6 +93,9 @@ export function sequence(...actions: Action[]): Action {
       return res.map((r) => r[0]);
     },
     commands: (s) => {
+      if (actions[0] === undefined) {
+        return [];
+      }
       const cmds = actions[0].commands(s);
       return cmds.map((c) => {
         return { first: c.first, next: [...c.next, ...actions.slice(1)] };
@@ -107,6 +111,7 @@ export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => 
       const actions = engine.state.players.map((p) => ({ label: p.id.toString(), action: factory(p.id) }));
       await engine.chooseNextAction("Choose player", actions);
     },
+    result: (s) => mergeOrResults(s.players.map((p) => factory(p.id).result(s))),
     results: (s) => s.players.flatMap((p) => factory(p.id).results(s)),
     choices: (s) => s.players.flatMap((p) => factory(p.id).choices(s)),
     commands: (s) => {
@@ -115,7 +120,19 @@ export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => 
   };
 }
 
-export function mergeCommandResults(results: CommandResult[]): CommandResult {
+export function mergeOrResults(results: CommandResult[]): CommandResult {
+  if (results.some((c) => c === "full")) {
+    return "full";
+  }
+
+  if (results.every((c) => c === "none")) {
+    return "none";
+  }
+
+  return "partial";
+}
+
+export function mergeAndResults(...results: CommandResult[]): CommandResult {
   if (results.every((c) => c === "full")) {
     return "full";
   }
@@ -172,6 +189,8 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
           onClick={() => {
             const action = sequence(
               choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id))),
+              choosePlayerForAct(0, (id) => drawCard(id)),
+              choosePlayerForAct(0, (id) => drawCard(id)),
               choosePlayerForAct(0, (id) => drawCard(id))
             );
 

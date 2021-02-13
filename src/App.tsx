@@ -1,11 +1,25 @@
 import React, { useContext, useMemo, useState } from "react";
 import { Card, createInitState, State } from "./engine/state";
 import { createView } from "./engine/view";
-import { choosePlayerForAct, drawCard, GameShow, sequence } from "./components/GameShow";
+import { choosePlayerForAct, drawCard, GameShow, mergeAndResults, mergeOrResults, sequence } from "./components/GameShow";
 import { gimli, gloin, legolas, thalin } from "./cards/sets/core/heroes";
 import { DialogsContext, DialogsContextProps } from "./components/DialogsContext";
 import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
-import { Action, Engine } from "./engine/types";
+import { Action, CommandResult, Engine } from "./engine/types";
+
+function getActionResult(action: Action, init: State): CommandResult {
+  const cmds = action.commands(init);
+
+  const results: CommandResult[] = cmds.map((c) => {
+    const firstResult = c.first.result(init);
+    const nextState = c.first.do(init);
+    const nextAction = sequence(...c.next);
+    const nextResult = getActionResult(nextAction, nextState);
+    return mergeAndResults(firstResult, nextResult);
+  });
+
+  return mergeOrResults(results);
+}
 
 function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (state: State) => void): Engine {
   console.log("crating engine");
@@ -18,7 +32,7 @@ function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (
     },
     exec: (cmd) => {
       console.log("exec", cmd.print);
-      state = cmd.do(state)[0];
+      state = cmd.do(state);
       onStateChange(state);
     },
     do: async (action) => {
@@ -46,18 +60,20 @@ function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (
           <DialogTitle>{label}</DialogTitle>
           <DialogContent>
             <List>
-              {actions.map((a) => (
-                <ListItem
-                  button
-                  key={a.label}
-                  onClick={() => {
-                    dp.onSubmit(a.action);
-                  }}
-                  style={{ width: "auto" }}
-                >
-                  {a.label}
-                </ListItem>
-              ))}
+              {actions
+                .filter((a) => getActionResult(a.action, state) !== "none")
+                .map((a) => (
+                  <ListItem
+                    button
+                    key={a.label}
+                    onClick={() => {
+                      dp.onSubmit(a.action);
+                    }}
+                    style={{ width: "auto" }}
+                  >
+                    {a.label}
+                  </ListItem>
+                ))}
             </List>
           </DialogContent>
         </Dialog>

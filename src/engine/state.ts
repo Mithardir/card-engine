@@ -68,7 +68,7 @@ export type DeckInfo = {
 };
 
 export function createInitState(...decks: DeckInfo[]): State {
-  let id = 0;
+  let id = 1;
 
   const players: Array<{ player: PlayerState; cards: CardState[] }> = decks.map((p) => {
     const cards: CardState[] = p.cards.map((f) => {

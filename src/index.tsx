@@ -4,11 +4,14 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { DialogsProvider } from "./components/DialogsContext";
+import { DetailProvider } from "./components/DetailContext";
 
 ReactDOM.render(
   <React.StrictMode>
     <DialogsProvider>
-      <App />
+      <DetailProvider>
+        <App />
+      </DetailProvider>
     </DialogsProvider>
   </React.StrictMode>,
   document.getElementById("root")

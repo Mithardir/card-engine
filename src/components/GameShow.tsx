@@ -5,6 +5,8 @@ import { moveTopCard } from "../engine/commands";
 import { GameZoneType, PlayerId, PlayerZoneType, Side, State, ZoneState } from "../engine/state";
 import { Action, Command, CommandResult } from "../engine/types";
 import { View } from "../engine/view";
+import { CardShow } from "./CardShow";
+import { DetailContext } from "./DetailContext";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 
@@ -125,6 +127,8 @@ export function mergeAndResults(...results: CommandResult[]): CommandResult {
 }
 
 export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
+  const detail = React.useContext(DetailContext);
+
   return (
     <div style={{ display: "flex" }}>
       <div style={{}}>
@@ -137,9 +141,9 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
             margin: 3,
           }}
         >
-          {/* {false ? (
+          {detail.cardId ? (
             <CardShow
-              cardId={props.game.detailCard.id}
+              card={props.view.cards.find((c) => c.id === detail.cardId)!}
               content="text"
               scale={0.5}
               style={{
@@ -151,8 +155,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
             />
           ) : (
             <Paper style={{}} />
-          )} */}
-          <Paper style={{}} />
+          )}
         </div>
         <Paper style={{ margin: 3 }}>
           {/* <Typography>First player: {game.view.firstPlayerId}</Typography>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { CardView } from "../engine/view";
 import { CardText } from "./CardText";
+import { DetailContext } from "./DetailContext";
 
 const damegeImage = require("../Images/tokens/damage.png");
 const resourceImage = require("../Images/tokens/resource.png");
@@ -26,6 +27,8 @@ export const CardShow = (props: {
 
   const margin = actions.length > 0 ? 1 : 3;
 
+  const detail = React.useContext(DetailContext);
+
   return (
     <div
       style={{
@@ -36,17 +39,13 @@ export const CardShow = (props: {
         position: "relative",
         marginTop: margin,
         marginLeft: margin,
-        transform: isDetailCard
-          ? "scale(2.5,2.5)"
-          : c.tapped && props.showExhausted
-          ? "rotate(45deg)"
-          : undefined,
+        transform: isDetailCard ? "scale(2.5,2.5)" : c.tapped && props.showExhausted ? "rotate(45deg)" : undefined,
         transition: "transform 0.25s ease 0s",
         zIndex: isDetailCard ? 5 : undefined,
         ...props.style,
       }}
       onMouseEnter={() => {
-        //game.detailCard = c;
+        detail.setDetail(c.id);
       }}
       onMouseLeave={() => {
         //game.detailCard = undefined;

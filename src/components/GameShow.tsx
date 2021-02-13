@@ -1,6 +1,7 @@
 import { Paper, Typography } from "@material-ui/core";
 import produce from "immer";
 import * as React from "react";
+import { moveTopCard } from "../engine/commands";
 import { GameZoneType, PlayerId, PlayerZoneType, Side, State, ZoneState } from "../engine/state";
 import { Action, Command, CommandResult } from "../engine/types";
 import { View } from "../engine/view";
@@ -19,27 +20,6 @@ export function getZone(key: ZoneKey): (state: State) => ZoneState {
     } else {
       return (v.zones as any)[key.type];
     }
-  };
-}
-
-export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
-  return {
-    print: `moveTopCard(from:${JSON.stringify(from)}, to:${JSON.stringify(from)}, side:${side})`,
-    do: (s) => {
-      return produce(s, (draft) => {
-        const fromZone = getZone(from)(draft);
-        const toZone = getZone(to)(draft);
-        if (fromZone.cards.length > 0) {
-          const cardId = fromZone.cards.pop()!;
-          const card = draft.cards.find((c) => c.id === cardId)!;
-          card.sideUp = side;
-          toZone.cards.push(cardId);
-        }
-      });
-    },
-    result: (s) => {
-      return getZone(from)(s).cards.length > 0 ? "full" : "none";
-    },
   };
 }
 

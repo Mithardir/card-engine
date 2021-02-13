@@ -1,8 +1,8 @@
 import React, { useContext, useMemo, useState } from "react";
-import { Card, createInitState, State } from "./engine/state";
+import { createInitState, State } from "./engine/state";
 import { createView } from "./engine/view";
-import { choosePlayerForAct, drawCard, GameShow, mergeAndResults, mergeOrResults, sequence } from "./components/GameShow";
-import { gimli, gloin, legolas, thalin } from "./cards/sets/core/heroes";
+import { GameShow, mergeAndResults, mergeOrResults, sequence } from "./components/GameShow";
+import { gimli, legolas, thalin } from "./cards/sets/core/heroes";
 import { DialogsContext, DialogsContextProps } from "./components/DialogsContext";
 import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
 import { Action, CommandResult, Engine } from "./engine/types";
@@ -10,7 +10,7 @@ import { Action, CommandResult, Engine } from "./engine/types";
 function getActionResult(action: Action, init: State): CommandResult {
   const cmds = action.commands(init);
 
-  const results: CommandResult[] = cmds.map((c) => {
+  const results = cmds.map((c) => {
     const firstResult = c.first.result(init);
     const nextState = c.first.do(init);
     const nextAction = sequence(...c.next);
@@ -21,9 +21,7 @@ function getActionResult(action: Action, init: State): CommandResult {
   return mergeOrResults(results);
 }
 
-function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (state: State) => void): Engine {
-  console.log("crating engine");
-
+function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (state: State) => void) {
   let state = init;
 
   const engine: Engine = {
@@ -31,49 +29,43 @@ function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (
       return state;
     },
     exec: (cmd) => {
-      console.log("exec", cmd.print);
+      console.log("cmd", cmd.print);
       state = cmd.do(state);
       onStateChange(state);
     },
     do: async (action) => {
-      console.log("do", action.print);
+      console.log("act", action.print);
       await action.do(engine);
     },
     chooseNextAction: async (label, actions) => {
-      console.log(
-        "choices",
-        actions.map((a) => a.action.choices(state))
-      );
+      const choices = actions.filter((a) => getActionResult(a.action, state) !== "none");
 
-      console.log(
-        "commands",
-        actions.map((a) => a.action.commands(state))
-      );
+      if (choices.length === 0) {
+        return;
+      }
 
-      console.log(
-        "results",
-        actions.map((a) => a.action.results(state))
-      );
+      // if (choices.length === 1) {
+      //   engine.do(choices[0].action);
+      //   return;
+      // }
 
       const action = await dialog.openDialog<Action>((dp) => (
         <Dialog open={dp.open}>
           <DialogTitle>{label}</DialogTitle>
           <DialogContent>
             <List>
-              {actions
-                .filter((a) => getActionResult(a.action, state) !== "none")
-                .map((a) => (
-                  <ListItem
-                    button
-                    key={a.label}
-                    onClick={() => {
-                      dp.onSubmit(a.action);
-                    }}
-                    style={{ width: "auto" }}
-                  >
-                    {a.label}
-                  </ListItem>
-                ))}
+              {choices.map((a) => (
+                <ListItem
+                  button
+                  key={a.label}
+                  onClick={() => {
+                    dp.onSubmit(a.action);
+                  }}
+                  style={{ width: "auto" }}
+                >
+                  {a.label}
+                </ListItem>
+              ))}
             </List>
           </DialogContent>
         </Dialog>
@@ -90,36 +82,19 @@ function App() {
   const [state, setState] = useState(createInitState({ cards: [gimli, legolas] }, { cards: [thalin] }));
   const view = createView(state);
 
-  //console.log(JSON.stringify(view, null, 1));
-  //console.log(JSON.stringify(state, null, 1));
-
   const dialog = useContext(DialogsContext);
-
-  // const action = sequence(
-  //   choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id))),
-  //   choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id)))
-  // );
-
-  // console.log("action", action.print);
-  // console.log("choices", action.choices(state));
-  // console.log("results", action.results(state));
-  // console.log("commands", action.commands(state));
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const engine = useMemo(() => createEngine(dialog, state, setState), []);
 
   return (
     <>
-      {/* <CardShow card={view.cards[0]} content="text" /> */}
-      {/* <ZoneShow type="hand" owner={1} view={view} /> */}
-      {/* <PlayerShow player={view.players[0]} view={view} /> */}
       <GameShow
         view={view}
         onAction={async (action) => {
           engine.do(action);
         }}
       />
-      {/* <CardShow card={view.cards[0]} content="image" /> */}
     </>
   );
 }

@@ -24,3 +24,5 @@ export type Action = {
   choices: (state: State) => State[];
   commands: (state: State) => Array<{ first: Command; next: Action[] }>;
 };
+
+export type Token = "damage" | "resources" | "progress";

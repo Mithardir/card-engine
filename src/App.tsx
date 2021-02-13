@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Card, createInitState } from "./engine/state";
 import { createView } from "./engine/view";
 import { GameShow } from "./components/GameShow";
 import { gimli, gloin, legolas, thalin } from "./cards/sets/core/heroes";
+import { DialogsContext } from "./components/DialogsContext";
+import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
 
 function App() {
   const [state, setState] = useState(createInitState({ cards: [gimli, legolas] }, { cards: [thalin, gloin] }));
@@ -10,6 +12,8 @@ function App() {
 
   //console.log(JSON.stringify(view, null, 1));
   //console.log(JSON.stringify(state, null, 1));
+
+  const dialog = useContext(DialogsContext);
 
   return (
     <>
@@ -23,7 +27,27 @@ function App() {
           setState(
             await action.do(state, {
               choosePlayer: async (chooser) => {
-                return chooser;
+                return await dialog.openDialog<number>((dp) => (
+                  <Dialog open={dp.open}>
+                    <DialogTitle>Choose player</DialogTitle>
+                    <DialogContent>
+                      <List>
+                        {state.players.map((p) => (
+                          <ListItem
+                            button
+                            key={p.id}
+                            onClick={() => {
+                              dp.onSubmit(p.id);
+                            }}
+                            style={{ width: "auto" }}
+                          >
+                            {p.id}
+                          </ListItem>
+                        ))}
+                      </List>
+                    </DialogContent>
+                  </Dialog>
+                ));
               },
             })
           );

@@ -14,5 +14,6 @@ export type Engine = {
 export type Action = {
   print: string;
   do: (state: State, engine: Engine) => Promise<State>;
+  //do2: (state: State, exec: (cmd: Command) => State) => Promise<void>;
   commands: (state: State) => Array<{ cmd: Command; next: Action[] }>;
 };

@@ -4,8 +4,9 @@ import { createView } from "./engine/view";
 import { GameShow, mergeAndResults, mergeOrResults, sequence } from "./components/GameShow";
 import { gimli, legolas, thalin } from "./cards/sets/core/heroes";
 import { DialogsContext, DialogsContextProps } from "./components/DialogsContext";
-import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
+import { CssBaseline, Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
 import { Action, CommandResult, Engine } from "./engine/types";
+import { produce } from "immer";
 
 export const EngineContext = createContext<Engine>(undefined as any);
 
@@ -17,11 +18,11 @@ export function getActionResult(action: Action, init: State): CommandResult {
   const cmds = action.commands(init);
 
   const results = cmds.map((c) => {
-    const firstResult = c.first.result(init);    
+    const firstResult = c.first.result(init);
     if (c.next.length === 0) {
       return firstResult;
     }
-    const nextState = c.first.do(init);
+    const nextState = produce(init, (draft) => c.first.do(draft));
     const nextAction = sequence(...c.next);
     const nextResult = getActionResult(nextAction, nextState);
     return mergeAndResults(firstResult, nextResult);
@@ -71,7 +72,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
     },
     exec: (cmd) => {
       console.log("cmd", cmd.print);
-      state = cmd.do(state);
+      state = produce(state, (draft) => cmd.do(draft));
       if (onStateChange) {
         onStateChange(state);
       }
@@ -81,11 +82,6 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       await action.do(engine);
     },
     chooseNextAction: async (label, actions) => {
-      console.log(
-        "chooseNextAction",
-        actions.map((a) => getActionResult(a.value, state))
-      );
-
       const choices = actions.filter((a) => getActionResult(a.value, state) !== "none");
 
       if (choices.length === 0) {
@@ -118,6 +114,7 @@ function App() {
   return (
     <>
       <EngineProvider engine={engine}>
+        <CssBaseline />
         <GameShow
           view={view}
           onAction={async (action) => {

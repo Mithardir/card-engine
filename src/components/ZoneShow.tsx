@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GameZoneType, PlayerId, PlayerZoneType, ZoneState, ZoneType } from "../engine/state";
+import { GameZoneType, PlayerId, PlayerZoneType, ZoneState } from "../engine/state";
 import { CardView, View } from "../engine/view";
 import { CardShow } from "./CardShow";
 

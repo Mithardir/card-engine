@@ -106,9 +106,7 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.damage}</td>
               <td>
-                <td>
-                  <button onClick={() => engine.exec(addToken(c.id, "damage"))}>+</button>
-                </td>
+                <button onClick={() => engine.exec(addToken(c.id, "damage"))}>+</button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>

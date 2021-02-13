@@ -4,7 +4,7 @@ export type CommandResult = "none" | "partial" | "full";
 
 export type Command = {
   print: string;
-  do: (state: State) => State;
+  do: (state: State) => void;
   result: (state: State) => CommandResult;
 };
 

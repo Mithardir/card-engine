@@ -49,7 +49,7 @@ export function createCardView(state: CardState): CardView {
 }
 
 export function createView(state: State) {
-  const begin = new Date();
+  //const begin = new Date();
 
   const baseView: View = {
     ...state,
@@ -79,9 +79,9 @@ export function createView(state: State) {
     });
   });
 
-  const end = new Date();
+  //const end = new Date();
 
-  console.log("elapsed: ", end.valueOf() - begin.valueOf());
+  //console.log("elapsed: ", end.valueOf() - begin.valueOf());
 
   return view;
 }

@@ -1,42 +1,26 @@
-import React, { useContext, useState } from "react";
-import { Card, createInitState } from "./engine/state";
+import React, { useContext, useMemo, useState } from "react";
+import { Card, createInitState, State } from "./engine/state";
 import { createView } from "./engine/view";
 import { choosePlayerForAct, drawCard, GameShow, sequence } from "./components/GameShow";
 import { gimli, gloin, legolas, thalin } from "./cards/sets/core/heroes";
-import { DialogsContext } from "./components/DialogsContext";
+import { DialogsContext, DialogsContextProps } from "./components/DialogsContext";
 import { Dialog, DialogContent, DialogTitle, List, ListItem } from "@material-ui/core";
 import { Engine } from "./engine/types";
 
-function createEngine(): Engine {
-  
-}
+function createEngine(dialog: DialogsContextProps, init: State, onStateChange: (state: State) => void): Engine {
+  console.log("crating engine");
 
-function App() {
-  const [state, setState] = useState(createInitState({ cards: [gimli, legolas] }, { cards: [thalin] }));
-  const view = createView(state);
-
-  //console.log(JSON.stringify(view, null, 1));
-  //console.log(JSON.stringify(state, null, 1));
-
-  const dialog = useContext(DialogsContext);
-
-  // const action = sequence(
-  //   choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id))),
-  //   choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id)))
-  // );
-
-  // console.log("action", action.print);
-  // console.log("choices", action.choices(state));
-  // console.log("results", action.results(state));
-  // console.log("commands", action.commands(state));
+  let state = init;
 
   const engine: Engine = {
     exec: (cmd) => {
       console.log("exec", cmd.print);
-      setState(cmd.do(state)[0]);
+      state = cmd.do(state)[0];
+      onStateChange(state);
     },
     do: async (action) => {
-      action.do(engine);
+      console.log("do", action.print);
+      await action.do(engine);
     },
     choosePlayer: async (chooser) => {
       return await dialog.openDialog<number>((dp) => (
@@ -63,6 +47,31 @@ function App() {
     },
   };
 
+  return engine;
+}
+
+function App() {
+  const [state, setState] = useState(createInitState({ cards: [gimli, legolas] }, { cards: [thalin] }));
+  const view = createView(state);
+
+  //console.log(JSON.stringify(view, null, 1));
+  //console.log(JSON.stringify(state, null, 1));
+
+  const dialog = useContext(DialogsContext);
+
+  // const action = sequence(
+  //   choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id))),
+  //   choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id)))
+  // );
+
+  // console.log("action", action.print);
+  // console.log("choices", action.choices(state));
+  // console.log("results", action.results(state));
+  // console.log("commands", action.commands(state));
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const engine = useMemo(() => createEngine(dialog, state, setState), []);
+
   return (
     <>
       {/* <CardShow card={view.cards[0]} content="text" /> */}
@@ -71,7 +80,6 @@ function App() {
       <GameShow
         view={view}
         onAction={async (action) => {
-          console.log(action.print);
           engine.do(action);
         }}
       />

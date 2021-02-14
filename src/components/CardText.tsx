@@ -14,6 +14,7 @@ export const CardText = (props: { card: CardView }) => {
       <tbody>
         <tr>
           <td colSpan={4} style={{ textAlign: "center" }}>
+            {!c.props.type && <React.Fragment>[{c.id}]</React.Fragment>}
             {c.props.type === "hero" && (
               <React.Fragment>
                 {c.props.name} [{c.id}] (H) {c.tapped && "E"}

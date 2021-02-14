@@ -1,6 +1,6 @@
 import { LocationProps, Ability, emptyKeywords } from "../../engine/cardprops";
 import { CardDefinition } from "../../engine/state";
-import playerBack from "../../Images/back/card.jpg";
+import encounterBack from "../../Images/back/encounter.jpg";
 
 export function location(props: LocationProps, ...abilities: Ability[]): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
@@ -15,7 +15,7 @@ export function location(props: LocationProps, ...abilities: Ability[]): CardDef
       abilities,
     },
     back: {
-      image: playerBack,
+      image: encounterBack,
       abilities: [],
       traits: [],
       keywords: emptyKeywords,

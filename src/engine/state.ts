@@ -82,49 +82,17 @@ export function createCardState(id: CardId, card: Card, side: Side): CardState {
   };
 }
 
-export function createInitState(...decks: DeckInfo[]): State {
-  let id = 1;
-
-  const players: Array<{ player: PlayerState; cards: CardState[] }> = decks.map((p, index) => {
-    const cards: CardState[] = p.cards.map((f) => {
-      const cardId = id++;
-      return {
-        id: cardId,
-        damage: 0,
-        progress: 0,
-        resources: 0,
-        sideUp: "back",
-        tapped: false,
-        definition: f(cardId),
-      };
-    });
-
-    return {
-      player: {
-        id: playerIds[index],
-        thread: 0,
-        zones: {
-          hand: { cards: [], stack: false },
-          library: { cards: cards.map((c) => c.id), stack: true },
-          playerArea: { cards: [], stack: false },
-          discardPile: { cards: [], stack: true },
-          engaged: { cards: [], stack: false },
-        },
-      },
-      cards,
-    };
-  });
-
+export function createInitState(): State {
   return {
     version: 0,
-    cards: players.flatMap((p) => p.cards),
+    cards: [],
     effects: [],
     firstPlayer: "A",
-    players: players.map((p) => p.player),
+    players: [],
     zones: {
       activeLocation: { cards: [], stack: false },
       discardPile: { cards: [], stack: true },
-      encounterDeck: { cards: [], stack: false },
+      encounterDeck: { cards: [], stack: true },
       quest: { cards: [], stack: false },
       questDeck: { cards: [], stack: true },
       stagingArea: { cards: [], stack: false },

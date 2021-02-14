@@ -1,5 +1,6 @@
 import produce from "immer";
-import { CardId, GameZoneType, PlayerId, PlayerZoneType, Side } from "./state";
+import { PlayerDeck, Scenario } from "./setup";
+import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
 import { Command, CommandResult, Token, ZoneKey } from "./types";
 import { getZone, mergeAndResults } from "./utils";
 
@@ -77,5 +78,51 @@ export function repeat(amount: number, cmd: Command): Command {
 
       return mergeAndResults(...results);
     },
+  };
+}
+
+export function setupScenario(scenario: Scenario): Command {
+  return {
+    print: `setup scenario ${scenario.name}`,
+    do: (s) => {
+      const quest = scenario.questCards.map((q, index) => createCardState(index * 5 + 5, q, "back"));
+      const cards = scenario.encounterCards.map((e, index) =>
+        createCardState((index + quest.length) * 5 + 5, e, "back")
+      );
+
+      s.zones.encounterDeck.cards.push(...cards.map((c) => c.id));
+      s.zones.questDeck.cards.push(...quest.map((c) => c.id));
+
+      s.cards.push(...quest, ...cards);
+    },
+    result: () => "full",
+  };
+}
+
+export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Command {
+  return {
+    print: `add player ${playerId} with deck ${deck.name}`,
+    do: (s) => {
+      const playerIndex = playerIds.findIndex((p) => p === playerId);
+      const heroes = deck.heroes.map((h, index) => createCardState(index * 5 + playerIndex + 1, h, "face"));
+      const library = deck.library.map((l, index) =>
+        createCardState((index + heroes.length) * 5 + playerIndex + 1, l, "back")
+      );
+
+      s.players.push({
+        id: playerId,
+        thread: 0,
+        zones: {
+          hand: { cards: [], stack: false },
+          library: { cards: library.map((l) => l.id), stack: true },
+          playerArea: { cards: heroes.map((h) => h.id), stack: false },
+          discardPile: { cards: [], stack: true },
+          engaged: { cards: [], stack: false },
+        },
+      });
+
+      s.cards.push(...heroes, ...library);
+    },
+    result: () => "full",
   };
 }

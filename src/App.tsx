@@ -2,14 +2,13 @@ import React, { useContext, useMemo, useState } from "react";
 import { createInitState } from "./engine/state";
 import { createView } from "./engine/view";
 import { GameShow } from "./components/GameShow";
-import { gimli, legolas, thalin } from "./cards/sets/core/heroes";
 import { DialogsContext } from "./components/DialogsContext";
 import { CssBaseline } from "@material-ui/core";
 import { reactUI, EngineProvider } from "./components/EngineContext";
 import { createEngine } from "./engine/engine";
 
 export function App() {
-  const [state, setState] = useState(createInitState({ cards: [gimli, legolas] }, { cards: [thalin] }));
+  const [state, setState] = useState(createInitState());
   const view = createView(state);
 
   const dialog = useContext(DialogsContext);

@@ -4,9 +4,10 @@ import { Action } from "../engine/types";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { sequence, choosePlayerForAct, drawCard } from "../engine/actions";
+import { sequence, choosePlayerForAct, drawCard, beginScenario } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
+import { coreTactics, passageThroughMirkwood } from "../engine/setup";
 
 export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
   const detail = React.useContext(DetailContext);
@@ -52,6 +53,14 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
 
         <button
           onClick={() => {
+            props.onAction(beginScenario(passageThroughMirkwood, coreTactics, coreTactics));
+          }}
+        >
+          Begin scenario
+        </button>
+
+        <button
+          onClick={() => {
             const action = sequence(
               choosePlayerForAct("A", (id) => drawCard(id, 2)),
               choosePlayerForAct("A", (id) => drawCard(id, 1)),
@@ -62,7 +71,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
             props.onAction(action);
           }}
         >
-          Draw card
+          Draw cards
         </button>
         {/* {game.saves.length > 0 && (
           <>

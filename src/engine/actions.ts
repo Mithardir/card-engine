@@ -1,4 +1,5 @@
-import { moveTopCard, repeat, zoneKey } from "./commands";
+import { addPlayer, moveTopCard, repeat, setupScenario, zoneKey } from "./commands";
+import { Scenario, PlayerDeck } from "./setup";
 import { PlayerId } from "./state";
 import { Action, Command } from "./types";
 
@@ -48,4 +49,18 @@ export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => 
       return s.players.flatMap((p) => factory(p.id).commands(s));
     },
   };
+}
+
+export const noAction: Action = {
+  print: "no action",
+  do: async (e) => {},
+  commands: () => [],
+};
+
+export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Action {
+  return sequence(
+    simpleAction(setupScenario(scenario)),
+    simpleAction(addPlayer("A", decks[0])),
+    simpleAction(addPlayer("B", decks[1]))
+  );
 }

@@ -16,7 +16,10 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
     },
     exec: (cmd) => {
       console.log("cmd", cmd.print);
-      state = produce(state, (draft) => cmd.do(draft));
+      state = produce(state, (draft) => {
+        cmd.do(draft);
+        draft.version++;
+      });
       if (onStateChange) {
         onStateChange(state);
       }

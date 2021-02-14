@@ -54,6 +54,7 @@ export interface ZoneState {
 export type Effect = { modifier: (view: View) => void; until?: "end_of_phase" };
 
 export interface State {
+  version: number;
   firstPlayer: PlayerId;
   cards: CardState[];
   players: PlayerState[];
@@ -113,6 +114,7 @@ export function createInitState(...decks: DeckInfo[]): State {
   });
 
   return {
+    version: 0,
     cards: players.flatMap((p) => p.cards),
     effects: [],
     firstPlayer: 1,

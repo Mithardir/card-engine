@@ -1,3 +1,4 @@
+import { Divider, Paper } from "@material-ui/core";
 import * as React from "react";
 import { GameZoneType, PlayerId, PlayerZoneType, ZoneState } from "../engine/state";
 import { CardView, View } from "../engine/view";
@@ -37,16 +38,19 @@ export const ZoneShow = (
   }
 
   return (
-    <div
+    <Paper
       style={{
         border: "solid 1px black",
         display: "flex",
         flexDirection: "column",
+        margin: 4,
+        //backgroundColor: "#d1ff33",
       }}
     >
-      <div>
+      <div style={{ margin: 2 }}>
         {props.type} ({zone.cards.length} cards)
       </div>
+      <Divider />
       <div
         style={{
           display: "flex",
@@ -72,6 +76,6 @@ export const ZoneShow = (
           <CardShow content="image" card={props.view.cards.find((c) => c.id === zone.cards[0])!} />
         )}
       </div>
-    </div>
+    </Paper>
   );
 };

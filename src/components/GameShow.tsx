@@ -1,4 +1,4 @@
-import { Paper, Typography } from "@material-ui/core";
+import { Button, Paper, Typography } from "@material-ui/core";
 import * as React from "react";
 import { Action } from "../engine/types";
 import { View } from "../engine/view";
@@ -13,18 +13,15 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
   const detail = React.useContext(DetailContext);
 
   return (
-    <div style={{ display: "flex" }}>
-      <div style={{}}>
-        <div
+    <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
+      <div style={{ backgroundColor: "#5393ff", width: 215 }}>
+        <Paper
           style={{
-            border: "1px solid black",
-            flexShrink: 0,
-            width: 215,
             height: 320,
-            margin: 3,
+            margin: 4,
           }}
         >
-          {detail.cardId ? (
+          {detail.cardId && (
             <CardShow
               card={props.view.cards.find((c) => c.id === detail.cardId)!}
               content="text"
@@ -36,30 +33,28 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
                 marginLeft: 0,
               }}
             />
-          ) : (
-            <Paper style={{}} />
           )}
-        </div>
-        <Paper style={{ margin: 3 }}>
+        </Paper>
+        <Paper style={{ margin: 4 }}>
           {/* <Typography>First player: {game.view.firstPlayerId}</Typography>
           <Typography>Phase: {game.view.phase.type}</Typography> */}
         </Paper>
-        <Paper>
+        <Paper style={{ margin: 4 }}>
           <Typography>Effects:</Typography>
           {/* {game.view.effects.map((e, index) => (
             <Typography key={index}>{e.modifier.print()}</Typography>
           ))} */}
         </Paper>
 
-        <button
+        <Button
           onClick={() => {
             props.onAction(sequence(beginScenario(passageThroughMirkwood, coreTactics), phaseResource(), phaseQuest()));
           }}
         >
           Begin scenario
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={() => {
             const action = sequence(
               choosePlayerForAct("A", draw(2)),
@@ -72,7 +67,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
           }}
         >
           Draw cards
-        </button>
+        </Button>
         {/* {game.saves.length > 0 && (
           <>
             <Button

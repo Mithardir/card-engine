@@ -39,7 +39,7 @@ export function sequence(...actions: Action[]): Action {
 
 export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => Action): Action {
   return {
-    print: `choose player for action: [${factory("X" as any).print}]`,
+    print: `choose player for action: [${factory("X").print}]`,
     do: async (engine) => {
       const actions = engine.state.players.map((p) => ({ label: p.id.toString(), value: factory(p.id) }));
       await engine.chooseNextAction("Choose player", actions);

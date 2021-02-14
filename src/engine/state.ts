@@ -2,9 +2,11 @@ import { Flavor } from "../utils";
 import { PrintedProps } from "./cardprops";
 import { View } from "./view";
 
+export const playerIds = ["A", "B", "C", "D"];
+
 export type CardId = Flavor<number, "Card">;
 
-export type PlayerId = Flavor<number, "Player">;
+export type PlayerId = Flavor<string, "Player">;
 
 export type GameZoneType =
   | "discardPile"
@@ -83,7 +85,7 @@ export function createCardState(id: CardId, card: Card, side: Side): CardState {
 export function createInitState(...decks: DeckInfo[]): State {
   let id = 1;
 
-  const players: Array<{ player: PlayerState; cards: CardState[] }> = decks.map((p) => {
+  const players: Array<{ player: PlayerState; cards: CardState[] }> = decks.map((p, index) => {
     const cards: CardState[] = p.cards.map((f) => {
       const cardId = id++;
       return {
@@ -99,7 +101,7 @@ export function createInitState(...decks: DeckInfo[]): State {
 
     return {
       player: {
-        id: id++,
+        id: playerIds[index],
         thread: 0,
         zones: {
           hand: { cards: [], stack: false },
@@ -117,7 +119,7 @@ export function createInitState(...decks: DeckInfo[]): State {
     version: 0,
     cards: players.flatMap((p) => p.cards),
     effects: [],
-    firstPlayer: 1,
+    firstPlayer: "A",
     players: players.map((p) => p.player),
     zones: {
       activeLocation: { cards: [], stack: false },

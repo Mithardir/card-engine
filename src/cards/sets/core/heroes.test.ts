@@ -34,7 +34,7 @@ function createTestEngine() {
       state.cards.push(cardState);
       if (state.players.length === 0) {
         state.players.push({
-          id: id++,
+          id: "A",
           thread: 0,
           zones: {
             hand: { cards: [], stack: false },

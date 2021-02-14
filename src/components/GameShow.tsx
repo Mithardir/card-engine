@@ -95,10 +95,10 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         <button
           onClick={() => {
             const action = sequence(
-              choosePlayerForAct(0, (id) => drawCard(id, 2)),
-              choosePlayerForAct(0, (id) => drawCard(id, 1)),
-              choosePlayerForAct(0, (id) => drawCard(id, 1)),
-              choosePlayerForAct(0, (id) => drawCard(id, 1))
+              choosePlayerForAct("A", (id) => drawCard(id, 2)),
+              choosePlayerForAct("A", (id) => drawCard(id, 1)),
+              choosePlayerForAct("A", (id) => drawCard(id, 1)),
+              choosePlayerForAct("A", (id) => drawCard(id, 1))
             );
 
             props.onAction(action);

@@ -1,13 +1,13 @@
 import * as React from "react";
-import { EngineContext } from "../App";
 import { addToken } from "../engine/commands";
 import { CardView } from "../engine/view";
+import { useEngine } from "./EngineContext";
 import { PropertyView } from "./PropertyView";
 
 export const CardText = (props: { card: CardView }) => {
   const c = props.card;
 
-  const engine = React.useContext(EngineContext);
+  const engine = useEngine();
 
   return (
     <table>

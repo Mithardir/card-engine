@@ -1,12 +1,11 @@
-import { moveTopCard, repeat } from "./commands";
+import { moveTopCard, repeat, zoneKey } from "./commands";
 import { PlayerId } from "./state";
 import { Action, Command } from "./types";
 
-
 export const drawCard: (player: PlayerId, amount: number) => Action = (player, amount) => {
   return simpleAction(
-    repeat(amount, moveTopCard({ type: "library", player }, { type: "hand", player }, "face")),
-    `drawCard(player: ${player})`
+    repeat(amount, moveTopCard(zoneKey("library", player), zoneKey("hand", player), "face")),
+    `player ${player} draws ${amount} cards`
   );
 };
 
@@ -20,7 +19,7 @@ export function simpleAction(cmd: Command, print?: string): Action {
 
 export function sequence(...actions: Action[]): Action {
   return {
-    print: `sequence(${actions.map((a) => a.print).join(", ")})`,
+    print: `sequence: \r\n${actions.map((a) => "\t" + a.print).join("\r\n")}`,
     do: async (engine) => {
       for (const act of actions) {
         await engine.do(act);
@@ -40,7 +39,7 @@ export function sequence(...actions: Action[]): Action {
 
 export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => Action): Action {
   return {
-    print: `choosePlayerForAct(${player}, ${factory(0).print})`,
+    print: `choose player for action: [${factory("X" as any).print}]`,
     do: async (engine) => {
       const actions = engine.state.players.map((p) => ({ label: p.id.toString(), value: factory(p.id) }));
       await engine.chooseNextAction("Choose player", actions);

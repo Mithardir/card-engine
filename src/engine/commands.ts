@@ -1,11 +1,21 @@
 import produce from "immer";
 import { ZoneKey, getZone, mergeAndResults } from "../components/GameShow";
-import { CardId, Side } from "./state";
+import { CardId, GameZoneType, PlayerId, PlayerZoneType, Side } from "./state";
 import { Command, CommandResult, Token } from "./types";
+
+export function zoneKey(type: PlayerZoneType, player: PlayerId): ZoneKey;
+export function zoneKey(type: GameZoneType): ZoneKey;
+export function zoneKey(type: PlayerZoneType | GameZoneType, player?: PlayerId): ZoneKey {
+  return {
+    type,
+    player,
+    print: player ? `${type} of player ${player}` : type,
+  } as ZoneKey;
+}
 
 export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
   return {
-    print: `moveTopCard(from:${JSON.stringify(from)}, to:${JSON.stringify(from)}, side:${side})`,
+    print: `move to card from ${from.print} to ${to.print} with ${side} side up`,
     do: (s) => {
       const fromZone = getZone(from)(s);
       const toZone = getZone(to)(s);
@@ -24,7 +34,7 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
 
 export function addToken(cardId: CardId, type: Token): Command {
   return {
-    print: `addToken(${cardId}, ${type})`,
+    print: `add ${type} token to card ${cardId}`,
     do: (s) => {
       s.cards.find((c) => c.id === cardId)![type] += 1;
     },
@@ -34,7 +44,7 @@ export function addToken(cardId: CardId, type: Token): Command {
 
 export function removeToken(cardId: CardId, type: Token): Command {
   return {
-    print: `removeToken(${cardId}, ${type})`,
+    print: `remove ${type} token from card ${cardId}`,
     do: (s) => {
       const card = s.cards.find((c) => c.id === cardId)!;
       if (card[type] >= 1) {
@@ -50,7 +60,7 @@ export function removeToken(cardId: CardId, type: Token): Command {
 
 export function repeat(amount: number, cmd: Command): Command {
   return {
-    print: `repeat(${amount}, ${cmd.print})`,
+    print: `repeat ${amount}x: [${cmd.print}]`,
     do: (s) => {
       for (let index = 0; index < amount; index++) {
         cmd.do(s);

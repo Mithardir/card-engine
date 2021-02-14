@@ -9,7 +9,9 @@ import { sequence, choosePlayerForAct, drawCard } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 
-export type ZoneKey = { type: GameZoneType; player?: never } | { type: PlayerZoneType; player: PlayerId };
+export type ZoneKey =
+  | { type: GameZoneType; player?: never; print: string }
+  | { type: PlayerZoneType; player: PlayerId; print: string };
 
 export function getZone(key: ZoneKey): (state: State) => ZoneState {
   return (v) => {

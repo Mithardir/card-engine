@@ -1,9 +1,9 @@
 import { addPlayer, batch, moveTopCard, repeat, setupScenario, shuffleZone, zoneKey } from "./commands";
 import { Scenario, PlayerDeck } from "./setup";
-import { PlayerId } from "./state";
-import { Action, Command } from "./types";
+import { PlayerId, playerIds } from "./state";
+import { Action, Command, PlayerAction } from "./types";
 
-export const drawCard: (player: PlayerId, amount: number) => Action = (player, amount) => {
+export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
     repeat(amount, moveTopCard(zoneKey("library", player), zoneKey("hand", player), "face")),
     `player ${player} draws ${amount} cards`
@@ -62,12 +62,12 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
     action(
       batch(
         setupScenario(scenario),
-        addPlayer("A", decks[0]),
-        addPlayer("B", decks[1]),
+        ...decks.map((d, i) => addPlayer(playerIds[i], d)),
         shuffleZone(zoneKey("encounterDeck"))
       )
     ),
-    eachPlayer((p) => sequence(action(shuffleZone(zoneKey("library", p))), drawCard(p, 6))),
+    eachPlayer((p) => action(shuffleZone(zoneKey("library", p)))),
+    eachPlayer(draw(6)),
     action(moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"))
   );
 }
@@ -81,4 +81,8 @@ export function eachPlayer(factory: (id: PlayerId) => Action): Action {
     },
     commands: (s) => sequence(...s.players.map((p) => factory(p.id))).commands(s),
   };
+}
+
+export function phaseResource(): Action {
+  return sequence(eachPlayer(draw(1)));
 }

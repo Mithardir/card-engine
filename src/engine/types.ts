@@ -1,4 +1,4 @@
-import { GameZoneType, PlayerId, PlayerZoneType, State } from "./state";
+import { CardId, GameZoneType, PlayerId, PlayerZoneType, State } from "./state";
 
 export type CommandResult = "none" | "partial" | "full";
 
@@ -26,3 +26,7 @@ export type Token = "damage" | "resources" | "progress";
 export type ZoneKey =
   | { type: GameZoneType; player?: never; print: string }
   | { type: PlayerZoneType; player: PlayerId; print: string };
+
+export type PlayerAction = (playerId: PlayerId) => Action;
+
+export type CardAction = (cardId: CardId) => Action;

@@ -1,59 +1,6 @@
 import { addToken, removeToken } from "../../../engine/commands";
-import { createEngine, UI } from "../../../engine/engine";
-import { Card, CardId, createCardState, createInitState } from "../../../engine/state";
-import { Engine } from "../../../engine/types";
-import { createView } from "../../../engine/view";
+import { createTestEngine } from "../../../test";
 import * as hero from "./heroes";
-
-const testUi: UI = {
-  chooseOne: async (title, items) => {
-    throw new Error();
-  },
-};
-
-function createCardProxy(cardId: CardId, engine: Engine) {
-  return {
-    id: cardId,
-    get attack() {
-      return createView(engine.state).cards.find((c) => c.id === cardId)!.props.attack!;
-    },
-  };
-}
-
-function createTestEngine() {
-  const state = createInitState();
-  const engine = createEngine(testUi, state);
-
-  let id = 1;
-
-  const testEngine = {
-    ...engine,
-    addHero: (card: Card) => {
-      const cardId = id++;
-      const cardState = createCardState(cardId, card, "face");
-      state.cards.push(cardState);
-      if (state.players.length === 0) {
-        state.players.push({
-          id: "A",
-          thread: 0,
-          zones: {
-            hand: { cards: [], stack: false },
-            library: { cards: [], stack: true },
-            playerArea: { cards: [], stack: false },
-            discardPile: { cards: [], stack: true },
-            engaged: { cards: [], stack: false },
-          },
-        });
-
-        state.players[0].zones.playerArea.cards.push(cardState.id);
-      }
-
-      return createCardProxy(cardId, engine);
-    },
-  };
-
-  return testEngine;
-}
 
 it("Gimli's attack bonus", () => {
   const engine = createTestEngine();

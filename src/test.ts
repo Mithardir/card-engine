@@ -1,95 +1,54 @@
-import memoizee from "memoizee";
+import { UI, createEngine } from "./engine/engine";
+import { CardId, createInitState, Card, createCardState } from "./engine/state";
+import { Engine } from "./engine/types";
+import { createView } from "./engine/view";
 
-console.log("A");
-
-type S = { a: number; b: number };
-
-type V = S & { c: number };
-
-const view: (s: S) => V = memoizee((s: S) => {
-  console.log("X");
-  return { ...s, c: s.a + s.b };
-});
-
-type Action = {
-  print: string;
-  do: (state: S) => Promise<S>;
-  results: (state: S) => S[];
+export const testUi: UI = {
+  chooseOne: async (title, items) => {
+    throw new Error();
+  },
 };
 
-type Command = {
-  print: string;
-  do: (state: S) => [S, CommandResult];
-};
-
-type CommandResult = "none" | "partial" | "full";
-
-const addA1C: Command = {
-  print: "addA1",
-  do: (s) => [{ ...s, a: s.a + 1 }, "full"],
-};
-
-const subA1C: Command = {
-  print: "subA1",
-  do: memoizee((s) => {
-    const v = view(s);
-    console.log("X");
-    if (v.c > 0) {
-      return [{ ...s, a: s.a - 1 }, "full"];
-    } else {
-      return [s, "none"];
-    }
-  }),
-};
-
-function simpleAction(cmd: Command): Action {
+export function createCardProxy(cardId: CardId, engine: Engine) {
   return {
-    print: cmd.print,
-    do: async (s) => cmd.do(s)[0],
-    results: (s) => [cmd.do(s)[0]],
-  };
-}
-
-function mergeCommandResults(results: CommandResult[]): CommandResult {
-  if (results.every((c) => c === "full")) {
-    return "full";
-  }
-
-  if (results.every((c) => c === "none")) {
-    return "none";
-  }
-
-  return "partial";
-}
-
-function sequence(...cmds: Command[]): Command {
-  return {
-    print: `sequence(${cmds.map((c) => c.print).join(", ")})`,
-    do: (init) => {
-      let state = init;
-      const results: CommandResult[] = [];
-      for (const cmd of cmds) {
-        const result = cmd.do(state);
-        state = result[0];
-        results.push(result[1]);
-      }
-
-      return [state, mergeCommandResults(results)];
+    id: cardId,
+    get attack() {
+      return createView(engine.state).cards.find((c) => c.id === cardId)!.props.attack!;
     },
   };
 }
 
-const addA1: Action = simpleAction(addA1C);
-const subA1: Action = simpleAction(subA1C);
+export function createTestEngine() {
+  const state = createInitState();
+  const engine = createEngine(testUi, state);
 
-const state: S = { a: 0, b: 3 };
+  let id = 1;
 
-const sub5 = sequence(sequence(subA1C, subA1C), sequence(subA1C, subA1C));
-console.log(sub5.print);
+  const testEngine = {
+    ...engine,
+    addHero: (card: Card) => {
+      const cardId = id++;
+      const cardState = createCardState(cardId, card, "face");
+      state.cards.push(cardState);
+      if (state.players.length === 0) {
+        state.players.push({
+          id: "A",
+          thread: 0,
+          zones: {
+            hand: { cards: [], stack: false },
+            library: { cards: [], stack: true },
+            playerArea: { cards: [], stack: false },
+            discardPile: { cards: [], stack: true },
+            engaged: { cards: [], stack: false },
+          },
+        });
 
-const s1 = state;
-const s2 = subA1.results(state)[0];
+        state.players[0].zones.playerArea.cards.push(cardState.id);
+      }
 
-console.log(s1 === s2);
+      return createCardProxy(cardId, engine);
+    },
+  };
 
-console.log(sub5.do(state));
+  return testEngine;
+}

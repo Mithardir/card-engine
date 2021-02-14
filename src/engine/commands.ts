@@ -1,7 +1,7 @@
 import produce from "immer";
-import { ZoneKey, getZone, mergeAndResults } from "../components/GameShow";
 import { CardId, GameZoneType, PlayerId, PlayerZoneType, Side } from "./state";
-import { Command, CommandResult, Token } from "./types";
+import { Command, CommandResult, Token, ZoneKey } from "./types";
+import { getZone, mergeAndResults } from "./utils";
 
 export function zoneKey(type: PlayerZoneType, player: PlayerId): ZoneKey;
 export function zoneKey(type: GameZoneType): ZoneKey;

@@ -1,8 +1,8 @@
 import { State } from "./state";
 import { Action, CommandResult, Engine } from "./types";
 import { produce } from "immer";
-import { mergeAndResults, mergeOrResults } from "../components/GameShow";
 import { sequence } from "./actions";
+import { mergeAndResults, mergeOrResults } from "./utils";
 
 export interface UI {
   chooseOne: <T>(title: string, items: Array<{ label: string; value: T }>) => Promise<T>;

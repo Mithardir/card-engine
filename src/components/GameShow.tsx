@@ -1,54 +1,12 @@
 import { Paper, Typography } from "@material-ui/core";
 import * as React from "react";
-import { GameZoneType, PlayerId, PlayerZoneType, State, ZoneState } from "../engine/state";
-import { Action, CommandResult } from "../engine/types";
+import { Action } from "../engine/types";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
 import { sequence, choosePlayerForAct, drawCard } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
-
-export type ZoneKey =
-  | { type: GameZoneType; player?: never; print: string }
-  | { type: PlayerZoneType; player: PlayerId; print: string };
-
-export function getZone(key: ZoneKey): (state: State) => ZoneState {
-  return (v) => {
-    if (key.player) {
-      const player = v.players.find((p) => p.id === key.player);
-      if (player) {
-        return player.zones[key.type];
-      }
-    } else {
-      return (v.zones as any)[key.type];
-    }
-  };
-}
-
-export function mergeOrResults(results: CommandResult[]): CommandResult {
-  if (results.some((c) => c === "full")) {
-    return "full";
-  }
-
-  if (results.every((c) => c === "none")) {
-    return "none";
-  }
-
-  return "partial";
-}
-
-export function mergeAndResults(...results: CommandResult[]): CommandResult {
-  if (results.every((c) => c === "full")) {
-    return "full";
-  }
-
-  if (results.every((c) => c === "none")) {
-    return "none";
-  }
-
-  return "partial";
-}
 
 export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
   const detail = React.useContext(DetailContext);

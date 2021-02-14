@@ -1,4 +1,5 @@
 import produce from "immer";
+import { shuffleArray } from "../utils";
 import { PlayerDeck, Scenario } from "./setup";
 import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
 import { Command, CommandResult, Token, ZoneKey } from "./types";
@@ -111,7 +112,7 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Command {
 
       s.players.push({
         id: playerId,
-        thread: 0,
+        thread: heroes.map((h) => h.definition.face.threatCost!).reduce((p, c) => p + c, 0),
         zones: {
           hand: { cards: [], stack: false },
           library: { cards: library.map((l) => l.id), stack: true },
@@ -124,5 +125,36 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Command {
       s.cards.push(...heroes, ...library);
     },
     result: () => "full",
+  };
+}
+
+export function shuffleZone(zoneKey: ZoneKey): Command {
+  return {
+    print: `shuffle ${zoneKey.print}`,
+    do: (s) => {
+      shuffleArray(getZone(zoneKey)(s).cards);
+    },
+    result: () => "full",
+  };
+}
+
+export function batch(...cmds: Command[]): Command {
+  return {
+    print: `batch\r\n ${cmds.map((c) => `\t${c.print}`).join("\r\n")}`,
+    do: (s) => {
+      for (const cmd of cmds) {
+        cmd.do(s);
+      }
+    },
+    result: (init) => {
+      const results: CommandResult[] = [];
+      produce(init, (draft) => {
+        for (const cmd of cmds) {
+          results.push(cmd.result(draft));
+          cmd.do(draft);
+        }
+      });
+      return mergeAndResults(...results);
+    },
   };
 }

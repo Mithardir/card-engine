@@ -1,16 +1,16 @@
-import { addPlayer, moveTopCard, repeat, setupScenario, zoneKey } from "./commands";
+import { addPlayer, batch, moveTopCard, repeat, setupScenario, shuffleZone, zoneKey } from "./commands";
 import { Scenario, PlayerDeck } from "./setup";
 import { PlayerId } from "./state";
 import { Action, Command } from "./types";
 
 export const drawCard: (player: PlayerId, amount: number) => Action = (player, amount) => {
-  return simpleAction(
+  return action(
     repeat(amount, moveTopCard(zoneKey("library", player), zoneKey("hand", player), "face")),
     `player ${player} draws ${amount} cards`
   );
 };
 
-export function simpleAction(cmd: Command, print?: string): Action {
+export function action(cmd: Command, print?: string): Action {
   return {
     print: print ?? cmd.print,
     do: async (e) => e.exec(cmd),
@@ -53,14 +53,32 @@ export function choosePlayerForAct(player: PlayerId, factory: (id: PlayerId) => 
 
 export const noAction: Action = {
   print: "no action",
-  do: async (e) => {},
+  do: async () => {},
   commands: () => [],
 };
 
 export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Action {
   return sequence(
-    simpleAction(setupScenario(scenario)),
-    simpleAction(addPlayer("A", decks[0])),
-    simpleAction(addPlayer("B", decks[1]))
+    action(
+      batch(
+        setupScenario(scenario),
+        addPlayer("A", decks[0]),
+        addPlayer("B", decks[1]),
+        shuffleZone(zoneKey("encounterDeck"))
+      )
+    ),
+    eachPlayer((p) => sequence(action(shuffleZone(zoneKey("library", p))), drawCard(p, 6))),
+    action(moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"))
   );
+}
+
+export function eachPlayer(factory: (id: PlayerId) => Action): Action {
+  return {
+    print: `each player: ${factory("X").print}`,
+    do: async (engine) => {
+      const action = sequence(...engine.state.players.map((p) => factory(p.id)));
+      action.do(engine);
+    },
+    commands: (s) => sequence(...s.players.map((p) => factory(p.id))).commands(s),
+  };
 }

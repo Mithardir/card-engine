@@ -7,7 +7,7 @@ import * as hero from "./heroes";
 
 const testUi: UI = {
   chooseOne: async (title, items) => {
-    return items[0].value;
+    throw new Error();
   },
 };
 

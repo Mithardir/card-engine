@@ -29,6 +29,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       await action.do(engine);
     },
     chooseNextAction: async (label, actions) => {
+      // console.log(actions.map((a) => getActionResult(a.value, state)));
       const choices = actions.filter((a) => getActionResult(a.value, state) !== "none");
 
       if (choices.length === 0) {

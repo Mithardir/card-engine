@@ -1,6 +1,6 @@
 import { Paper, Typography } from "@material-ui/core";
 import * as React from "react";
-import { moveTopCard } from "../engine/commands";
+import { moveTopCard, repeat } from "../engine/commands";
 import { GameZoneType, PlayerId, PlayerZoneType, State, ZoneState } from "../engine/state";
 import { Action, Command, CommandResult } from "../engine/types";
 import { View } from "../engine/view";
@@ -24,9 +24,9 @@ export function getZone(key: ZoneKey): (state: State) => ZoneState {
   };
 }
 
-export const drawCard: (player: PlayerId) => Action = (player) => {
+export const drawCard: (player: PlayerId, amount: number) => Action = (player, amount) => {
   return simpleAction(
-    moveTopCard({ type: "library", player }, { type: "hand", player }, "face"),
+    repeat(amount, moveTopCard({ type: "library", player }, { type: "hand", player }, "face")),
     `drawCard(player: ${player})`
   );
 };
@@ -141,10 +141,10 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         <button
           onClick={() => {
             const action = sequence(
-              choosePlayerForAct(0, (id) => sequence(drawCard(id), drawCard(id))),
-              choosePlayerForAct(0, (id) => drawCard(id)),
-              choosePlayerForAct(0, (id) => drawCard(id)),
-              choosePlayerForAct(0, (id) => drawCard(id))
+              choosePlayerForAct(0, (id) => drawCard(id, 2)),
+              choosePlayerForAct(0, (id) => drawCard(id, 1)),
+              choosePlayerForAct(0, (id) => drawCard(id, 1)),
+              choosePlayerForAct(0, (id) => drawCard(id, 1))
             );
 
             props.onAction(action);

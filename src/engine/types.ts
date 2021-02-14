@@ -13,6 +13,7 @@ export type Engine = {
   exec: (command: Command) => void;
   do: (action: Action) => Promise<void>;
   chooseNextAction: (title: string, actions: Array<{ label: string; value: Action }>) => Promise<void>;
+  playerActions: (title: string) => Promise<void>;
 };
 
 export type Action = {

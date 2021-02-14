@@ -6,6 +6,7 @@ import { mergeAndResults, mergeOrResults } from "./utils";
 
 export interface UI {
   chooseOne: <T>(title: string, items: Array<{ label: string; value: T }>) => Promise<T>;
+  playerActions: (title: string) => Promise<void>;
 }
 
 export function createEngine(ui: UI, init: State, onStateChange?: (state: State) => void) {
@@ -41,9 +42,13 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       //   engine.do(choices[0].action);
       //   return;
       // }
+      
       const action = await ui.chooseOne<Action>(label, choices);
 
       await engine.do(action);
+    },
+    playerActions: async (title) => {
+      await ui.playerActions(title);
     },
   };
 

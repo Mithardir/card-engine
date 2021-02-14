@@ -4,7 +4,7 @@ import { Action } from "../engine/types";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { sequence, choosePlayerForAct, beginScenario, phaseResource, draw } from "../engine/actions";
+import { sequence, choosePlayerForAct, beginScenario, phaseResource, draw, phaseQuest } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
@@ -53,7 +53,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
 
         <button
           onClick={() => {
-            props.onAction(sequence(beginScenario(passageThroughMirkwood, coreTactics), phaseResource()));
+            props.onAction(sequence(beginScenario(passageThroughMirkwood, coreTactics), phaseResource(), phaseQuest()));
           }}
         >
           Begin scenario
@@ -106,21 +106,6 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
             <PlayerShow player={p} key={p.id} view={props.view} />
           ))}
         </div>
-
-        {/* <ChoiceDialog /> */}
-        {/* {game.view.playerActions && (
-          <Fab
-            color="primary"
-            variant="extended"
-            style={{ position: "fixed", right: 8, bottom: 8 }}
-            onClick={(e) =>
-              game.view.playerActions && game.view.playerActions.end()
-            }
-          >
-            <Icon>skip_next</Icon>
-            {game.view.playerActions.title}
-          </Fab>
-        )} */}
       </div>
     </div>
   );

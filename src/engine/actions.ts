@@ -107,9 +107,23 @@ export function generateResource(amount: number): CardAction {
 }
 
 export function phaseResource(): Action {
-  return sequence(eachPlayer(draw(1)), eachCard(isHero, generateResource(1)), playerActions());
+  return sequence(eachPlayer(draw(1)), eachCard(isHero, generateResource(1)), playerActions("Next phase"));
 }
 
-export function playerActions(): Action {
-  return noAction;
+export function phasePlanning(): Action {
+  return playerActions("Next phase");
+}
+
+export function phaseQuest(): Action {
+  return sequence();
+}
+
+export function playerActions(title: string): Action {
+  return {
+    print: "player actions",
+    do: async (engine) => {
+      await engine.playerActions(title);
+    },
+    commands: () => [], // TODO commands
+  };
 }

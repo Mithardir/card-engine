@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, List, ListItem } from "@material-ui/core";
+import { Dialog, DialogTitle, DialogContent, List, ListItem, Fab, Icon } from "@material-ui/core";
 import React, { useContext, createContext } from "react";
 import { UI } from "../engine/engine";
 import { Engine } from "../engine/types";
@@ -35,6 +35,19 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
             </List>
           </DialogContent>
         </Dialog>
+      ));
+    },
+    playerActions: async (title) => {
+      return await dialog.openDialog((dp) => (
+        <Fab
+          color="primary"
+          variant="extended"
+          style={{ position: "fixed", right: 8, bottom: 8 }}
+          onClick={(e) => dp.onSubmit()}
+        >
+          <Icon>skip_next</Icon>
+          {title}
+        </Fab>
       ));
     },
   };

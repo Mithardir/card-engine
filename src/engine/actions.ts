@@ -1,7 +1,9 @@
-import { addPlayer, batch, moveTopCard, repeat, setupScenario, shuffleZone, zoneKey } from "./commands";
+import { addPlayer, addToken, batch, moveTopCard, repeat, setupScenario, shuffleZone, zoneKey } from "./commands";
+import { Filter, filterCards, isHero } from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
-import { PlayerId, playerIds } from "./state";
-import { Action, Command, PlayerAction } from "./types";
+import { CardId, PlayerId, playerIds } from "./state";
+import { Action, CardAction, Command, PlayerAction } from "./types";
+import { createView } from "./view";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
@@ -72,7 +74,7 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
   );
 }
 
-export function eachPlayer(factory: (id: PlayerId) => Action): Action {
+export function eachPlayer(factory: PlayerAction): Action {
   return {
     print: `each player: ${factory("X").print}`,
     do: async (engine) => {
@@ -83,6 +85,31 @@ export function eachPlayer(factory: (id: PlayerId) => Action): Action {
   };
 }
 
+export function eachCard(filter: Filter<CardId>, action: CardAction): Action {
+  return {
+    print: `each card that ${filter(0).print}: ${action(0).print}`,
+    do: async (engine) => {
+      const view = createView(engine.state);
+      const cardIds = filterCards(filter, view);
+      const actions = sequence(...cardIds.map((id) => action(id)));
+      actions.do(engine);
+    },
+    commands: (s) => {
+      const view = createView(s);
+      const cardIds = filterCards(filter, view);
+      return sequence(...cardIds.map((id) => action(id))).commands(s);
+    },
+  };
+}
+
+export function generateResource(amount: number): CardAction {
+  return (id) => action(repeat(amount, addToken(id, "resources")));
+}
+
 export function phaseResource(): Action {
-  return sequence(eachPlayer(draw(1)));
+  return sequence(eachPlayer(draw(1)), eachCard(isHero, generateResource(1)), playerActions());
+}
+
+export function playerActions(): Action {
+  return noAction;
 }

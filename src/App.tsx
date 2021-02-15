@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useState } from "react";
 import { createInitState } from "./engine/state";
 import { createView } from "./engine/view";
 import { GameShow } from "./components/GameShow";
-import { DialogsContext } from "./components/DialogsContext";
+import { DialogsContext, DialogsProvider } from "./components/DialogsContext";
 import { CssBaseline } from "@material-ui/core";
 import { reactUI, EngineProvider } from "./components/EngineContext";
 import { createEngine } from "./engine/engine";

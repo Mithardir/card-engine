@@ -115,7 +115,13 @@ export function phasePlanning(): Action {
 }
 
 export function phaseQuest(): Action {
-  return sequence();
+  return {
+    print: "test",
+    do: async (e) => {
+      e.chooseCards("test", isHero);
+    },
+    commands: (s) => [],
+  };
 }
 
 export function playerActions(title: string): Action {

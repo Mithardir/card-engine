@@ -1,11 +1,14 @@
-import { State } from "./state";
+import { CardId, State } from "./state";
 import { Action, CommandResult, Engine } from "./types";
 import { produce } from "immer";
 import { sequence } from "./actions";
 import { mergeAndResults, mergeOrResults } from "./utils";
+import { createView } from "./view";
+import { filterCards } from "./filters";
 
 export interface UI {
   chooseOne: <T>(title: string, items: Array<{ label: string; value: T }>) => Promise<T>;
+  chooseMultiple: <T>(title: string, items: Array<{ label: string; value: T; image?: string }>) => Promise<T[]>;
   playerActions: (title: string) => Promise<void>;
 }
 
@@ -42,10 +45,24 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       //   engine.do(choices[0].action);
       //   return;
       // }
-      
+
       const action = await ui.chooseOne<Action>(label, choices);
 
       await engine.do(action);
+    },
+    chooseCards: async (title, filter) => {
+      const view = createView(state);
+      const cards = filterCards(filter, view);
+      const selected = await ui.chooseMultiple(
+        title,
+        cards.map((id) => ({
+          label: id.toString(),
+          value: id,
+          image: view.cards.find((c) => c.id === id)!.props.image,
+        }))
+      );
+
+      return selected;
     },
     playerActions: async (title) => {
       await ui.playerActions(title);

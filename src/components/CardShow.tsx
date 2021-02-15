@@ -1,28 +1,33 @@
 import * as React from "react";
-import { CardView } from "../engine/view";
+import { CardView, createView } from "../engine/view";
 import { CardText } from "./CardText";
 import { DetailContext } from "./DetailContext";
 
 import damageImage from "../Images/tokens/damage.png";
 import resourceImage from "../Images/tokens/resource.png";
 import progressImage from "../Images/tokens/progress.png";
+import { CardId } from "../engine/state";
+import { useEngine } from "./EngineContext";
 
 export const CardShow = (props: {
-  card: CardView;
+  card?: CardView;
+  cardId?: CardId;
   content: "image" | "text";
   showExhausted?: boolean;
   showTokens?: boolean;
   scale?: number;
   style?: React.CSSProperties;
 }) => {
-  const c = props.card;
+  const engine = useEngine();
+
+  const card = props.card || createView(engine.state).cards.find((c) => c.id === props.cardId)!;
   const actions: any[] = []; //c.actions.filter((a) => a.enabled);
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;
   const height = 600 * scale;
 
-  const flipDimensions = props.content === "image" && c.props.type === "quest";
+  const flipDimensions = props.content === "image" && card.props.type === "quest";
   const isDetailCard = false; //c === game.detailCard;
 
   const margin = actions.length > 0 ? 1 : 3;
@@ -39,13 +44,13 @@ export const CardShow = (props: {
         position: "relative",
         marginTop: margin,
         marginLeft: margin,
-        transform: isDetailCard ? "scale(2.5,2.5)" : c.tapped && props.showExhausted ? "rotate(45deg)" : undefined,
+        transform: isDetailCard ? "scale(2.5,2.5)" : card.tapped && props.showExhausted ? "rotate(45deg)" : undefined,
         transition: "transform 0.25s ease 0s",
         zIndex: isDetailCard ? 5 : undefined,
         ...props.style,
       }}
       onMouseEnter={() => {
-        detail.setDetail(c.id);
+        detail.setDetail(card.id);
       }}
       onMouseLeave={() => {
         //game.detailCard = undefined;
@@ -68,10 +73,10 @@ export const CardShow = (props: {
       }}
     >
       {props.content === "text" ? (
-        <CardText card={props.card} />
+        <CardText card={card} />
       ) : (
         <img
-          src={c.props.image}
+          src={card.props.image}
           width={flipDimensions ? height : width}
           height={flipDimensions ? width : height}
           style={{}}
@@ -92,7 +97,7 @@ export const CardShow = (props: {
             top: 0,
           }}
         >
-          {c.progress ? (
+          {card.progress ? (
             <div
               style={{
                 position: "relative",
@@ -112,11 +117,11 @@ export const CardShow = (props: {
                   fontSize: "x-large",
                 }}
               >
-                {c.progress}
+                {card.progress}
               </div>
             </div>
           ) : undefined}
-          {c.resources ? (
+          {card.resources ? (
             <div
               style={{
                 position: "relative",
@@ -136,12 +141,12 @@ export const CardShow = (props: {
                   fontSize: "x-large",
                 }}
               >
-                {c.resources}
+                {card.resources}
               </div>
             </div>
           ) : undefined}
 
-          {c.damage ? (
+          {card.damage ? (
             <div
               style={{
                 position: "relative",
@@ -161,7 +166,7 @@ export const CardShow = (props: {
                   fontSize: "x-large",
                 }}
               >
-                {c.damage}
+                {card.damage}
               </div>
             </div>
           ) : undefined}

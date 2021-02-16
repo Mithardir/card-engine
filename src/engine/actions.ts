@@ -1,5 +1,28 @@
-import { addPlayer, addToken, batch, moveTopCard, repeat, setupScenario, shuffleZone, zoneKey } from "./commands";
-import { Filter, filterCards, isHero } from "./filters";
+import {
+  addPlayer,
+  addToken,
+  assignToQuest,
+  batch,
+  moveTopCard,
+  repeat,
+  setupScenario,
+  shuffleZone,
+  tap,
+  zoneKey,
+} from "./commands";
+import {
+  diff,
+  Exp,
+  Filter,
+  filterCards,
+  isCharacter,
+  isHero,
+  isLess,
+  isMore,
+  isSame,
+  totalThread,
+  totalWillpower,
+} from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
 import { Action, CardAction, Command, PlayerAction } from "./types";
@@ -114,13 +137,68 @@ export function phasePlanning(): Action {
   return playerActions("Next phase");
 }
 
+export function commitToQuest(cardId: CardId): Action {
+  return sequence(action(tap(cardId)), action(assignToQuest(cardId)));
+}
+
 export function phaseQuest(): Action {
+  // TODO characteris in play
+  return sequence(
+    chooseCardsForAction(isHero, commitToQuest),
+    playerActions("Reveal encounter cards"),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    playerActions("Resolve quest"),
+    ifThen(
+      isLess(totalWillpower, totalThread),
+      eachPlayer((p) => action(incrementThreat(diff(totalThread, totalWillpower))(p)))
+    ),
+    ifThen(isMore(totalWillpower, totalThread), placeProgress(diff(totalWillpower, totalThread))),
+    playerActions("Next phase")
+  );
+}
+
+export function placeProgress(amount: Exp<number>): Action {
   return {
-    print: "test",
+    // TODO location -> quest
+    print: `place (${amount.print}) progress to active location`,
     do: async (e) => {
-      e.chooseCards("test", isHero);
+      const card = e.state.zones.quest.cards[0];
+      e.exec(repeat(amount.eval(createView(e.state)), addToken(card, "progress")));
     },
-    commands: (s) => [],
+    // TODO
+    commands: () => [],
+  };
+}
+
+export function incrementThreat(amount: Exp<number>): (playerId: PlayerId) => Command {
+  return (id) => ({
+    print: `player ${id} increment threat by ${amount.print}`,
+    do: (s) => {
+      s.players.find((p) => p.id === id)!.thread += amount.eval(createView(s));
+    },
+    result: () => "full",
+  });
+}
+
+export function chooseCardsForAction(filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
+  return {
+    print: `choose cards for action: [${factory(0).print}]`,
+    do: async (engine) => {
+      const view = createView(engine.state);
+      const cards = filterCards(filter, view);
+      const actions = cards.map((id) => ({
+        label: id.toString(),
+        value: factory(id),
+        image: view.cards.find((c) => c.id === id)!.props.image,
+      }));
+      await engine.chooseNextActions("Choose cards", actions);
+    },
+    commands: (s) => {
+      // TODO all combinations
+      const view = createView(s);
+      const cards = filterCards(filter, view);
+      return cards.flatMap((id) => factory(id).commands(s));
+    },
   };
 }
 
@@ -131,5 +209,19 @@ export function playerActions(title: string): Action {
       await engine.playerActions(title);
     },
     commands: () => [], // TODO commands
+  };
+}
+
+export function ifThen(condition: Exp<boolean>, action: Action): Action {
+  return {
+    print: `if ${condition.print} then ${action.print}`,
+    do: async (e) => {
+      const view = createView(e.state);
+      const result = condition.eval(view);
+      if (result) {
+        await e.do(action);
+      }
+    },
+    commands: () => [],
   };
 }

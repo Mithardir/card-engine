@@ -1,7 +1,7 @@
 import produce from "immer";
 import { shuffleArray } from "../utils";
 import { PlayerDeck, Scenario } from "./setup";
-import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
+import { Card, CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
 import { Command, CommandResult, Token, ZoneKey } from "./types";
 import { getZone, mergeAndResults } from "./utils";
 
@@ -155,6 +155,30 @@ export function batch(...cmds: Command[]): Command {
         }
       });
       return mergeAndResults(...results);
+    },
+  };
+}
+
+export function tap(cardId: CardId): Command {
+  return {
+    print: `tap card ${cardId}`,
+    do: (s) => {
+      s.cards.find((c) => c.id === cardId)!.tapped = true;
+    },
+    result: (s) => {
+      return s.cards.find((c) => c.id === cardId)!.tapped ? "none" : "full";
+    },
+  };
+}
+
+export function assignToQuest(cardId: CardId): Command {
+  return {
+    print: `assign to quest card ${cardId}`,
+    do: (s) => {
+      s.cards.find((c) => c.id === cardId)!.commitedToQuest = true;
+    },
+    result: (s) => {
+      return s.cards.find((c) => c.id === cardId)!.commitedToQuest ? "none" : "full";
     },
   };
 }

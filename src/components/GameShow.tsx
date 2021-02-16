@@ -8,10 +8,11 @@ import { sequence, choosePlayerForAct, beginScenario, phaseResource, draw, phase
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
+import { useEngine } from "./EngineContext";
 
 export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
   const detail = React.useContext(DetailContext);
-
+  const engine = useEngine();
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
       <div style={{ backgroundColor: "#5393ff", width: 215 }}>
@@ -52,6 +53,14 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
           }}
         >
           Begin scenario
+        </Button>
+
+        <Button
+          onClick={() => {
+            console.log(phaseQuest().commands(engine.state));
+          }}
+        >
+          Test
         </Button>
 
         <Button

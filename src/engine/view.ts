@@ -1,15 +1,6 @@
 import produce from "immer";
 import { PrintedProps } from "./cardprops";
-import {
-  CardId,
-  CardState,
-  Effect,
-  GameZoneType,
-  PlayerState,
-  Side,
-  State,
-  ZoneState,
-} from "./state";
+import { CardId, CardState, Effect, GameZoneType, PlayerState, Side, State, ZoneState } from "./state";
 
 export type View = {
   cards: CardView[];
@@ -31,6 +22,7 @@ export type CardView = {
   damage: number;
   resources: number;
   sideUp: Side;
+  commitedToQuest: boolean;
 };
 
 export type AbilityView = {

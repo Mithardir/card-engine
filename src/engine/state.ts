@@ -46,6 +46,7 @@ export interface CardState {
   progress: number;
   resources: number;
   attachedTo?: CardId;
+  commitedToQuest: boolean;
 }
 
 export interface ZoneState {
@@ -79,6 +80,7 @@ export function createCardState(id: CardId, card: Card, side: Side): CardState {
     sideUp: side,
     tapped: false,
     definition: card(id),
+    commitedToQuest: false,
   };
 }
 

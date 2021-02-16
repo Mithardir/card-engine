@@ -54,9 +54,7 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
         const [selected, setSelected] = useState<any[]>([]);
         const scale = 0.4;
         const width = 430 * scale;
-        const height = 600 * scale;
-
-        console.log(selected);
+        const height = 600 * scale;        
         return (
           <Dialog open={dp.open} fullWidth maxWidth="md">
             <DialogTitle>{title}</DialogTitle>
@@ -68,9 +66,9 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
                   justifyContent: "space-evenly",
                 }}
               >
-                {items.map((o, i) => (
+                {items.map((o,i) => (
                   <ListItem
-                    key={o.label}
+                    key={i}
                     button={true}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -99,7 +97,7 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
             <DialogActions>
               <Button
                 onClick={() => {
-                  dp.onSubmit([]);
+                  dp.onSubmit(selected);
                 }}
               >
                 Confirm

@@ -7,7 +7,7 @@ import { createView } from "./view";
 import { filterCards } from "./filters";
 
 export interface UI {
-  chooseOne: <T>(title: string, items: Array<{ label: string; value: T }>) => Promise<T>;
+  chooseOne: <T>(title: string, items: Array<{ label: string; value: T; image?: string }>) => Promise<T>;
   chooseMultiple: <T>(title: string, items: Array<{ label: string; value: T; image?: string }>) => Promise<T[]>;
   playerActions: (title: string) => Promise<void>;
 }

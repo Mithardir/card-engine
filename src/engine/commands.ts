@@ -1,9 +1,11 @@
 import produce from "immer";
 import { shuffleArray } from "../utils";
+import { Exp } from "./filters";
 import { PlayerDeck, Scenario } from "./setup";
 import { Card, CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
 import { Command, CommandResult, Token, ZoneKey } from "./types";
 import { getZone, mergeAndResults } from "./utils";
+import { createView } from "./view";
 
 export function zoneKey(type: PlayerZoneType, player: PlayerId): ZoneKey;
 export function zoneKey(type: GameZoneType): ZoneKey;
@@ -34,6 +36,25 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
   };
 }
 
+export function moveCard(cardId: CardId, from: ZoneKey, to: ZoneKey, side: Side): Command {
+  return {
+    print: `move to card ${cardId} from ${from.print} to ${to.print} with ${side} side up`,
+    do: (s) => {
+      const fromZone = getZone(from)(s);
+      const toZone = getZone(to)(s);
+      if (fromZone.cards.includes(cardId)) {
+        fromZone.cards = fromZone.cards.filter((c) => c !== cardId);
+        const card = s.cards.find((c) => c.id === cardId)!;
+        card.sideUp = side;
+        toZone.cards.push(cardId);
+      }
+    },
+    result: (s) => {
+      return getZone(from)(s).cards.includes(cardId) ? "full" : "none";
+    },
+  };
+}
+
 export function addToken(cardId: CardId, type: Token): Command {
   return {
     print: `add ${type} token to card ${cardId}`,
@@ -60,15 +81,17 @@ export function removeToken(cardId: CardId, type: Token): Command {
   };
 }
 
-export function repeat(amount: number, cmd: Command): Command {
+export function repeat(amountExp: Exp<number>, cmd: Command): Command {
   return {
-    print: `repeat ${amount}x: [${cmd.print}]`,
+    print: `repeat ${amountExp.print}x: [${cmd.print}]`,
     do: (s) => {
+      const amount = amountExp.eval(createView(s));
       for (let index = 0; index < amount; index++) {
         cmd.do(s);
       }
     },
     result: (init) => {
+      const amount = amountExp.eval(createView(init));
       const results: CommandResult[] = [];
       produce(init, (draft) => {
         for (let index = 0; index < amount; index++) {

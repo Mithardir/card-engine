@@ -8,6 +8,8 @@ import {
   Icon,
   Button,
   DialogActions,
+  Typography,
+  Grid,
 } from "@material-ui/core";
 import React, { useContext, createContext, useState } from "react";
 import { UI } from "../engine/engine";
@@ -24,25 +26,49 @@ export const EngineProvider = (props: React.PropsWithChildren<{ engine: Engine }
 
 export const useEngine = () => useContext(EngineContext);
 
+const scale = 0.4;
+const width = 430 * scale;
+const height = 600 * scale;
+
 export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
   return {
     chooseOne: async (title, items) => {
       return await dialog.openDialog((dp) => (
-        <Dialog open={dp.open} fullWidth maxWidth="md">
+        <Dialog open={dp.open} maxWidth="md">
           <DialogTitle>{title}</DialogTitle>
           <DialogContent>
-            <List>
+            <List
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-evenly",
+              }}
+            >
               {items.map((a) => (
-                <ListItem
-                  button
-                  key={a.label}
-                  onClick={() => {
-                    dp.onSubmit(a.value);
-                  }}
-                  style={{ width: "auto" }}
-                >
-                  {a.label}
-                </ListItem>
+                <Grid item xs={!a.image ? 12 : undefined}>
+                  <ListItem
+                    button
+                    key={a.label}
+                    onClick={() => {
+                      dp.onSubmit(a.value);
+                    }}
+                    style={{ width: "auto" }}
+                  >
+                    {a.image ? (
+                      <img
+                        alt={a.image}
+                        src={a.image}
+                        style={{
+                          width,
+                          height,
+                          position: "relative",
+                        }}
+                      />
+                    ) : (
+                      a.label
+                    )}
+                  </ListItem>
+                </Grid>
               ))}
             </List>
           </DialogContent>
@@ -52,11 +78,8 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
     chooseMultiple: async (title, items) => {
       return await dialog.openDialog((dp) => {
         const [selected, setSelected] = useState<any[]>([]);
-        const scale = 0.4;
-        const width = 430 * scale;
-        const height = 600 * scale;        
         return (
-          <Dialog open={dp.open} fullWidth maxWidth="md">
+          <Dialog open={dp.open} maxWidth="md">
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
               <List
@@ -66,7 +89,7 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
                   justifyContent: "space-evenly",
                 }}
               >
-                {items.map((o,i) => (
+                {items.map((o, i) => (
                   <ListItem
                     key={i}
                     button={true}

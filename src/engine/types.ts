@@ -13,7 +13,7 @@ export type Engine = {
   state: State;
   exec: (command: Command) => void;
   do: (action: Action) => Promise<void>;
-  chooseNextAction: (title: string, actions: Array<{ label: string; value: Action }>) => Promise<void>;
+  chooseNextAction: (title: string, actions: Array<{ label: string; value: Action; image?: string }>) => Promise<void>;
   chooseNextActions: (title: string, actions: Array<{ label: string; value: Action; image?: string }>) => Promise<void>;
   chooseCards: (title: string, filter: Filter<CardId>) => Promise<CardId[]>;
   playerActions: (title: string) => Promise<void>;

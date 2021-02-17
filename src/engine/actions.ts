@@ -3,6 +3,7 @@ import {
   addToken,
   assignToQuest,
   batch,
+  moveCard,
   moveTopCard,
   noCommand,
   repeat,
@@ -19,8 +20,12 @@ import {
   isCharacter,
   isHero,
   isLess,
+  isLocation,
   isMore,
   isSame,
+  isThereActiveLocation,
+  lit,
+  negate,
   totalThread,
   totalWillpower,
 } from "./filters";
@@ -33,7 +38,7 @@ import { getActionResult } from "./engine";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
-    repeat(amount, moveTopCard(zoneKey("library", player), zoneKey("hand", player), "face")),
+    repeat(lit(amount), moveTopCard(zoneKey("library", player), zoneKey("hand", player), "face")),
     `player ${player} draws ${amount} cards`
   );
 };
@@ -129,7 +134,7 @@ export function eachCard(filter: Filter<CardId>, action: CardAction): Action {
 }
 
 export function generateResource(amount: number): CardAction {
-  return (id) => action(repeat(amount, addToken(id, "resources")));
+  return (id) => action(repeat(lit(amount), addToken(id, "resources")));
 }
 
 export function phaseResource(): Action {
@@ -166,10 +171,15 @@ export function placeProgress(amount: Exp<number>): Action {
     print: `place (${amount.print}) progress to active location`,
     do: async (e) => {
       const card = e.state.zones.quest.cards[0];
-      e.exec(repeat(amount.eval(createView(e.state)), addToken(card, "progress")));
+      const cmd = repeat(amount, addToken(card, "progress"));
+      e.exec(cmd);
     },
     // TODO
-    commands: () => [],
+    commands: (s) => {
+      const card = s.zones.quest.cards[0];
+      const cmd = repeat(amount, addToken(card, "progress"));
+      return [{ first: cmd, next: [] }];
+    },
   };
 }
 
@@ -206,6 +216,29 @@ export function chooseCardsForAction(filter: Filter<CardId>, factory: (id: CardI
   };
 }
 
+export function chooseCardForAction(filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
+  return {
+    print: `choose card for action: [${factory(0).print}]`,
+    do: async (engine) => {
+      const view = createView(engine.state);
+      const cards = filterCards(filter, view);
+      const actions = cards.map((id) => ({
+        label: id.toString(),
+        value: factory(id),
+        image: view.cards.find((c) => c.id === id)!.props.image,
+      }));
+      await engine.chooseNextAction("Choose card", actions);
+    },
+    commands: (s) => {
+      const view = createView(s);
+      const cards = filterCards(filter, view);
+      const actions = cards.map((id) => factory(id)).filter((a) => getActionResult(a, s) !== "none");
+      const commands = actions.flatMap((action) => action.commands(s));
+      return commands;
+    },
+  };
+}
+
 export function playerActions(title: string): Action {
   return {
     print: "player actions",
@@ -228,4 +261,16 @@ export function ifThen(condition: Exp<boolean>, action: Action): Action {
     },
     commands: () => [],
   };
+}
+
+export function phaseTravel(): Action {
+  return sequence(
+    // TODO allow no travel
+    ifThen(negate(isThereActiveLocation), chooseCardForAction(isLocation, travelToLocation)),
+    playerActions("Next")
+  );
+}
+
+export function travelToLocation(cardId: CardId): Action {
+  return action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("activeLocation"), "face"));
 }

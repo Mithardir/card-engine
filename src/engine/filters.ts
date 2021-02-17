@@ -19,6 +19,13 @@ export const isHero: Filter<CardId> = (card) => ({
   },
 });
 
+export const isLocation: Filter<CardId> = (card) => ({
+  print: "is location",
+  eval: (view) => {
+    return view.cards.find((c) => c.id === card)!.props.type === "location";
+  },
+});
+
 export const isCharacter: Filter<CardId> = (card) => ({
   print: "is character",
   eval: (view) => {
@@ -51,17 +58,37 @@ export function diff(a: Exp<number>, b: Exp<number>): Exp<number> {
   return { print: `${a.print} - ${b.print}`, eval: (v) => a.eval(v) - b.eval(v) };
 }
 
-
 export function isMore(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   return { print: `${a.print} > ${b.print}`, eval: (v) => a.eval(v) > b.eval(v) };
 }
-
 
 export function isSame(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   return { print: `${a.print} == ${b.print}`, eval: (v) => a.eval(v) === b.eval(v) };
 }
 
-
 export function isLess(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   return { print: `${a.print} < ${b.print}`, eval: (v) => a.eval(v) < b.eval(v) };
+}
+
+export function lit(value: number): Exp<number> {
+  return {
+    print: value.toString(),
+    eval: () => value,
+  };
+}
+
+export const isThereActiveLocation: Exp<boolean> = {
+  print: "is there active location",
+  eval: (v) => {
+    return v.zones.activeLocation.cards.length > 0;
+  },
+};
+
+export function negate(value: Exp<boolean>): Exp<boolean> {
+  return {
+    print: `negate (${value.print})`,
+    eval: (v) => {
+      return !value.eval(v);
+    },
+  };
 }

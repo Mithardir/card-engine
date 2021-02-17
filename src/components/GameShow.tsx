@@ -4,7 +4,15 @@ import { Action } from "../engine/types";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { sequence, choosePlayerForAct, beginScenario, phaseResource, draw, phaseQuest } from "../engine/actions";
+import {
+  sequence,
+  choosePlayerForAct,
+  beginScenario,
+  phaseResource,
+  draw,
+  phaseQuest,
+  phaseTravel,
+} from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
@@ -49,7 +57,20 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
 
         <Button
           onClick={() => {
-            props.onAction(sequence(beginScenario(passageThroughMirkwood, coreTactics), phaseResource(), phaseQuest()));
+            props.onAction(
+              sequence(
+                beginScenario(passageThroughMirkwood, coreTactics),
+                phaseResource(),
+                phaseQuest(),
+                phaseTravel(),
+                phaseResource(),
+                phaseQuest(),
+                phaseTravel(),
+                phaseResource(),
+                phaseQuest(),
+                phaseTravel()
+              )
+            );
           }}
         >
           Begin scenario

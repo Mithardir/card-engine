@@ -4,6 +4,7 @@ import {
   assignToQuest,
   batch,
   moveTopCard,
+  noCommand,
   repeat,
   setupScenario,
   shuffleZone,
@@ -27,6 +28,8 @@ import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
 import { Action, CardAction, Command, PlayerAction } from "./types";
 import { createView } from "./view";
+import { PowerSet } from "js-combinatorics";
+import { getActionResult } from "./engine";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
@@ -53,7 +56,7 @@ export function sequence(...actions: Action[]): Action {
     },
     commands: (s) => {
       if (actions.length === 0) {
-        return [];
+        return [{ first: noCommand, next: [] }];
       }
       const cmds = actions[0].commands(s);
       return cmds.map((c) => {
@@ -194,10 +197,11 @@ export function chooseCardsForAction(filter: Filter<CardId>, factory: (id: CardI
       await engine.chooseNextActions("Choose cards", actions);
     },
     commands: (s) => {
-      // TODO all combinations
       const view = createView(s);
       const cards = filterCards(filter, view);
-      return cards.flatMap((id) => factory(id).commands(s));
+      const actions = cards.map((id) => factory(id)).filter((a) => getActionResult(a, s) !== "none");
+      const combinations = [...PowerSet.of(actions)] as Action[][];
+      return combinations.flatMap((list) => sequence(...list).commands(s));
     },
   };
 }

@@ -182,3 +182,9 @@ export function assignToQuest(cardId: CardId): Command {
     },
   };
 }
+
+export const noCommand: Command = {
+  print: "noCommand",
+  do: async () => {},
+  result: () => "full",
+};

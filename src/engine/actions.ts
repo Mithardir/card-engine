@@ -18,6 +18,7 @@ import {
   all,
   and,
   diff,
+  enemiesToEngage,
   Exp,
   Filter,
   filterCards,
@@ -109,7 +110,7 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
       )
     ),
     eachPlayer((p) => action(shuffleZone(zoneKey("library", p)))),
-    //eachPlayer(draw(6)),
+    eachPlayer(draw(6)),
     action(moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"))
   );
 }
@@ -164,6 +165,14 @@ export function phaseQuest(): Action {
   return sequence(
     chooseCardsForAction(isHero, commitToQuest),
     playerActions("Reveal encounter cards"),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
     action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
     action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
     action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
@@ -294,6 +303,7 @@ export function chooseCardForAction(title: string, filter: Filter<CardId>, facto
       ids.map((card) => ({
         label: card.props.name || "",
         value: factory(card.id),
+        image: card.props.image,
       }))
     )
   );
@@ -305,7 +315,7 @@ export function bindAction<T>(print: string, exp: Exp<T>, factory: (value: T) =>
     do: async (e) => {
       const value = exp.eval(createView(e.state));
       const action = factory(value);
-      return await e.do(action)
+      return await e.do(action);
     },
     commands: (s) => {
       const value = exp.eval(createView(s));
@@ -373,13 +383,14 @@ export const changeFirstPlayerToNext: Action = bindAction("change first player t
 
 export function phaseEncounter(): Action {
   return sequence(
-    eachPlayer(chooseEnemyToEngage),
+    eachPlayer(chooseEnemyToOptionalEngage),
+    whileDo(enemiesToEngage, eachPlayer(engagementCheck)),
     playerActions("Next"),
     playerActions("Next phase")
   );
 }
 
-export function chooseEnemyToEngage(player: PlayerId): Action {
+export function chooseEnemyToOptionalEngage(player: PlayerId): Action {
   // TODO no engagement
   return chooseCardForAction("Choose enemy to optional engage", and(isInZone(zoneKey("stagingArea")), isEnemy), (id) =>
     action(moveCard(id, zoneKey("stagingArea"), zoneKey("engaged", player), "face"))
@@ -392,4 +403,17 @@ export function engagementCheck(player: PlayerId): Action {
 
 export function engagePlayer(player: PlayerId): CardAction {
   return (cardId) => action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("engaged", player), "face"));
+}
+
+export function whileDo(exp: Exp<boolean>, act: Action): Action {
+  return {
+    print: `while ${exp.print} do ${act.print}`,
+    do: async (e) => {
+      while (exp.eval(createView(e.state))) {
+        await act.do(e);
+      }
+    },
+    //TODO
+    commands: () => [],
+  };
 }

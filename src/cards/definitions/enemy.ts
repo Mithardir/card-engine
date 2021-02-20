@@ -3,9 +3,11 @@ import { CardDefinition } from "../../engine/state";
 import encounterBack from "../../Images/back/encounter.jpg";
 
 export function enemy(props: EnemyProps, ...abilities: Ability[]): CardDefinition {
-  const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
-    .split(" ")
-    .join("-")}.jpg`;
+  const image =
+    props.name !== "Dol Guldur Orcs"
+      ? `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name.split(" ").join("-")}.jpg`
+      : "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/Dol-Guldur-Orcs-Enemy.jpg";
+
   return {
     face: {
       ...props,

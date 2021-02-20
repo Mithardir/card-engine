@@ -131,19 +131,38 @@ export const nextPlayerId: Exp<PlayerId> = {
   eval: (v) => playerIds[(playerIds.findIndex((i) => i === v.firstPlayer) + 1) % 4],
 };
 
+export const enemiesToEngage: Exp<boolean> = {
+  print: "enemiesToEngage",
+  eval: (v) => {
+    return v.players.some((p) =>
+      v.cards.some(
+        (c) =>
+          c.props.type === "enemy" &&
+          c.props.engagement &&
+          c.props.engagement <= p.thread &&
+          v.zones.stagingArea.cards.includes(c.id)
+      )
+    );
+  },
+};
+
 export function withMaxEngegament(player: PlayerId): Filter<CardId> {
   return (cardId) => ({
     print: "withMaxEngegament",
     eval: (v) => {
       const threat = v.players.find((p) => p.id === player)!.thread;
       const cards = v.cards.filter(
-        (c) => c.props.type === "enemy" && c.props.engagement && c.props.engagement <= threat
+        (c) =>
+          c.props.type === "enemy" &&
+          c.props.engagement &&
+          c.props.engagement <= threat &&
+          v.zones.stagingArea.cards.includes(c.id)
       );
 
       const max = cards
         .filter((c) => c.props.engagement !== undefined)
         .map((c) => c.props.engagement!)
-        .reduce((p, c) => (p > c ? c : p), 0);
+        .reduce((p, c) => (p > c ? p : c), 0);
 
       const card = v.cards.find((c) => c.id === cardId)!;
 

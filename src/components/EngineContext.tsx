@@ -33,6 +33,7 @@ const height = 600 * scale;
 export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
   return {
     chooseOne: async (title, items) => {
+      console.log(title, items);
       return await dialog.openDialog((dp) => (
         <Dialog open={dp.open} maxWidth="md">
           <DialogTitle>{title}</DialogTitle>
@@ -131,12 +132,13 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
       });
     },
     playerActions: async (title) => {
+      console.log(title);
       return await dialog.openDialog((dp) => (
         <Fab
           color="primary"
           variant="extended"
           style={{ position: "fixed", right: 8, bottom: 8 }}
-          onClick={(e) => dp.onSubmit()}
+          onClick={() => dp.onSubmit()}
         >
           <Icon>skip_next</Icon>
           {title}

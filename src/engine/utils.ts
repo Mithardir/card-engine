@@ -1,7 +1,8 @@
 import { State, ZoneState } from "./state";
 import { ZoneKey, CommandResult } from "./types";
+import { View } from "./view";
 
-export function getZone(key: ZoneKey): (state: State) => ZoneState {
+export function getZone(key: ZoneKey): (state: State | View) => ZoneState {
   return (v) => {
     if (key.player) {
       const player = v.players.find((p) => p.id === key.player);

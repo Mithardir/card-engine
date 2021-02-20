@@ -7,27 +7,36 @@ import {
   moveTopCard,
   noCommand,
   repeat,
+  setFirstPlayer,
   setupScenario,
   shuffleZone,
   tap,
+  untap,
   zoneKey,
 } from "./commands";
 import {
+  all,
+  and,
   diff,
   Exp,
   Filter,
   filterCards,
   isCharacter,
+  isEnemy,
   isHero,
+  isInZone,
   isLess,
   isLocation,
   isMore,
   isSame,
+  isTapped,
   isThereActiveLocation,
   lit,
   negate,
+  nextPlayerId,
   totalThread,
   totalWillpower,
+  withMaxEngegament,
 } from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
@@ -100,17 +109,18 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
       )
     ),
     eachPlayer((p) => action(shuffleZone(zoneKey("library", p)))),
-    eachPlayer(draw(6)),
+    //eachPlayer(draw(6)),
     action(moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"))
   );
 }
 
 export function eachPlayer(factory: PlayerAction): Action {
+  // TODO order
   return {
     print: `each player: ${factory("X").print}`,
     do: async (engine) => {
       const action = sequence(...engine.state.players.map((p) => factory(p.id)));
-      action.do(engine);
+      await action.do(engine);
     },
     commands: (s) => sequence(...s.players.map((p) => factory(p.id))).commands(s),
   };
@@ -150,10 +160,13 @@ export function commitToQuest(cardId: CardId): Action {
 }
 
 export function phaseQuest(): Action {
-  // TODO characteris in play
+  // TODO characteris in play, action reveal card for each player
   return sequence(
     chooseCardsForAction(isHero, commitToQuest),
     playerActions("Reveal encounter cards"),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
     action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
     playerActions("Resolve quest"),
     ifThen(
@@ -292,7 +305,7 @@ export function bindAction<T>(print: string, exp: Exp<T>, factory: (value: T) =>
     do: async (e) => {
       const value = exp.eval(createView(e.state));
       const action = factory(value);
-      return action.do(e);
+      return await e.do(action)
     },
     commands: (s) => {
       const value = exp.eval(createView(s));
@@ -337,6 +350,46 @@ export function phaseTravel(): Action {
   );
 }
 
+export function phaseRefresh(): Action {
+  return sequence(
+    eachCard(isTapped, ready),
+    changeFirstPlayerToNext,
+    eachPlayer((p) => action(incrementThreat(lit(1))(p))),
+    playerActions("Next round")
+  );
+}
+
+export function ready(cardId: CardId): Action {
+  return action(untap(cardId));
+}
+
 export function travelToLocation(cardId: CardId): Action {
   return action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("activeLocation"), "face"));
+}
+
+export const changeFirstPlayerToNext: Action = bindAction("change first player to next", nextPlayerId, (p) =>
+  action(setFirstPlayer(p))
+);
+
+export function phaseEncounter(): Action {
+  return sequence(
+    eachPlayer(chooseEnemyToEngage),
+    playerActions("Next"),
+    playerActions("Next phase")
+  );
+}
+
+export function chooseEnemyToEngage(player: PlayerId): Action {
+  // TODO no engagement
+  return chooseCardForAction("Choose enemy to optional engage", and(isInZone(zoneKey("stagingArea")), isEnemy), (id) =>
+    action(moveCard(id, zoneKey("stagingArea"), zoneKey("engaged", player), "face"))
+  );
+}
+
+export function engagementCheck(player: PlayerId): Action {
+  return chooseCardForAction("Choose enemy to engage", withMaxEngegament(player), engagePlayer(player));
+}
+
+export function engagePlayer(player: PlayerId): CardAction {
+  return (cardId) => action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("engaged", player), "face"));
 }

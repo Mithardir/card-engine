@@ -1,12 +1,13 @@
 import produce from "immer";
 import { PrintedProps } from "./cardprops";
-import { CardId, CardState, Effect, GameZoneType, PlayerState, Side, State, ZoneState } from "./state";
+import { CardId, CardState, Effect, GameZoneType, PlayerId, PlayerState, Side, State, ZoneState } from "./state";
 
 export type View = {
   cards: CardView[];
   players: PlayerState[];
   zones: Record<GameZoneType, ZoneState>;
   effects: Effect[];
+  firstPlayer: PlayerId;
 };
 
 export type CardProps = Omit<PrintedProps, "abilities"> & {

@@ -194,6 +194,18 @@ export function tap(cardId: CardId): Command {
   };
 }
 
+export function untap(cardId: CardId): Command {
+  return {
+    print: `untap card ${cardId}`,
+    do: (s) => {
+      s.cards.find((c) => c.id === cardId)!.tapped = false;
+    },
+    result: (s) => {
+      return s.cards.find((c) => c.id === cardId)!.tapped ? "full" : "none";
+    },
+  };
+}
+
 export function assignToQuest(cardId: CardId): Command {
   return {
     print: `assign to quest card ${cardId}`,
@@ -211,3 +223,13 @@ export const noCommand: Command = {
   do: async () => {},
   result: () => "full",
 };
+
+export function setFirstPlayer(id: PlayerId): Command {
+  return {
+    print: `set first player to ${id}`,
+    do: (s) => {
+      s.firstPlayer = id;
+    },
+    result: () => "full",
+  };
+}

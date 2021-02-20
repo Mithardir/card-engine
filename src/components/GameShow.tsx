@@ -12,6 +12,8 @@ import {
   draw,
   phaseQuest,
   phaseTravel,
+  phaseRefresh,
+  phaseEncounter,
 } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
@@ -58,18 +60,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         <Button
           onClick={() => {
             props.onAction(
-              sequence(
-                beginScenario(passageThroughMirkwood, coreTactics),
-                phaseResource(),
-                phaseQuest(),
-                phaseTravel(),
-                phaseResource(),
-                phaseQuest(),
-                phaseTravel(),
-                phaseResource(),
-                phaseQuest(),
-                phaseTravel()
-              )
+              sequence(beginScenario(passageThroughMirkwood, coreTactics, coreTactics), phaseQuest(), phaseEncounter())
             );
           }}
         >

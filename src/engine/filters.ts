@@ -7,10 +7,11 @@ export type Exp<T> = {
   eval: (v: View) => T;
 };
 
+// TODO print
 export type Filter<T> = (value: T) => Exp<boolean>;
 
 export const filterCards = (filter: Filter<CardId>, view: View) =>
-  view.cards.filter((c) => filter(c.id).eval(view)).map((z) => z.id);
+  view.cards.filter((c) => filter(c.id).eval(view)).map((z) => z);
 
 export const isHero: Filter<CardId> = (card) => ({
   print: "is hero",

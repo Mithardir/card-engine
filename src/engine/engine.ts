@@ -67,10 +67,10 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       const cards = filterCards(filter, view);
       const selected = await ui.chooseMultiple(
         title,
-        cards.map((id) => ({
-          label: id.toString(),
-          value: id,
-          image: view.cards.find((c) => c.id === id)!.props.image,
+        cards.map((card) => ({
+          label: card.props.name || "",
+          value: card.id,
+          image: card.props.image,
         }))
       );
 

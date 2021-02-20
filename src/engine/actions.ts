@@ -32,7 +32,7 @@ import {
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
 import { Action, CardAction, Command, PlayerAction } from "./types";
-import { createView } from "./view";
+import { CardView, createView } from "./view";
 import { PowerSet } from "js-combinatorics";
 import { getActionResult } from "./engine";
 
@@ -121,14 +121,14 @@ export function eachCard(filter: Filter<CardId>, action: CardAction): Action {
     print: `each card that ${filter(0).print}: ${action(0).print}`,
     do: async (engine) => {
       const view = createView(engine.state);
-      const cardIds = filterCards(filter, view);
-      const actions = sequence(...cardIds.map((id) => action(id)));
+      const cards = filterCards(filter, view);
+      const actions = sequence(...cards.map((card) => action(card.id)));
       actions.do(engine);
     },
     commands: (s) => {
       const view = createView(s);
-      const cardIds = filterCards(filter, view);
-      return sequence(...cardIds.map((id) => action(id))).commands(s);
+      const cards = filterCards(filter, view);
+      return sequence(...cards.map((card) => action(card.id))).commands(s);
     },
   };
 }
@@ -199,42 +199,105 @@ export function chooseCardsForAction(filter: Filter<CardId>, factory: (id: CardI
     do: async (engine) => {
       const view = createView(engine.state);
       const cards = filterCards(filter, view);
-      const actions = cards.map((id) => ({
-        label: id.toString(),
-        value: factory(id),
-        image: view.cards.find((c) => c.id === id)!.props.image,
+      const actions = cards.map((card) => ({
+        label: card.props.name || "",
+        value: factory(card.id),
+        image: card.props.image,
       }));
       await engine.chooseNextActions("Choose cards", actions);
     },
     commands: (s) => {
       const view = createView(s);
       const cards = filterCards(filter, view);
-      const actions = cards.map((id) => factory(id)).filter((a) => getActionResult(a, s) !== "none");
+      const actions = cards.map((card) => factory(card.id)).filter((a) => getActionResult(a, s) !== "none");
       const combinations = [...PowerSet.of(actions)] as Action[][];
       return combinations.flatMap((list) => sequence(...list).commands(s));
     },
   };
 }
 
-export function chooseCardForAction(filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
+export function chooseAction(title: string, choices: Array<{ label: string; image?: string; value: Action }>): Action {
+  return {
+    print: `chooseAction: ${choices.map((c) => c.value.print).join(" / ")}`,
+    do: async (engine) => {
+      await engine.chooseNextAction(title, choices);
+    },
+    commands: (s) => {
+      const valid = choices.filter((c) => getActionResult(c.value, s) !== "none");
+      const commands = valid.flatMap((choice) => choice.value.commands(s));
+      return commands;
+    },
+  };
+}
+
+export function chooseActions(title: string, choices: Array<{ label: string; image?: string; value: Action }>): Action {
+  return {
+    print: `chooseActions: ${choices.map((c) => c.value.print).join(" / ")}`,
+    do: async (engine) => {
+      await engine.chooseNextAction(title, choices);
+    },
+    commands: (s) => {
+      const valid = choices.filter((c) => getActionResult(c.value, s) !== "none");
+      const commands = valid.flatMap((choice) => choice.value.commands(s));
+      return commands;
+    },
+  };
+}
+
+export function chooseCardForAction2(title: string, filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
   return {
     print: `choose card for action: [${factory(0).print}]`,
     do: async (engine) => {
       const view = createView(engine.state);
       const cards = filterCards(filter, view);
-      const actions = cards.map((id) => ({
-        label: id.toString(),
-        value: factory(id),
-        image: view.cards.find((c) => c.id === id)!.props.image,
+      const actions = cards.map((card) => ({
+        label: card.props.name || "",
+        value: factory(card.id),
+        image: card.props.image,
       }));
-      await engine.chooseNextAction("Choose card", actions);
+      await engine.chooseNextAction(title, actions);
     },
     commands: (s) => {
       const view = createView(s);
       const cards = filterCards(filter, view);
-      const actions = cards.map((id) => factory(id)).filter((a) => getActionResult(a, s) !== "none");
+      const actions = cards.map((card) => factory(card.id)).filter((a) => getActionResult(a, s) !== "none");
       const commands = actions.flatMap((action) => action.commands(s));
       return commands;
+    },
+  };
+}
+
+export function filteredCards(filter: Filter<CardId>): Exp<CardView[]> {
+  return {
+    print: `cards that ${filter(0)}`,
+    eval: (v) => filterCards(filter, v),
+  };
+}
+
+export function chooseCardForAction(title: string, filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
+  return bindAction(`choose card for action: [${factory(0).print}]`, filteredCards(filter), (ids) =>
+    chooseAction(
+      title,
+      ids.map((card) => ({
+        label: card.props.name || "",
+        value: factory(card.id),
+      }))
+    )
+  );
+}
+
+export function bindAction<T>(print: string, exp: Exp<T>, factory: (value: T) => Action): Action {
+  return {
+    print,
+    do: async (e) => {
+      const value = exp.eval(createView(e.state));
+      const action = factory(value);
+      return action.do(e);
+    },
+    commands: (s) => {
+      const value = exp.eval(createView(s));
+      const action = factory(value);
+      return action.commands(s);
     },
   };
 }
@@ -266,7 +329,10 @@ export function ifThen(condition: Exp<boolean>, action: Action): Action {
 export function phaseTravel(): Action {
   return sequence(
     // TODO allow no travel
-    ifThen(negate(isThereActiveLocation), chooseCardForAction(isLocation, travelToLocation)),
+    ifThen(
+      negate(isThereActiveLocation),
+      chooseCardForAction("Choose location for travel", isLocation, travelToLocation)
+    ),
     playerActions("Next")
   );
 }

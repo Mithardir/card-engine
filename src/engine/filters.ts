@@ -146,6 +146,13 @@ export const enemiesToEngage: Exp<boolean> = {
   },
 };
 
+export const countOfPlayers: Exp<number> = {
+  print: "count of players",
+  eval: (v) => {
+    return v.players.length;
+  },
+};
+
 export function withMaxEngegament(player: PlayerId): Filter<CardId> {
   return (cardId) => ({
     print: "withMaxEngegament",

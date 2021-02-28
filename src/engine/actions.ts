@@ -17,6 +17,7 @@ import {
 import {
   all,
   and,
+  countOfPlayers,
   diff,
   enemiesToEngage,
   Exp,
@@ -160,23 +161,26 @@ export function commitToQuest(cardId: CardId): Action {
   return sequence(action(tap(cardId)), action(assignToQuest(cardId)));
 }
 
+export function repeatAction(amountExp: Exp<number>, action: Action): Action {
+  return {
+    print: `repeat ${amountExp.print}x: [${action}]`,
+    do: async (e) => {
+      const amount = amountExp.eval(createView(e.state));
+      return sequence(...new Array(amount).fill(0).map(() => action)).do(e);
+    },
+    commands: (s) => {
+      const amount = amountExp.eval(createView(s));
+      return sequence(...new Array(amount).fill(0).map(() => action)).commands(s);
+    },
+  };
+}
+
 export function phaseQuest(): Action {
-  // TODO characteris in play, action reveal card for each player
+  // TODO characteris in play
   return sequence(
     chooseCardsForAction(isHero, commitToQuest),
     playerActions("Reveal encounter cards"),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
-    action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")),
+    repeatAction(countOfPlayers, action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face"))),
     playerActions("Resolve quest"),
     ifThen(
       isLess(totalWillpower, totalThread),

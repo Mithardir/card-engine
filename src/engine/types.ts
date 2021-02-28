@@ -17,6 +17,7 @@ export type Engine = {
   chooseNextActions: (title: string, actions: Array<{ label: string; value: Action; image?: string }>) => Promise<void>;
   chooseCards: (title: string, filter: Filter<CardId>) => Promise<CardId[]>;
   playerActions: (title: string) => Promise<void>;
+  chooseOne: <T>(title: string, options: Array<{ label: string; value: T; image?: string }>) => Promise<T>;
 };
 
 export type Action = {

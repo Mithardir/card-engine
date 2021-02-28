@@ -103,7 +103,7 @@ export function isLess(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   return { print: `${a.print} < ${b.print}`, eval: (v) => a.eval(v) < b.eval(v) };
 }
 
-export function lit(value: number): Exp<number> {
+export function lit<T extends number | boolean>(value: T): Exp<T> {
   return {
     print: value.toString(),
     eval: () => value,
@@ -176,4 +176,22 @@ export function withMaxEngegament(player: PlayerId): Filter<CardId> {
       return card.props.engagement === max;
     },
   });
+}
+
+export function countOfCards(filter: Filter<CardId>): Exp<number> {
+  return {
+    print: `count of cards that ${filter(0).print}`,
+    eval: (v) => {
+      return filterCards(filter, v).length;
+    },
+  };
+}
+
+export function getProp(property: "attack" | "defense", cardId: CardId): Exp<number> {
+  return {
+    print: `${property} of card ${cardId}`,
+    eval: (v) => {
+      return v.cards.find((c) => c.id === cardId)!.props[property]!;
+    },
+  };
 }

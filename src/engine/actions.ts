@@ -23,6 +23,7 @@ import {
   Exp,
   Filter,
   filterCards,
+  getProp,
   isCharacter,
   isEnemy,
   isHero,
@@ -46,6 +47,7 @@ import { Action, CardAction, Command, PlayerAction } from "./types";
 import { CardView, createView } from "./view";
 import { PowerSet } from "js-combinatorics";
 import { getActionResult } from "./engine";
+import { act } from "react-dom/test-utils";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
@@ -420,4 +422,89 @@ export function whileDo(exp: Exp<boolean>, act: Action): Action {
     //TODO
     commands: () => [],
   };
+}
+
+export function resolveEnemyAttacksForPlayer(playerId: PlayerId) {
+  const enemies: Filter<CardId> = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
+  return chooceCardActionOrder("Choose enemy attacker", enemies, resolveEnemyAttack(playerId));
+}
+
+export function resolveEnemyAttack(playerId: PlayerId): CardAction {
+  return (attackerId) => {
+    const defenders = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+    return sequence(
+      playerActions("Declare defender"),
+      chooseCardForAction("Declare defender", defenders, (defenderId) =>
+        sequence(action(tap(defenderId)), resolveDefense(attackerId)(defenderId))
+      )
+    );
+  };
+}
+
+export function dealDamage(amount: Exp<number>): CardAction {
+  return (cardId) => action(repeat(amount, addToken(cardId, "damage")));
+}
+
+export function resolveDefense(attackerId: CardId): CardAction {
+  return (defenderId) => {
+    const attack = getProp("attack", attackerId);
+    const defense = getProp("defense", defenderId);
+    const damage = diff(attack, defense);
+    return ifThen(isMore(damage, lit(0)), dealDamage(damage)(defenderId));
+  };
+}
+
+export function chooceCardActionOrder(title: string, filter: Filter<CardId>, action: CardAction): Action {
+  return {
+    print: `choose card order for cards ${filter(0).print} and action ${action(0).print}`,
+    do: async (e) => {
+      const used: CardId[] = [];
+
+      while (true) {
+        const cards = filterCards(filter, createView(e.state)).filter((c) => !used.includes(c.id));
+        if (cards.length === 0) {
+          break;
+        } else {
+          const choosen = await e.chooseOne(
+            title,
+            cards.map((c) => ({
+              label: c.id.toString(),
+              value: c.id,
+              image: c.props.image,
+            }))
+          );
+
+          used.push(choosen);
+          await e.do(action(choosen));
+        }
+      }
+    },
+    //TODO
+    commands: () => [],
+  };
+}
+
+export function resolvePlayerAttacksForPlayer(playerId: PlayerId) {
+  return sequence();
+}
+
+export function resolveEnemyAttacks() {
+  return eachPlayer(resolveEnemyAttacksForPlayer);
+}
+
+export function resolvePlayerAttacks() {
+  return eachPlayer(resolvePlayerAttacksForPlayer);
+}
+
+export function phaseCombat() {
+  // todo shadow cards
+  return sequence(playerActions("Resolve enemy attacks"), resolveEnemyAttacks(), resolvePlayerAttacks());
+}
+
+export function gameRound() {
+  return sequence(phaseResource(), phaseQuest(), phaseTravel(), phaseEncounter(), phaseCombat(), phaseRefresh());
+}
+
+export function startGame() {
+  return whileDo(lit(true), gameRound());
 }

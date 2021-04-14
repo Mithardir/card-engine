@@ -26,6 +26,16 @@ export type Action = {
   commands: (state: State) => Array<{ first: Command; next: Action[] }>;
 };
 
+export type CardAction2 = {
+  type: "card_action";
+  print: string;
+  action: (cardId: CardId) => Action;
+};
+
+export function cardAction(print: string, action: (cardId: CardId) => Action): CardAction2 {
+  return { type: "card_action", print, action };
+}
+
 export type Token = "damage" | "resources" | "progress";
 
 export type ZoneKey =

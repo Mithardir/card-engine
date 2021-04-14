@@ -43,7 +43,7 @@ import {
 } from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
-import { Action, CardAction, Command, PlayerAction } from "./types";
+import { Action, cardAction, CardAction, CardAction2, Command, PlayerAction } from "./types";
 import { CardView, createView } from "./view";
 import { PowerSet } from "js-combinatorics";
 import { getActionResult } from "./engine";
@@ -60,6 +60,14 @@ export function action(cmd: Command, print?: string): Action {
     print: print ?? cmd.print,
     do: async (e) => e.exec(cmd),
     commands: () => [{ first: cmd, next: [] }],
+  };
+}
+
+export function cardActionSequence(...actions: CardAction2[]): CardAction2 {
+  return {
+    type: "card_action",
+    print: `sequence: \r\n${actions.map((a) => "\t" + a.print).join("\r\n")}`,
+    action: (cardId) => sequence(...actions.map((a) => a.action(cardId))),
   };
 }
 
@@ -301,13 +309,13 @@ export function filteredCards(filter: Filter<CardId>): Exp<CardView[]> {
   };
 }
 
-export function chooseCardForAction(title: string, filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
-  return bindAction(`choose card for action: [${factory(0).print}]`, filteredCards(filter), (ids) =>
+export function chooseCardForAction(title: string, filter: Filter<CardId>, action: CardAction2): Action {
+  return bindAction(`choose card for action: [${action.print}]`, filteredCards(filter), (ids) =>
     chooseAction(
       title,
       ids.map((card) => ({
         label: card.props.name || "",
-        value: factory(card.id),
+        value: action.action(card.id),
         image: card.props.image,
       }))
     )
@@ -378,9 +386,9 @@ export function ready(cardId: CardId): Action {
   return action(untap(cardId));
 }
 
-export function travelToLocation(cardId: CardId): Action {
-  return action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("activeLocation"), "face"));
-}
+export const travelToLocation = cardAction("travel to location", (cardId) =>
+  action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("activeLocation"), "face"))
+);
 
 export const changeFirstPlayerToNext: Action = bindAction("change first player to next", nextPlayerId, (p) =>
   action(setFirstPlayer(p))
@@ -397,8 +405,10 @@ export function phaseEncounter(): Action {
 
 export function chooseEnemyToOptionalEngage(player: PlayerId): Action {
   // TODO no engagement
-  return chooseCardForAction("Choose enemy to optional engage", and(isInZone(zoneKey("stagingArea")), isEnemy), (id) =>
-    action(moveCard(id, zoneKey("stagingArea"), zoneKey("engaged", player), "face"))
+  return chooseCardForAction(
+    "Choose enemy to optional engage",
+    and(isInZone(zoneKey("stagingArea")), isEnemy),
+    engagePlayer(player)
   );
 }
 
@@ -406,8 +416,10 @@ export function engagementCheck(player: PlayerId): Action {
   return chooseCardForAction("Choose enemy to engage", withMaxEngegament(player), engagePlayer(player));
 }
 
-export function engagePlayer(player: PlayerId): CardAction {
-  return (cardId) => action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("engaged", player), "face"));
+export function engagePlayer(player: PlayerId): CardAction2 {
+  return cardAction(`engage player ${player}`, (cardId) =>
+    action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("engaged", player), "face"))
+  );
 }
 
 export function whileDo(exp: Exp<boolean>, act: Action): Action {
@@ -433,24 +445,24 @@ export function resolveEnemyAttack(playerId: PlayerId): CardAction {
     const defenders = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
     return sequence(
       playerActions("Declare defender"),
-      chooseCardForAction("Declare defender", defenders, (defenderId) =>
-        sequence(action(tap(defenderId)), resolveDefense(attackerId)(defenderId))
-      )
+      chooseCardForAction("Declare defender", defenders, cardActionSequence(tapAction, resolveDefense(attackerId)))
     );
   };
 }
+
+export const tapAction = cardAction("tap card", (cardId) => action(tap(cardId)));
 
 export function dealDamage(amount: Exp<number>): CardAction {
   return (cardId) => action(repeat(amount, addToken(cardId, "damage")));
 }
 
-export function resolveDefense(attackerId: CardId): CardAction {
-  return (defenderId) => {
+export function resolveDefense(attackerId: CardId): CardAction2 {
+  return cardAction(`resolve defense against ${attackerId}`, (defenderId) => {
     const attack = getProp("attack", attackerId);
     const defense = getProp("defense", defenderId);
     const damage = diff(attack, defense);
     return ifThen(isMore(damage, lit(0)), dealDamage(damage)(defenderId));
-  };
+  });
 }
 
 export function chooceCardActionOrder(title: string, filter: Filter<CardId>, action: CardAction): Action {

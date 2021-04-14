@@ -80,6 +80,9 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
     playerActions: async (title) => {
       await ui.playerActions(title);
     },
+    chooseOne: (title, options) => {
+      throw new Error();
+    },
   };
 
   return engine;

@@ -47,7 +47,6 @@ import { Action, CardAction, Command, PlayerAction } from "./types";
 import { CardView, createView } from "./view";
 import { PowerSet } from "js-combinatorics";
 import { getActionResult } from "./engine";
-import { act } from "react-dom/test-utils";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(

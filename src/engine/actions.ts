@@ -7,6 +7,7 @@ import {
   moveTopCard,
   noCommand,
   repeat,
+  repeat2,
   setFirstPlayer,
   setupScenario,
   shuffleZone,
@@ -31,13 +32,13 @@ import {
   isLocation,
   isMore,
   isTapped,
-  isThereActiveLocation,
+  existsActiveLocation,
   lit,
   negate,
   nextPlayerId,
   totalThread,
   totalWillpower,
-  withMaxEngegament,
+  withMaxEngegament as withMaxEngagement,
 } from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
@@ -157,11 +158,12 @@ export function generateResource(amount: number): CardAction {
 }
 
 export function phaseResource(): Action {
-  return sequence(eachPlayer(draw(1)), eachCard(isHero, generateResource(1)), playerActions("Next phase"));
+  return sequence(eachPlayer(draw(1)), eachCard(isHero, generateResource(1)), playerActions("End phase"));
 }
 
 export function phasePlanning(): Action {
-  return playerActions("Next phase");
+  //  TODO set phase to game
+  return playerActions("End phase");
 }
 
 export function commitToQuest(cardId: CardId): Action {
@@ -182,19 +184,21 @@ export function repeatAction(amountExp: Exp<number>, action: Action): Action {
   };
 }
 
+export const commitCharactersToQuest: PlayerAction = (player) =>
+  chooseCardsForAction(and(isHero, isInZone(zoneKey("playerArea", player))), commitToQuest);
+
 export function phaseQuest(): Action {
-  // TODO characteris in play
   return sequence(
-    chooseCardsForAction(isHero, commitToQuest),
-    playerActions("Reveal encounter cards"),
+    eachPlayer(commitCharactersToQuest),
+    playerActions("Staging"),
     repeatAction(countOfPlayers, action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face"))),
-    playerActions("Resolve quest"),
+    playerActions("Quest resolution"),
     ifThen(
       isLess(totalWillpower, totalThread),
       eachPlayer((p) => action(incrementThreat(diff(totalThread, totalWillpower))(p)))
     ),
     ifThen(isMore(totalWillpower, totalThread), placeProgress(diff(totalWillpower, totalThread))),
-    playerActions("Next phase")
+    playerActions("End phase")
   );
 }
 
@@ -364,19 +368,19 @@ export function phaseTravel(): Action {
   return sequence(
     // TODO allow no travel
     ifThen(
-      negate(isThereActiveLocation),
+      negate(existsActiveLocation),
       chooseCardForAction("Choose location for travel", isLocation, travelToLocation)
     ),
-    playerActions("Next")
+    playerActions("End phase")
   );
 }
 
 export function phaseRefresh(): Action {
   return sequence(
     eachCard(isTapped, ready),
-    changeFirstPlayerToNext,
     eachPlayer((p) => action(incrementThreat(lit(1))(p))),
-    playerActions("Next round")
+    passFirstPlayerToken,
+    playerActions("End phase and round")
   );
 }
 
@@ -388,20 +392,20 @@ export const travelToLocation = cardAction("travel to location", (cardId) =>
   action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("activeLocation"), "face"))
 );
 
-export const changeFirstPlayerToNext: Action = bindAction("change first player to next", nextPlayerId, (p) =>
-  action(setFirstPlayer(p))
+export const passFirstPlayerToken: Action = bindAction("pass first player token", nextPlayerId, (next) =>
+  action(setFirstPlayer(next))
 );
 
 export function phaseEncounter(): Action {
   return sequence(
-    eachPlayer(chooseEnemyToOptionalEngage),
+    eachPlayer(optionalEngagement),
+    playerActions("Engagement Checks"),
     whileDo(enemiesToEngage, eachPlayer(engagementCheck)),
-    playerActions("Next"),
     playerActions("Next phase")
   );
 }
 
-export function chooseEnemyToOptionalEngage(player: PlayerId): Action {
+export function optionalEngagement(player: PlayerId): Action {
   // TODO no engagement
   return chooseCardForAction(
     "Choose enemy to optional engage",
@@ -411,7 +415,7 @@ export function chooseEnemyToOptionalEngage(player: PlayerId): Action {
 }
 
 export function engagementCheck(player: PlayerId): Action {
-  return chooseCardForAction("Choose enemy to engage", withMaxEngegament(player), engagePlayer(player));
+  return chooseCardForAction("Choose enemy to engage", withMaxEngagement(player), engagePlayer(player));
 }
 
 export function engagePlayer(player: PlayerId): CardAction2 {
@@ -433,18 +437,45 @@ export function whileDo(exp: Exp<boolean>, act: Action): Action {
   };
 }
 
-export function resolveEnemyAttacksForPlayer(playerId: PlayerId) {
+export function resolveEnemyAttacks(playerId: PlayerId) {
   const enemies: Filter<CardId> = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
-  return chooceCardActionOrder("Choose enemy attacker", enemies, resolveEnemyAttack(playerId));
+  return chooseCardActionOrder("Choose enemy attacker", enemies, resolveEnemyAttack(playerId));
 }
 
 export function resolveEnemyAttack(playerId: PlayerId): CardAction {
-  return (attackerId) => {
-    const defenders = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+  return (attackerId) => {    
+    // TODO shadow effect
     return sequence(
-      playerActions("Declare defender"),
-      chooseCardForAction("Declare defender", defenders, cardActionSequence(tapAction, resolveDefense(attackerId)))
+      playerActions("Declare defender"),      
+      declareDefender(attackerId, playerId)
     );
+  };
+}
+
+export function declareDefender(attackerId: CardId, playerId: PlayerId): Action {
+  const filter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+  return {
+    print: "declare defender",
+    do: async (e) => {
+      const view = createView(e.state);
+      const cards = filterCards(filter, view);
+      const choosen = await e.chooseOne("Declare defender", [
+        ...cards.map((c) => ({ label: c.props.name || "", value: c, image: c.props.image })),
+        { label: "none", value: undefined },
+      ]);
+
+      const action = choosen
+        ? cardActionSequence(tapAction, resolveDefense(attackerId)).action(choosen.id)
+        : chooseCardForAction(
+            "Choose hero for undefended attack",
+            and(isHero, isInZone(zoneKey("playerArea", playerId))),
+            dealDamage2(getProp("attack", attackerId))
+          );
+
+      e.do(action);
+    },
+    //TODO
+    commands: () => [],
   };
 }
 
@@ -452,6 +483,10 @@ export const tapAction = cardAction("tap card", (cardId) => action(tap(cardId)))
 
 export function dealDamage(amount: Exp<number>): CardAction {
   return (cardId) => action(repeat(amount, addToken(cardId, "damage")));
+}
+
+export function dealDamage2(amount: Exp<number>): CardAction2 {
+  return cardAction(`deal ${amount.print} damage`, (cardId) => action(repeat(amount, addToken(cardId, "damage"))));
 }
 
 export function resolveDefense(attackerId: CardId): CardAction2 {
@@ -463,7 +498,7 @@ export function resolveDefense(attackerId: CardId): CardAction2 {
   });
 }
 
-export function chooceCardActionOrder(title: string, filter: Filter<CardId>, action: CardAction): Action {
+export function chooseCardActionOrder(title: string, filter: Filter<CardId>, action: CardAction): Action {
   return {
     print: `choose card order for cards ${filter(0).print} and action ${action(0).print}`,
     do: async (e) => {
@@ -493,27 +528,40 @@ export function chooceCardActionOrder(title: string, filter: Filter<CardId>, act
   };
 }
 
-export function resolvePlayerAttacksForPlayer(playerId: PlayerId) {
+export function resolvePlayerAttacks(playerId: PlayerId) {
+  // TODO all
   return sequence();
 }
 
-export function resolveEnemyAttacks() {
-  return eachPlayer(resolveEnemyAttacksForPlayer);
-}
-
-export function resolvePlayerAttacks() {
-  return eachPlayer(resolvePlayerAttacksForPlayer);
+export function dealShadowCards() {
+  // TODO all
+  return sequence();
 }
 
 export function phaseCombat() {
-  // todo shadow cards
-  return sequence(playerActions("Resolve enemy attacks"), resolveEnemyAttacks(), resolvePlayerAttacks());
+  return sequence(
+    dealShadowCards(),
+    playerActions("Resolve enemy attacks"),
+    eachPlayer(resolveEnemyAttacks),
+    playerActions("Resolve player attacks"),
+    eachPlayer(resolvePlayerAttacks),
+    playerActions("End phase")
+  );
 }
 
 export function gameRound() {
-  return sequence(phaseResource(), phaseQuest(), phaseTravel(), phaseEncounter(), phaseCombat(), phaseRefresh());
+  return sequence(
+    phaseResource(),
+    phasePlanning(),
+    phaseQuest(),
+    phaseTravel(),
+    phaseEncounter(),
+    phaseCombat(),
+    phaseRefresh()
+  );
 }
 
 export function startGame() {
+  // TODO ending condition
   return whileDo(lit(true), gameRound());
 }

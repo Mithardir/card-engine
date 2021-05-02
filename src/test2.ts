@@ -15,13 +15,6 @@ export type BoolAlg<E> = {
   negate(a: E): E;
 };
 
-export type NumProp<P, NE> = {
-  lit(name: string, value: number): P;
-  inc(p: P, amount: NE): P;
-};
-
-
-
 export type AbilityAlg<AB, CM, AC, CA> = {
   modifySelf(text: string, mod: CM): AB;
   action(text: string, action: AC): AB;
@@ -40,9 +33,9 @@ export type CardAlg<C, CA, CM, AB> = {
   sequence(...a: CA[]): CA;
 };
 
-export type PlayerAlg<P, PA> = {
+export type PlayerAlg<P, PA, NM> = {
   player(name: "A" | "B" | "C" | "D"): P;
-  draw(amount: number): PA;
+  draw(amount: NM): PA;
 
   sequence(...a: PA[]): PA;
 };

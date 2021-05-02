@@ -110,7 +110,7 @@ export function lit<T extends number | boolean>(value: T): Exp<T> {
   };
 }
 
-export const isThereActiveLocation: Exp<boolean> = {
+export const existsActiveLocation: Exp<boolean> = {
   print: "is there active location",
   eval: (v) => {
     return v.zones.activeLocation.cards.length > 0;

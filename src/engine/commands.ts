@@ -81,17 +81,39 @@ export function removeToken(cardId: CardId, type: Token): Command {
   };
 }
 
-export function repeat(amountExp: Exp<number>, cmd: Command): Command {
+export function repeat(exp: Exp<number>, cmd: Command): Command {
   return {
-    print: `repeat ${amountExp.print}x: [${cmd.print}]`,
+    print: `repeat ${exp.print}x: [${cmd.print}]`,
     do: (s) => {
-      const amount = amountExp.eval(createView(s));
+      const amount = exp.eval(createView(s));
       for (let index = 0; index < amount; index++) {
         cmd.do(s);
       }
     },
     result: (init) => {
-      const amount = amountExp.eval(createView(init));
+      const amount = exp.eval(createView(init));
+      const results: CommandResult[] = [];
+      produce(init, (draft) => {
+        for (let index = 0; index < amount; index++) {
+          results.push(cmd.result(draft));
+          cmd.do(draft);
+        }
+      });
+
+      return mergeAndResults(...results);
+    },
+  };
+}
+
+export function repeat2(amount: number, cmd: Command): Command {
+  return {
+    print: `repeat ${amount}x: [${cmd.print}]`,
+    do: (s) => {
+      for (let index = 0; index < amount; index++) {
+        cmd.do(s);
+      }
+    },
+    result: (init) => {
       const results: CommandResult[] = [];
       produce(init, (draft) => {
         for (let index = 0; index < amount; index++) {

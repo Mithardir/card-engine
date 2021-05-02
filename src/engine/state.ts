@@ -71,7 +71,7 @@ export type DeckInfo = {
   cards: Card[];
 };
 
-export function createCardState(id: CardId, card: Card, side: Side): CardState {
+export function createCardState(id: CardId, definition: CardDefinition, side: Side): CardState {
   return {
     id,
     damage: 0,
@@ -79,7 +79,7 @@ export function createCardState(id: CardId, card: Card, side: Side): CardState {
     resources: 0,
     sideUp: side,
     tapped: false,
-    definition: card(id),
+    definition,
     commitedToQuest: false,
   };
 }

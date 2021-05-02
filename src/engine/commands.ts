@@ -2,7 +2,7 @@ import produce from "immer";
 import { shuffleArray } from "../utils";
 import { Exp } from "./filters";
 import { PlayerDeck, Scenario } from "./setup";
-import { Card, CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
+import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
 import { Command, CommandResult, Token, ZoneKey } from "./types";
 import { getZone, mergeAndResults } from "./utils";
 import { createView } from "./view";

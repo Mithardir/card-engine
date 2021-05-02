@@ -1,5 +1,5 @@
 import { Filter } from "./filters";
-import { Card, CardId, GameZoneType, PlayerId, PlayerZoneType, State } from "./state";
+import { CardId, GameZoneType, PlayerId, PlayerZoneType, State } from "./state";
 
 export type CommandResult = "none" | "partial" | "full";
 

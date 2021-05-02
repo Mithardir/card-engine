@@ -1,33 +1,58 @@
 import { beorn, gondorianSpearman, horsebackArcher, veteranAxehand, gandalf } from "../cards/sets/core/allies";
 import { bladeOfGondolin, citadelPlate, dwarvenAxe, hornOfGondor } from "../cards/sets/core/attachments";
-import { kingSpider, hummerhorns, ungoliantsSpawn, dolGuldurOrcs, chieftanUfthak, dolGuldurBeastmaster, forestSpider, eastBightPatrol, blackForestBats } from "../cards/sets/core/enemies";
-import { bladeMastery, feint, quickStrike, rainOfArrows, standTogether, swiftStrike, thicketOfSpears } from "../cards/sets/core/events";
+import {
+  kingSpider,
+  hummerhorns,
+  ungoliantsSpawn,
+  dolGuldurOrcs,
+  chieftanUfthak,
+  dolGuldurBeastmaster,
+  forestSpider,
+  eastBightPatrol,
+  blackForestBats,
+} from "../cards/sets/core/enemies";
+import {
+  bladeMastery,
+  feint,
+  quickStrike,
+  rainOfArrows,
+  standTogether,
+  swiftStrike,
+  thicketOfSpears,
+} from "../cards/sets/core/events";
 import { legolas, thalin, gimli } from "../cards/sets/core/heroes";
-import { greatForestWeb, mountainsOfMirkwood, necromancersPass, enchantedStream, oldForestRoad, forestGate } from "../cards/sets/core/locations";
+import {
+  greatForestWeb,
+  mountainsOfMirkwood,
+  necromancersPass,
+  enchantedStream,
+  oldForestRoad,
+  forestGate,
+} from "../cards/sets/core/locations";
 import { fliesAndSpiders } from "../cards/sets/core/quests";
 import { eyesOfTheForest, caughtInAWeb, drivenByShadow, theNecromancersReach } from "../cards/sets/core/treacheries";
-import { Card } from "./state";
+import { CardDefinition } from "./state";
 
 export interface Scenario {
   name: string;
-  questCards: Card[];
-  encounterCards: Card[];
+  questCards: CardDefinition[];
+  encounterCards: CardDefinition[];
 }
 
 export type PlayerDeck = {
   name: string;
-  heroes: Card[];
-  library: Card[];
+  heroes: CardDefinition[];
+  library: CardDefinition[];
 };
 
 export function playerDeck(name: string) {
   const deck: PlayerDeck = { name, heroes: [], library: [] };
   const x = {
-    addHero(card: Card) {
+    addHero(card: CardDefinition) {
       deck.heroes.push(card);
       return x;
     },
-    addCard(card: Card) {
+    addCard(card: CardDefinition) {
       deck.library.push(card);
       return x;
     },

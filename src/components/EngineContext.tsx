@@ -8,14 +8,11 @@ import {
   Icon,
   Button,
   DialogActions,
-  Typography,
   Grid,
 } from "@material-ui/core";
 import React, { useContext, createContext, useState } from "react";
 import { UI } from "../engine/engine";
 import { Engine } from "../engine/types";
-import { createView } from "../engine/view";
-import { CardShow } from "./CardShow";
 import { DialogsContextProps } from "./DialogsContext";
 
 const EngineContext = createContext<Engine>(undefined as any);

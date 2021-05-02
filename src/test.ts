@@ -1,10 +1,16 @@
 import { UI, createEngine } from "./engine/engine";
-import { CardId, createInitState, Card, createCardState } from "./engine/state";
+import { CardId, createInitState, Card, createCardState, CardDefinition } from "./engine/state";
 import { Engine } from "./engine/types";
 import { createView } from "./engine/view";
 
 export const testUi: UI = {
   chooseOne: async (title, items) => {
+    throw new Error();
+  },
+  chooseMultiple: () => {
+    throw new Error();
+  },
+  playerActions: () => {
     throw new Error();
   },
 };
@@ -26,7 +32,7 @@ export function createTestEngine() {
 
   const testEngine = {
     ...engine,
-    addHero: (card: Card) => {
+    addHero: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
       state.cards.push(cardState);

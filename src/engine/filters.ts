@@ -1,7 +1,7 @@
 import { CardId, PlayerId, playerIds } from "./state";
-import { Action, ZoneKey } from "./types";
+import { ZoneKey } from "./types";
 import { getZone } from "./utils";
-import { createView, View } from "./view";
+import { View } from "./view";
 
 export type Exp<T> = {
   print: string;

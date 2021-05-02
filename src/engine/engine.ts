@@ -1,4 +1,4 @@
-import { CardId, State } from "./state";
+import { State } from "./state";
 import { Action, CommandResult, Engine } from "./types";
 import { produce } from "immer";
 import { sequence } from "./actions";

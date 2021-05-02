@@ -15,7 +15,6 @@ import {
   zoneKey,
 } from "./commands";
 import {
-  all,
   and,
   countOfPlayers,
   diff,
@@ -31,7 +30,6 @@ import {
   isLess,
   isLocation,
   isMore,
-  isSame,
   isTapped,
   isThereActiveLocation,
   lit,

@@ -8,12 +8,8 @@ import {
   sequence,
   choosePlayerForAct,
   beginScenario,
-  phaseResource,
   draw,
   phaseQuest,
-  phaseTravel,
-  phaseRefresh,
-  phaseEncounter,
   startGame,
 } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";

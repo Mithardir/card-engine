@@ -65,12 +65,6 @@ export interface State {
   effects: Effect[];
 }
 
-export type Card = (id: number) => CardDefinition;
-
-export type DeckInfo = {
-  cards: Card[];
-};
-
 export function createCardState(id: CardId, definition: CardDefinition, side: Side): CardState {
   return {
     id,

@@ -1,5 +1,5 @@
 import { UI, createEngine } from "./engine/engine";
-import { CardId, createInitState, Card, createCardState, CardDefinition } from "./engine/state";
+import { CardId, createInitState, createCardState, CardDefinition } from "./engine/state";
 import { Engine } from "./engine/types";
 import { createView } from "./engine/view";
 

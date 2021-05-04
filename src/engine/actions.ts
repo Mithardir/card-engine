@@ -443,12 +443,9 @@ export function resolveEnemyAttacks(playerId: PlayerId) {
 }
 
 export function resolveEnemyAttack(playerId: PlayerId): CardAction {
-  return (attackerId) => {    
+  return (attackerId) => {
     // TODO shadow effect
-    return sequence(
-      playerActions("Declare defender"),      
-      declareDefender(attackerId, playerId)
-    );
+    return sequence(playerActions("Declare defender"), declareDefender(attackerId, playerId));
   };
 }
 

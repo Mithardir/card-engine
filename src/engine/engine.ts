@@ -1,6 +1,6 @@
 import { State } from "./state";
 import { Action, CommandResult, Engine } from "./types";
-import { produce } from "immer";
+import { produce, produceWithPatches } from "immer";
 import { sequence } from "./actions";
 import { mergeAndResults, mergeOrResults } from "./utils";
 import { createView } from "./view";

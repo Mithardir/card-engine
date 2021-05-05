@@ -41,56 +41,111 @@ function chooseOne(title: string, actions: Action2[]): Action2 {
         next: {
           type: "action_choice",
           title,
-          choices: actions.map((a) => ({ action: a, image: "", label: "" })),
+          choices: actions.map((a) => ({ action: a, image: "", label: a.print })),
         },
       };
     },
   };
 }
 
-const s: State = { a: 5, b: 5 };
+const s: State = { a: 3, b: 1 };
+
 console.log(s);
 console.log(incA.do(s));
 console.log(sequence2([chooseOne("a/b", [decA, decB]), decA, decB]).do(s));
 
-const flow = sequence2([chooseOne("a/b", [decA, decB]), decA, chooseOne("a/b", [decA, decB])]);
-const flow2 = chooseOne("a/b", [decA, decB]);
+const flow = sequence2([chooseOne("x", [decA, chooseOne("a/b", [decA, decB])]), decA]);
 
-console.log(expandNextActions(s, flow));
+const flow2 = sequence2([chooseOne("a/b", [decA, decB]), chooseOne("a/b", [decA, decB])]);
 
-console.log(createStateTree(s, flow).choices[0].choices);
+//console.log(expandNextActions(s, flow));
 
-export type StateTree = {
-  state: State;
-  choices: StateTree[];
-};
+//console.log(JSON.stringify(getStateTree(s, flow2), null, 1));
 
-export function createStateTree(state: State, action: Action2): StateTree {
-  const expanded = expandNextActions(state, action);
+export const flow3 = whileDo((s) => s.a > 0 || s.b > 0, chooseOne("a/b", [decA, decB]));
 
-  if (expanded[1].length === 0) {
-    return {
-      state: expanded[0],
-      choices: [],
-    };
-  }
+//const tree = getStateTree(s, flow3);
 
+//console.log(tree);
+
+export function whileDo(exp: (state: State) => boolean, action: Action2): Action2 {
   return {
-    state: expanded[0],
-    choices: expanded[1].map((s) => createStateTree(expanded[0], s)),
+    print: "while do",
+    type: "action",
+    do: (state) => {
+      if (exp(state)) {
+        const result = action.do(state);
+        if (!result.next) {
+          return {
+            change: result.change,
+            next: result.next,
+            state: result.state,
+          };
+        }
+
+        if (result.next.type === "action") {
+          return {
+            change: result.change,
+            next: sequence2([result.next, whileDo(exp, action)]),
+            state: result.state,
+          };
+        }
+
+        if (result.next.type === "action_choice") {
+          return {
+            change: result.change,
+            next: {
+              ...result.next,
+              choices: result.next.choices.map((c) => ({ ...c, action: sequence2([c.action, whileDo(exp, action)]) })),
+            },
+            state: result.state,
+          };
+        }
+      }
+
+      return { state, change: "none", next: undefined };
+    },
   };
 }
 
-export function expandNextActions(state: State, action: Action2): [State, Action2[]] {
+export type StateTree = {
+  state: State;
+  next?: {
+    title: string;
+    choices: Array<{
+      label: string;
+      result: StateTree;
+    }>;
+  };
+};
+
+export function getStateTree(state: State, action: Action2): StateTree {
+  debugger;
   const result = action.do(state);
   if (!result.next) {
-    return [result.state, []];
+    return {
+      state: result.state,
+      next: undefined,
+    };
   }
 
   if (result.next.type === "action") {
-    return expandNextActions(result.state, result.next);
+    return getStateTree(result.state, result.next);
   } else {
-    return [result.state, result.next.choices.map((c) => c.action)];
+    return {
+      state: result.state,
+      next: {
+        title: result.next.title,
+        choices: result.next.choices
+          .filter((c) => getActiomChange(c.action, result.state) !== "none")
+          .map((c) => ({
+            label: c.label,
+            get result() {
+              return getStateTree(result.state, c.action);
+            },
+          })),
+      },
+    };
   }
 }
 

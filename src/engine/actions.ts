@@ -44,7 +44,7 @@ import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
 import { Action, cardAction, CardAction, CardAction2, Command, PlayerAction } from "./types";
 import { CardView, createView } from "./view";
-import { PowerSet } from "js-combinatorics";
+import { PowerSet } from "ts-combinatorics";
 import { getActionResult } from "./engine";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {

@@ -1,4 +1,4 @@
-import { flow3, getStateTree } from "./test4";
+import { flow3, flow4, getStateTree } from "./test4";
 
 // ReactDOM.render(
 //   <DialogsProvider>
@@ -9,4 +9,5 @@ import { flow3, getStateTree } from "./test4";
 //   document.getElementById("root")
 // );
 
-console.log(getStateTree({ a: 1, b: 2 }, flow3));
+console.log(getStateTree({ a: 5, b: 5 }, flow3));
+console.log(getStateTree({ a: 5, b: 5 }, flow4));

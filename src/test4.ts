@@ -42,17 +42,18 @@ function chooseOne(title: string, actions: Action2[]): Action2 {
           type: "action_choice",
           title,
           choices: actions.map((a) => ({ action: a, image: "", label: a.print })),
+          next: undefined,
         },
       };
     },
   };
 }
 
-const s: State = { a: 3, b: 1 };
+const s: State = { a: 1, b: 1 };
 
-console.log(s);
-console.log(incA.do(s));
-console.log(sequence2([chooseOne("a/b", [decA, decB]), decA, decB]).do(s));
+//console.log(s);
+//console.log(incA.do(s));
+//console.log(sequence2([chooseOne("a/b", [decA, decB]), decA, decB]).do(s));
 
 const flow = sequence2([chooseOne("x", [decA, chooseOne("a/b", [decA, decB])]), decA]);
 
@@ -62,7 +63,9 @@ const flow2 = sequence2([chooseOne("a/b", [decA, decB]), chooseOne("a/b", [decA,
 
 //console.log(JSON.stringify(getStateTree(s, flow2), null, 1));
 
-export const flow3 = whileDo((s) => s.a > 0 || s.b > 0, chooseOne("a/b", [decA, decB]));
+export const flow3 = whileDo((s) => s.a > 0 || s.b > 0, sequence2([chooseOne("a/b", [decA, decB]), decA]));
+
+export const flow4 = sequence2([chooseOne("a/b", [decA, decB]), decA]);
 
 //const tree = getStateTree(s, flow3);
 
@@ -70,7 +73,7 @@ export const flow3 = whileDo((s) => s.a > 0 || s.b > 0, chooseOne("a/b", [decA, 
 
 export function whileDo(exp: (state: State) => boolean, action: Action2): Action2 {
   return {
-    print: "while do",
+    print: `while x do ${action.print}`,
     type: "action",
     do: (state) => {
       if (exp(state)) {
@@ -96,7 +99,8 @@ export function whileDo(exp: (state: State) => boolean, action: Action2): Action
             change: result.change,
             next: {
               ...result.next,
-              choices: result.next.choices.map((c) => ({ ...c, action: sequence2([c.action, whileDo(exp, action)]) })),
+              choices: result.next.choices.map((c) => ({ ...c, action: c.action })),
+              next: result.next.next ? sequence2([result.next.next, whileDo(exp, action)]) : whileDo(exp, action),
             },
             state: result.state,
           };
@@ -120,7 +124,6 @@ export type StateTree = {
 };
 
 export function getStateTree(state: State, action: Action2): StateTree {
-  debugger;
   const result = action.do(state);
   if (!result.next) {
     return {
@@ -130,7 +133,8 @@ export function getStateTree(state: State, action: Action2): StateTree {
   }
 
   if (result.next.type === "action") {
-    return getStateTree(result.state, result.next);
+    const tree = getStateTree(result.state, result.next);
+    return tree;
   } else {
     return {
       state: result.state,
@@ -138,12 +142,18 @@ export function getStateTree(state: State, action: Action2): StateTree {
         title: result.next.title,
         choices: result.next.choices
           .filter((c) => getActiomChange(c.action, result.state) !== "none")
-          .map((c) => ({
-            label: c.label,
-            get result() {
-              return getStateTree(result.state, c.action);
-            },
-          })),
+          .map((c) => {
+            return {
+              label: c.label,
+              get result() {
+                debugger;
+                const next = result.next?.type === "action_choice" ? result.next.next : sequence2([]);
+                const seq = next ? sequence2([c.action, next]) : c.action;
+                const tree = getStateTree(result.state, seq);
+                return tree;
+              },
+            };
+          }),
       },
     };
   }
@@ -170,7 +180,7 @@ export function simpleAction(title: string, update: (state: State) => CommandRes
 export function sequence2(actions: Action2[]): Action2 {
   return {
     type: "action",
-    print: `sequence: \r\n${actions.map((a) => "\t" + a.print).join("\r\n")}`,
+    print: `sequence: ${actions.map((a) => a.print).join(",")}`,
     do: (state) => {
       if (actions.length === 0) {
         return {
@@ -200,7 +210,8 @@ export function sequence2(actions: Action2[]): Action2 {
             next: {
               type: "action_choice",
               title: result.next.title,
-              choices: result.next.choices.map((c) => ({ ...c, action: sequence2([c.action, ...actions.slice(1)]) })),
+              choices: result.next.choices.map((c) => ({ ...c, action: c.action })),
+              next: sequence2(actions.slice(1)),
             },
           };
         }
@@ -263,6 +274,7 @@ export type ActionChoice = {
   type: "action_choice";
   title: string;
   choices: Array<{ label: string; image: string; action: Action2 }>;
+  next: Action2 | undefined;
 };
 
 export type CommandResult = "none" | "partial" | "full";

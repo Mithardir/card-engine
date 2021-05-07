@@ -1,13 +1,14 @@
-import { flow3, flow4, getStateTree } from "./test4";
+import React from "react";
+import ReactDOM from "react-dom";
+import { App } from "./App";
+import { DetailProvider } from "./components/DetailContext";
+import { DialogsProvider } from "./components/DialogsContext";
 
-// ReactDOM.render(
-//   <DialogsProvider>
-//     <DetailProvider>
-//       <App />
-//     </DetailProvider>
-//   </DialogsProvider>,
-//   document.getElementById("root")
-// );
-
-console.log(getStateTree({ a: 5, b: 5 }, flow3));
-console.log(getStateTree({ a: 5, b: 5 }, flow4));
+ReactDOM.render(
+  <DialogsProvider>
+    <DetailProvider>
+      <App />
+    </DetailProvider>
+  </DialogsProvider>,
+  document.getElementById("root")
+);

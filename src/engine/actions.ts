@@ -119,7 +119,7 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
       )
     ),
     eachPlayer((p) => action(shuffleZone(zoneKey("library", p)))),
-    eachPlayer(draw(6)),
+    //eachPlayer(draw(6)),
     action(moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"))
   );
 }

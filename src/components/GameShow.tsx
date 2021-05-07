@@ -4,20 +4,18 @@ import { Action } from "../engine/types";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import {
-  sequence,
-  choosePlayerForAct,
-  beginScenario,
-  draw,
-  phaseQuest,
-  startGame,
-} from "../engine/actions";
+import { sequence, choosePlayerForAct, beginScenario, draw, phaseQuest, startGame } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
 import { useEngine } from "./EngineContext";
+import { Action2, chooseOne2, draw2, sequence2 } from "../engine/actions2";
 
-export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
+export const GameShow = (props: {
+  view: View;
+  onAction: (action: Action) => void;
+  onAction2: (action: Action2) => void;
+}) => {
   const detail = React.useContext(DetailContext);
   const engine = useEngine();
   return (
@@ -71,15 +69,15 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         </Button>
 
         <Button
-          onClick={() => {
-            const action = sequence(
-              choosePlayerForAct("A", draw(2)),
-              choosePlayerForAct("A", draw(1)),
-              choosePlayerForAct("A", draw(1)),
-              choosePlayerForAct("A", draw(1))
-            );
+          onClick={() => {      
+            const action = chooseOne2("choose one", [
+              draw2(1)("A"),
+              draw2(1)("B"),
+              draw2(2)("A"),
+              draw2(2)("B"),
+            ]);
 
-            props.onAction(action);
+            props.onAction2(sequence2([action, action]));
           }}
         >
           Draw cards

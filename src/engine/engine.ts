@@ -5,6 +5,8 @@ import { sequence } from "./actions";
 import { mergeAndResults, mergeOrResults } from "./utils";
 import { createView } from "./view";
 import { filterCards } from "./filters";
+import { action, getActionChange, sequence2 } from "./actions2";
+import { isWhileStatement } from "typescript";
 
 export interface UI {
   chooseOne: <T>(title: string, items: Array<{ label: string; value: T; image?: string }>) => Promise<T>;
@@ -32,6 +34,47 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
     do: async (action) => {
       console.log("act", action.print);
       await action.do(engine);
+    },
+    do2: async (action) => {
+      //debugger;
+      let result = action.do(state);
+
+      while (true) {
+        while (!result.choice) {
+          if (result.next) {
+            result = result.next.do(result.state);
+          } else {
+            state = result.state;
+            if (onStateChange) {
+              onStateChange(state);
+            }
+            return;
+          }
+        }
+
+        if (result.choice) {
+          if (onStateChange && state !== result.state) {
+            onStateChange(state);
+          }
+          state = result.state;
+
+          const choosen = await ui.chooseOne(
+            result.choice.title,
+            result.choice.choices
+              .filter((c) => getActionChange(c.action, state) !== "none")
+              .map((c) => ({
+                ...c,
+                value: c.action,
+              }))
+          );
+
+          const next = result.next;
+          result = choosen.do(result.state);
+          if (next) {
+            result.next = result.next ? sequence2([next, result.next]) : next;
+          }
+        }
+      }
     },
     chooseNextAction: async (label, actions) => {
       //console.log(actions);

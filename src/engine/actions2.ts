@@ -1,36 +1,7 @@
-import produce, { Immer } from "immer";
+import produce from "immer";
+import { CardId, PlayerId, State } from "./state";
 
-type State = { a: number; b: number };
-
-const incA = action("incA", (s) => {
-  s.a += 1;
-  return "full";
-});
-
-const incB = action("incB", (s) => {
-  s.b += 1;
-  return "full";
-});
-
-const decA = action("decA", (s) => {
-  if (s.a >= 1) {
-    s.a -= 1;
-    return "full";
-  } else {
-    return "none";
-  }
-});
-
-const decB = action("decB", (s) => {
-  if (s.b >= 1) {
-    s.b -= 1;
-    return "full";
-  } else {
-    return "none";
-  }
-});
-
-function chooseOne(title: string, actions: Action2[]): Action2 {
+export function chooseOne2(title: string, actions: Action2[]): Action2 {
   return {
     print: `choose one [${actions.map((a) => a.print).join(", ")}]`,
     do: (state) => {
@@ -46,28 +17,6 @@ function chooseOne(title: string, actions: Action2[]): Action2 {
     },
   };
 }
-
-const s: State = { a: 2, b: 2 };
-
-//console.log(s);
-//console.log(incA.do(s));
-//console.log(sequence2([chooseOne("a/b", [decA, decB]), decA, decB]).do(s));
-
-const flow = sequence2([chooseOne("x", [decA, chooseOne("a/b", [decA, decB])]), decA]);
-
-const flow2 = sequence2([chooseOne("a/b", [decA, decB]), chooseOne("a/b", [decA, decB])]);
-
-//console.log(expandNextActions(s, flow));
-
-//console.log(JSON.stringify(getStateTree(s, flow2), null, 1));
-
-export const flow3 = whileDo((s) => s.a > 0 || s.b > 0, sequence2([decB, chooseOne("a/b", [decA, decB]), decA]));
-
-export const flow4 = sequence2([chooseOne("a/b", [decA, decB]), decA]);
-
-const tree = getStateTree(s, flow3);
-
-console.log(JSON.stringify(tree, null, 1));
 
 export function whileDo(exp: (state: State) => boolean, action: Action2): Action2 {
   return {
@@ -237,3 +186,35 @@ export type ActionResult = {
 };
 
 export type ActionEffect = "none" | "partial" | "full";
+
+export type PlayerAction2 = (playerId: PlayerId) => Action2;
+
+export type CardAction2 = (cardId: CardId) => Action2;
+
+export const draw2 = (amount: number) => (playerId: PlayerId) =>
+  action(`player ${playerId} draws ${amount} cards`, (state) => {
+    const player = state.players.find((p) => p.id === playerId);
+    if (!player) {
+      return "none";
+    }
+
+    const library = player.zones.library.cards;
+    const hand = player.zones.hand.cards;
+
+    if (library.length === 0) {
+      return "none";
+    }
+
+    let remains = amount;
+    while (remains > 0) {
+      const card = library.pop();
+      if (!card) {
+        return "partial";
+      }
+
+      hand.push(card);
+      remains--;
+    }
+
+    return "full";
+  });

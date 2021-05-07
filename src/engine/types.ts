@@ -1,3 +1,4 @@
+import { Action2 } from "./actions2";
 import { Filter } from "./filters";
 import { CardId, GameZoneType, PlayerId, PlayerZoneType, State } from "./state";
 
@@ -13,6 +14,7 @@ export type Engine = {
   state: State;
   exec: (command: Command) => void;
   do: (action: Action) => Promise<void>;
+  do2: (action: Action2) => Promise<void>;
   chooseNextAction: (title: string, actions: Array<{ label: string; value: Action; image?: string }>) => Promise<void>;
   chooseNextActions: (title: string, actions: Array<{ label: string; value: Action; image?: string }>) => Promise<void>;
   chooseCards: (title: string, filter: Filter<CardId>) => Promise<CardId[]>;

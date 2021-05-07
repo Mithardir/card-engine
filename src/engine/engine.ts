@@ -35,7 +35,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       console.log("act", action.print);
       await action.do(engine);
     },
-    do2: async (action) => {      
+    do2: async (action) => {
       let result = action.do(state);
 
       while (true) {
@@ -57,20 +57,25 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
           }
           state = result.state;
 
-          const choosen = await ui.chooseOne(
-            result.choice.title,
-            result.choice.choices
-              .filter((c) => getActionChange(c.action, state) !== "none")
-              .map((c) => ({
-                ...c,
-                value: c.action,
-              }))
-          );
+          if (result.choice.dialog) {
+            const choosen = await ui.chooseOne(
+              result.choice.title,
+              result.choice.choices
+                .filter((c) => getActionChange(c.action, state) !== "none")
+                .map((c) => ({
+                  ...c,
+                  value: c.action,
+                }))
+            );
 
-          const next = result.next;
-          result = choosen.do(result.state);
-          if (next) {
-            result.next = result.next ? sequence2(result.next, next) : next;
+            const next = result.next;
+            result = choosen.do(result.state);
+            if (next) {
+              result.next = result.next ? sequence2(result.next, next) : next;
+            }
+          } else {
+            await ui.playerActions(result.choice.title);
+            result.choice = undefined;
           }
         }
       }

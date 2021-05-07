@@ -17,7 +17,7 @@ import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
 import { useEngine } from "./EngineContext";
-import { Action2, chooseOne2, draw2, sequence2 } from "../engine/actions2";
+import { Action2, chooseOne2, draw2, playerActions2, sequence2 } from "../engine/actions2";
 
 export const GameShow = (props: {
   view: View;
@@ -78,8 +78,18 @@ export const GameShow = (props: {
 
         <Button
           onClick={() => {
-            const action = chooseOne2("choose one", [draw2(1)("A"), draw2(1)("B"), draw2(2)("A"), draw2(2)("B")]);
-            props.onAction2(sequence2(action, action));
+            // const action = chooseOne2("choose one", [draw2(1)("A"), draw2(1)("B"), draw2(2)("A"), draw2(2)("B")]);
+            // props.onAction2(sequence2(action, action));
+
+            props.onAction2(
+              sequence2(
+                playerActions2("A"),
+                playerActions2("B"),
+                playerActions2("C"),
+                playerActions2("D"),
+                playerActions2("E")
+              )
+            );
           }}
         >
           Draw cards

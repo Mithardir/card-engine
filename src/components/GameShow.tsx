@@ -4,7 +4,15 @@ import { Action } from "../engine/types";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { sequence, choosePlayerForAct, beginScenario, draw, phaseQuest, startGame } from "../engine/actions";
+import {
+  sequence,
+  choosePlayerForAct,
+  beginScenario,
+  draw,
+  phaseQuest,
+  startGame,
+  beginScenario2,
+} from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
@@ -54,7 +62,7 @@ export const GameShow = (props: {
 
         <Button
           onClick={() => {
-            props.onAction(sequence(beginScenario(passageThroughMirkwood, coreTactics, coreTactics), startGame()));
+            props.onAction2(beginScenario2(passageThroughMirkwood, coreTactics, coreTactics));
           }}
         >
           Begin scenario
@@ -69,15 +77,9 @@ export const GameShow = (props: {
         </Button>
 
         <Button
-          onClick={() => {      
-            const action = chooseOne2("choose one", [
-              draw2(1)("A"),
-              draw2(1)("B"),
-              draw2(2)("A"),
-              draw2(2)("B"),
-            ]);
-
-            props.onAction2(sequence2([action, action]));
+          onClick={() => {
+            const action = chooseOne2("choose one", [draw2(1)("A"), draw2(1)("B"), draw2(2)("A"), draw2(2)("B")]);
+            props.onAction2(sequence2(action, action));
           }}
         >
           Draw cards

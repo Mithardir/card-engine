@@ -1,16 +1,20 @@
 import {
   addPlayer,
+  addPlayer2,
   addToken,
   assignToQuest,
   batch,
   moveCard,
   moveTopCard,
+  moveTopCard2,
   noCommand,
   repeat,
   repeat2,
   setFirstPlayer,
   setupScenario,
+  setupScenario2,
   shuffleZone,
+  shuffleZone2,
   tap,
   untap,
   zoneKey,
@@ -46,6 +50,7 @@ import { Action, cardAction, CardAction, CardAction2, Command, PlayerAction } fr
 import { CardView, createView } from "./view";
 import { PowerSet } from "ts-combinatorics";
 import { getActionResult } from "./engine";
+import { Action2, draw2, PlayerAction2, sequence2 } from "./actions2";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
@@ -119,8 +124,19 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
       )
     ),
     eachPlayer((p) => action(shuffleZone(zoneKey("library", p)))),
-    //eachPlayer(draw(6)),
+    eachPlayer(draw(6)),
     action(moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"))
+  );
+}
+
+export function beginScenario2(scenario: Scenario, ...decks: PlayerDeck[]): Action2 {
+  return sequence2(
+    setupScenario2(scenario),
+    ...decks.map((d, i) => addPlayer2(playerIds[i], d)),
+    shuffleZone2(zoneKey("encounterDeck")),
+    eachPlayer2((p) => shuffleZone2(zoneKey("library", p))),
+    eachPlayer2(draw2(6)),
+    moveTopCard2(zoneKey("questDeck"), zoneKey("quest"), "face")
   );
 }
 
@@ -133,6 +149,17 @@ export function eachPlayer(factory: PlayerAction): Action {
       await action.do(engine);
     },
     commands: (s) => sequence(...s.players.map((p) => factory(p.id))).commands(s),
+  };
+}
+
+export function eachPlayer2(factory: PlayerAction2): Action2 {
+  // TODO order
+  return {
+    print: `each player: ${factory("X").print}`,
+    do: (s) => {
+      const action = sequence2(...s.players.map((p) => factory(p.id)));
+      return action.do(s);
+    },
   };
 }
 

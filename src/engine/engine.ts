@@ -35,8 +35,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
       console.log("act", action.print);
       await action.do(engine);
     },
-    do2: async (action) => {
-      //debugger;
+    do2: async (action) => {      
       let result = action.do(state);
 
       while (true) {
@@ -54,7 +53,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
 
         if (result.choice) {
           if (onStateChange && state !== result.state) {
-            onStateChange(state);
+            onStateChange(result.state);
           }
           state = result.state;
 
@@ -71,7 +70,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
           const next = result.next;
           result = choosen.do(result.state);
           if (next) {
-            result.next = result.next ? sequence2([next, result.next]) : next;
+            result.next = result.next ? sequence2(result.next, next) : next;
           }
         }
       }

@@ -1,5 +1,6 @@
 import produce from "immer";
 import { shuffleArray } from "../utils";
+import { action, Action2, sequence2 } from "./actions2";
 import { Exp } from "./filters";
 import { PlayerDeck, Scenario } from "./setup";
 import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
@@ -34,6 +35,22 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Command {
       return getZone(from)(s).cards.length > 0 ? "full" : "none";
     },
   };
+}
+
+export function moveTopCard2(from: ZoneKey, to: ZoneKey, side: Side): Action2 {
+  return action(`move to card from ${from.print} to ${to.print} with ${side} side up`, (state) => {
+    const fromZone = getZone(from)(state);
+    const toZone = getZone(to)(state);
+    if (fromZone.cards.length > 0) {
+      const cardId = fromZone.cards.pop()!;
+      const card = state.cards.find((c) => c.id === cardId)!;
+      card.sideUp = side;
+      toZone.cards.push(cardId);
+      return "full";
+    } else {
+      return "none";
+    }
+  });
 }
 
 export function moveCard(cardId: CardId, from: ZoneKey, to: ZoneKey, side: Side): Command {
@@ -127,6 +144,15 @@ export function repeat2(amount: number, cmd: Command): Command {
   };
 }
 
+export function repeat3(amount: number, action: Action2): Action2 {
+  return {
+    print: `repeat ${amount}x: [${action.print}]`,
+    do: (s) => {
+      return sequence2(...Array.from(new Array(amount)).map((_) => action)).do(s);
+    },
+  };
+}
+
 export function setupScenario(scenario: Scenario): Command {
   return {
     print: `setup scenario ${scenario.name}`,
@@ -143,6 +169,19 @@ export function setupScenario(scenario: Scenario): Command {
     },
     result: () => "full",
   };
+}
+
+export function setupScenario2(scenario: Scenario): Action2 {
+  return action(`setup scenario ${scenario.name}`, (s) => {
+    const quest = scenario.questCards.map((q, index) => createCardState(index * 5 + 5, q, "back"));
+    const cards = scenario.encounterCards.map((e, index) => createCardState((index + quest.length) * 5 + 5, e, "back"));
+
+    s.zones.encounterDeck.cards.push(...cards.map((c) => c.id));
+    s.zones.questDeck.cards.push(...quest.map((c) => c.id));
+
+    s.cards.push(...quest, ...cards);
+    return "full";
+  });
 }
 
 export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Command {
@@ -173,6 +212,31 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Command {
   };
 }
 
+export function addPlayer2(playerId: PlayerId, deck: PlayerDeck): Action2 {
+  return action(`add player ${playerId} with deck ${deck.name}`, (s) => {
+    const playerIndex = playerIds.findIndex((p) => p === playerId);
+    const heroes = deck.heroes.map((h, index) => createCardState(index * 5 + playerIndex + 1, h, "face"));
+    const library = deck.library.map((l, index) =>
+      createCardState((index + heroes.length) * 5 + playerIndex + 1, l, "back")
+    );
+
+    s.players.push({
+      id: playerId,
+      thread: heroes.map((h) => h.definition.face.threatCost!).reduce((p, c) => p + c, 0),
+      zones: {
+        hand: { cards: [], stack: false },
+        library: { cards: library.map((l) => l.id), stack: true },
+        playerArea: { cards: heroes.map((h) => h.id), stack: false },
+        discardPile: { cards: [], stack: true },
+        engaged: { cards: [], stack: false },
+      },
+    });
+
+    s.cards.push(...heroes, ...library);
+    return "full";
+  });
+}
+
 export function shuffleZone(zoneKey: ZoneKey): Command {
   return {
     print: `shuffle ${zoneKey.print}`,
@@ -181,6 +245,18 @@ export function shuffleZone(zoneKey: ZoneKey): Command {
     },
     result: () => "full",
   };
+}
+
+export function shuffleZone2(zoneKey: ZoneKey): Action2 {
+  return action(`shuffle ${zoneKey.print}`, (s) => {
+    const cards = getZone(zoneKey)(s).cards;
+    if (cards.length >= 1) {
+      shuffleArray(cards);
+      return "full";
+    } else {
+      return "none";
+    }
+  });
 }
 
 export function batch(...cmds: Command[]): Command {

@@ -1,5 +1,5 @@
 import { addToken, removeToken } from "../../../engine/actions/card";
-import { createTestEngine } from "../../../test.utils";
+import { createTestEngine } from "../../../tests/utils";
 import * as hero from "./heroes";
 
 it("Gimli's attack bonus", () => {

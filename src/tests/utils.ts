@@ -1,6 +1,6 @@
-import { UI, createEngine, Engine } from "./engine/engine";
-import { CardId, createInitState, createCardState, CardDefinition } from "./engine/state";
-import { createView } from "./engine/view";
+import { UI, createEngine, Engine } from "../engine/engine";
+import { CardId, createInitState, createCardState, CardDefinition } from "../engine/state";
+import { createView } from "../engine/view";
 
 export const testUi: UI = {
   chooseOne: async (title, items) => {

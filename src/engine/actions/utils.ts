@@ -21,6 +21,10 @@ export function getActionChange(action: Action, state: State): ActionEffect {
 }
 
 export function mergeEffect(type: "and" | "or", ...effects: ActionEffect[]): ActionEffect {
+  if (effects.length === 0) {
+    return type === "and" ? "full" : "none";
+  }
+
   if (effects.every((e) => e === "none")) {
     return "none";
   }

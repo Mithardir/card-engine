@@ -1,3 +1,4 @@
+import { zoneKey } from "./commands";
 import { CardId, PlayerId, playerIds } from "./state";
 import { ZoneKey } from "./types";
 import { getZone } from "./utils";
@@ -122,6 +123,14 @@ export const existsActiveLocation: Exp<boolean> = {
   print: "is there active location",
   eval: (v) => {
     return v.zones.activeLocation.cards.length > 0;
+  },
+};
+
+export const canTravel: Exp<boolean> = {
+  print: "can travel",
+  eval: (v) => {
+    const locations = filterCards(and(isLocation, isInZone(zoneKey("stagingArea"))), v);
+    return v.zones.activeLocation.cards.length === 0 && locations.length > 0;
   },
 };
 

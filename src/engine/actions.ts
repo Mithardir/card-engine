@@ -50,6 +50,7 @@ import {
   totalWillpower,
   withMaxEngegament as withMaxEngagement,
   isReady,
+  canTravel,
 } from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
@@ -503,6 +504,10 @@ export function chooseCardForAction3(title: string, filter: Filter<CardId>, card
         cards.map((c) => cardAction(c.id))
       );
 
+      if (cards.length === 0) {
+        return sequence2().do(state);
+      }
+
       return action.do(state);
     },
   };
@@ -510,8 +515,8 @@ export function chooseCardForAction3(title: string, filter: Filter<CardId>, card
 
 export const phaseTravel = sequence2(
   // TODO allow no travel
-  bind2(existsActiveLocation, (active) =>
-    !active ? chooseCardForAction3("Choose location for travel", isLocation, travelToLocation2()) : sequence2()
+  bind2(canTravel, (can) =>
+    can ? chooseCardForAction3("Choose location for travel", isLocation, travelToLocation2()) : sequence2()
   ),
   playerActions2("End travel phase")
 );
@@ -540,23 +545,23 @@ export function travelToLocation2() {
   return moveCard2(zoneKey("stagingArea"), zoneKey("activeLocation"), "face");
 }
 
-export function phaseEncounter(): Action {
-  return sequence(
-    eachPlayer(optionalEngagement),
-    playerActions("Engagement Checks"),
-    whileDo(enemiesToEngage, eachPlayer(engagementCheck)),
-    playerActions("Next phase")
-  );
-}
-
-export function optionalEngagement(player: PlayerId): Action {
+export const optionalEngagement: PlayerAction3 = (player) =>
   // TODO no engagement
-  return chooseCardForAction(
-    "Choose enemy to optional engage",
+  chooseCardForAction3(
+    "Choose enemy to optionally engage",
     and(isInZone(zoneKey("stagingArea")), isEnemy),
-    engagePlayer(player)
+    engagePlayer2(player)
   );
-}
+
+export const engagementCheck2: PlayerAction3 = (player) =>
+  chooseCardForAction3("Choose enemy to engage", withMaxEngagement(player), engagePlayer2(player));
+
+export const phaseEncounter = sequence2(
+  eachPlayer2(optionalEngagement),
+  playerActions2("Engagement Checks"),
+  whileDo2(enemiesToEngage, eachPlayer2(engagementCheck2)),
+  playerActions2("Next encounter phase")
+);
 
 export function engagementCheck(player: PlayerId): Action {
   return chooseCardForAction("Choose enemy to engage", withMaxEngagement(player), engagePlayer(player));
@@ -566,6 +571,10 @@ export function engagePlayer(player: PlayerId): CardAction2 {
   return cardAction(`engage player ${player}`, (cardId) =>
     action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("engaged", player), "face"))
   );
+}
+
+export function engagePlayer2(player: PlayerId): CardAction3 {
+  return moveCard2(zoneKey("stagingArea"), zoneKey("engaged", player), "face");
 }
 
 export function whileDo(exp: Exp<boolean>, act: Action): Action {
@@ -695,7 +704,7 @@ export const gameRound = sequence2(
   phasePlanning,
   phaseQuest,
   phaseTravel,
-  // phaseEncounter,
+  phaseEncounter,
   // phaseCombat,
   phaseRefresh
 );

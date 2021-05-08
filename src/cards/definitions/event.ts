@@ -1,4 +1,4 @@
-import { EventProps, Ability, emptyKeywords } from "../../engine/cardprops";
+import { EventProps, Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
 import playerBack from "../../Images/back/card.jpg";
 

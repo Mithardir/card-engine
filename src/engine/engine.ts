@@ -1,8 +1,17 @@
-import { State } from "./state";
-import { Engine } from "./types";
+import { CardId, State } from "./state";
 import { createView } from "./view";
-import { filterCards } from "./filters";
-import { getActionChange, sequence } from "./actions2";
+import { Filter, filterCards } from "./filters";
+import { sequence } from "./actions/control";
+import { getActionChange } from "./actions/utils";
+import { Action } from "./actions/types";
+
+export type Engine = {
+  state: State;
+  do: (action: Action) => Promise<void>;
+  chooseCards: (title: string, filter: Filter<CardId>) => Promise<CardId[]>;
+  playerActions: (title: string) => Promise<void>;
+  chooseOne: <T>(title: string, options: Array<{ label: string; value: T; image?: string }>) => Promise<T>;
+};
 
 export interface UI {
   chooseOne: <T>(title: string, items: Array<{ label: string; value: T; image?: string }>) => Promise<T>;

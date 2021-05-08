@@ -11,8 +11,7 @@ import {
   Grid,
 } from "@material-ui/core";
 import React, { useContext, createContext, useState } from "react";
-import { UI } from "../engine/engine";
-import { Engine } from "../engine/types";
+import { Engine, UI } from "../engine/engine";
 import { DialogsContextProps } from "./DialogsContext";
 
 const EngineContext = createContext<Engine>(undefined as any);

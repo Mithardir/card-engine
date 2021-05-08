@@ -3,13 +3,15 @@ import * as React from "react";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { beginScenario } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
-import { Action2, playerActions, sequence } from "../engine/actions2";
+import { Action } from "../engine/actions/types";
+import { sequence } from "../engine/actions/control";
+import { playerActions } from "../engine/actions/game";
+import { beginScenario } from "../engine/actions/phases";
 
-export const GameShow = (props: { view: View; onAction: (action: Action2) => void }) => {
+export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
   const detail = React.useContext(DetailContext);
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>

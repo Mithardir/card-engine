@@ -1,5 +1,5 @@
 import { Flavor } from "../utils";
-import { PrintedProps } from "./cardprops";
+import { PrintedProps } from "./types";
 import { View } from "./view";
 
 export const playerIds = ["A", "B", "C", "D"];
@@ -28,8 +28,6 @@ export interface PlayerState {
 }
 
 export type Side = "face" | "back";
-
-export type CardAction = {};
 
 export type CardDefinition = {
   face: PrintedProps;

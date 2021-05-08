@@ -1,4 +1,4 @@
-import { QuestProps, Ability, emptyKeywords } from "../../engine/cardprops";
+import { QuestProps, Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
 
 export function quest(props: QuestProps, ...abilities: Ability[]): CardDefinition {

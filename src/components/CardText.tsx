@@ -1,5 +1,5 @@
 import * as React from "react";
-import { addToken } from "../engine/commands";
+import { addToken } from "../engine/actions/card";
 import { CardView } from "../engine/view";
 import { useEngine } from "./EngineContext";
 import { PropertyView } from "./PropertyView";

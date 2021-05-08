@@ -1,5 +1,5 @@
-import { ActionEffect } from "./actions2";
-import { State, ZoneState } from "./state";
+import { ActionEffect } from "./actions/types";
+import { GameZoneType, PlayerId, PlayerZoneType, State, ZoneState } from "./state";
 import { ZoneKey } from "./types";
 import { View } from "./view";
 
@@ -38,4 +38,14 @@ export function mergeAndResults(...results: ActionEffect[]): ActionEffect {
   }
 
   return "partial";
+}
+
+export function zoneKey(type: PlayerZoneType, player: PlayerId): ZoneKey;
+export function zoneKey(type: GameZoneType): ZoneKey;
+export function zoneKey(type: PlayerZoneType | GameZoneType, player?: PlayerId): ZoneKey {
+  return {
+    type,
+    player,
+    print: player ? `${type} of player ${player}` : type,
+  } as ZoneKey;
 }

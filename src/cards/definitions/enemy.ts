@@ -1,4 +1,4 @@
-import { EnemyProps, Ability, emptyKeywords } from "../../engine/cardprops";
+import { EnemyProps, Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
 import encounterBack from "../../Images/back/encounter.jpg";
 

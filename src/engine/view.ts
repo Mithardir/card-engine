@@ -1,5 +1,5 @@
 import produce from "immer";
-import { PrintedProps } from "./cardprops";
+import { PrintedProps } from "./types";
 import { CardId, CardState, Effect, GameZoneType, PlayerId, PlayerState, Side, State, ZoneState } from "./state";
 
 export type View = {

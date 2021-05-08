@@ -1,4 +1,4 @@
-import { addToken, removeToken } from "../../../engine/commands";
+import { addToken, removeToken } from "../../../engine/actions/card";
 import { createTestEngine } from "../../../test.utils";
 import * as hero from "./heroes";
 

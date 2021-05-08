@@ -1,8 +1,7 @@
-import { zoneKey } from "./commands";
 import { CardId, PlayerId, playerIds } from "./state";
 import { ZoneKey } from "./types";
-import { getZone } from "./utils";
-import { View } from "./view";
+import { getZone, zoneKey } from "./utils";
+import { CardView, View } from "./view";
 
 export type Exp<T> = {
   print: string;
@@ -170,9 +169,9 @@ export const countOfPlayers: Exp<number> = {
   },
 };
 
-export function withMaxEngegament(player: PlayerId): Filter<CardId> {
+export function withMaxEngagement(player: PlayerId): Filter<CardId> {
   return (cardId) => ({
-    print: "withMaxEngegament",
+    print: "withMaxEngagement",
     eval: (v) => {
       const threat = v.players.find((p) => p.id === player)!.thread;
       const cards = v.cards.filter(
@@ -210,5 +209,12 @@ export function getProp(property: "attack" | "defense", cardId: CardId): Exp<num
     eval: (v) => {
       return v.cards.find((c) => c.id === cardId)!.props[property]!;
     },
+  };
+}
+
+export function filteredCards(filter: Filter<CardId>): Exp<CardView[]> {
+  return {
+    print: `cards that ${filter(0)}`,
+    eval: (v) => filterCards(filter, v),
   };
 }

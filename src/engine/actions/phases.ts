@@ -6,8 +6,27 @@ import { zoneKey } from "../utils";
 import { generateResource, untap } from "./card";
 import { chooseCardAction } from "./choices";
 import { sequence, repeat, whileDo, action, bind } from "./control";
-import { eachCard, moveTopCard, placeProgress, travelToLocation, passFirstPlayerToken, addPlayer, shuffleZone, dealShadowCards, eachPlayer, playerActions } from "./game";
-import { draw, commitCharactersToQuest, incrementThreat, optionalEngagement, engagementCheck, resolveEnemyAttacks, resolvePlayerAttacks } from "./player";
+import {
+  eachCard,
+  moveTopCard,
+  placeProgress,
+  travelToLocation,
+  passFirstPlayerToken,
+  addPlayer,
+  shuffleZone,
+  dealShadowCards,
+  eachPlayer,
+  playerActions,
+} from "./game";
+import {
+  draw,
+  commitCharactersToQuest,
+  incrementThreat,
+  optionalEngagement,
+  engagementCheck,
+  resolveEnemyAttacks,
+  resolvePlayerAttacks,
+} from "./player";
 import { Action } from "./types";
 
 export const phaseResource = sequence(

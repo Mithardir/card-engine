@@ -1,4 +1,4 @@
-import { and, isInZone, isEnemy, Filter, isHero, isReady, withMaxEngagement, isCharacter } from "../filters";
+import { and, isInZone, isEnemy, Filter, isReady, withMaxEngagement, isCharacter } from "../filters";
 import { PlayerId, CardId } from "../state";
 import { zoneKey } from "../utils";
 import { engagePlayer, resolveEnemyAttack, commitToQuest } from "./card";

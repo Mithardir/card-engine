@@ -3,6 +3,7 @@ import * as React from "react";
 import { GameZoneType, PlayerId, PlayerZoneType, ZoneState } from "../engine/state";
 import { CardView, View } from "../engine/view";
 import { CardShow } from "./CardShow";
+import { useEngine } from "./EngineContext";
 
 export const CardBox = (props: { cards: CardView[] }) => {
   const cards = props.cards;
@@ -33,9 +34,13 @@ export const ZoneShow = (
     ? props.view.players.find((p) => p.id === props.owner)?.zones[props.type]
     : (props.view.zones as any)[props.type];
 
+  const engine = useEngine();
+
   if (!zone) {
     return <>Zone not found</>;
   }
+
+  const cards = zone.cards.map((card) => engine.state.cards.find((cd) => card === cd.id)!);
 
   return (
     <Paper
@@ -44,7 +49,6 @@ export const ZoneShow = (
         display: "flex",
         flexDirection: "column",
         margin: 4,
-        //backgroundColor: "#d1ff33",
       }}
     >
       <div style={{ margin: 2 }}>
@@ -59,18 +63,16 @@ export const ZoneShow = (
           minHeight: 174,
         }}
       >
-        {/* {zone.cards.map((cid) => (
-          <CardShow
-            content="image"
-            card={props.view.cards.find((c) => c.id)!}
-          />
-        ))} */}
-
         {zone.cards.length !== 0 &&
           !zone.stack &&
-          zone.cards
-            //.filter((c) => !c.attachedTo)
-            .map((cardId) => <CardBox key={cardId} cards={props.view.cards.filter((c) => c.id === cardId)} />)}
+          cards
+            .filter((c) => !c.attachedTo)
+            .map((card) => (
+              <CardBox
+                key={card.id}
+                cards={props.view.cards.filter((c) => c.id === card.id || c.attachedTo === card.id)}
+              />
+            ))}
 
         {zone.cards.length !== 0 && zone.stack && (
           <CardShow content="image" card={props.view.cards.find((c) => c.id === zone.cards[0])!} />

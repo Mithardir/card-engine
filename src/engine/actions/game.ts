@@ -43,12 +43,19 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
       const cards = filterCards(filter, view);
 
       const action = chooseOne("Declare defender", [
-        ...cards.map((c) => sequence(tap(c.id), resolveDefense(attackerId)(c.id))),
-        chooseCardForAction(
-          "Choose hero for undefended attack",
-          and(isHero, isInZone(zoneKey("playerArea", playerId))),
-          (hero) => bind(getProp("attack", attackerId), (attack) => dealDamage(attack)(hero))
-        ),
+        ...cards.map((c) => ({
+          image: c.props.image,
+          label: c.props.name || "",
+          action: sequence(tap(c.id), resolveDefense(attackerId)(c.id)),
+        })),
+        {
+          label: "No defender",
+          action: chooseCardForAction(
+            "Choose hero for undefended attack",
+            and(isHero, isInZone(zoneKey("playerArea", playerId))),
+            (hero) => bind(getProp("attack", attackerId), (attack) => dealDamage(attack)(hero))
+          ),
+        },
       ]);
 
       return action.do(state);

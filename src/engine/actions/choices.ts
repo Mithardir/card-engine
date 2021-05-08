@@ -6,9 +6,12 @@ import { sequence } from "./control";
 import { Action, CardAction } from "./types";
 import { mergeEffect, getActionChange } from "./utils";
 
-export function chooseSome(title: string, choices: Array<{ label: string; image?: string; action: Action }>): Action {
+export function chooseMultiple(
+  title: string,
+  choices: Array<{ label: string; image?: string; action: Action }>
+): Action {
   return {
-    print: `choose one [${choices.map((a) => a.action.print).join(", ")}]`,
+    print: `choose multiple [${choices.map((a) => a.action.print).join(", ")}]`,
     do: (state) => {
       return {
         effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
@@ -25,18 +28,18 @@ export function chooseSome(title: string, choices: Array<{ label: string; image?
   };
 }
 
-export function chooseOne(title: string, actions: Action[]): Action {
+export function chooseOne(title: string, choices: Array<{ label: string; image?: string; action: Action }>): Action {
   return {
-    print: `choose one [${actions.map((a) => a.print).join(", ")}]`,
+    print: `choose one [${choices.map((c) => c.action.print).join(", ")}]`,
     do: (state) => {
       return {
-        effect: mergeEffect("or", ...actions.map((a) => getActionChange(a, state))),
+        effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
         state: state,
         choice: {
           title,
           multiple: false,
           dialog: true,
-          choices: actions.map((a) => ({ action: a, image: "", label: a.print })),
+          choices: choices.map((c) => ({ action: c.action, image: c.image, label: c.label })),
         },
         next: undefined,
       };
@@ -84,7 +87,7 @@ export function chooseCardForAction(title: string, filter: Filter<CardId>, cardA
       const cards = filterCards(filter, createView(state));
       const action = chooseOne(
         title,
-        cards.map((c) => cardAction(c.id))
+        cards.map((c) => ({ action: cardAction(c.id), label: c.props.name || "", image: c.props.image }))
       );
 
       if (cards.length === 0) {
@@ -107,7 +110,7 @@ export function chooseCardsForAction(title: string, filter: Filter<CardId>, fact
         action: factory(card.id),
         image: card.props.image,
       }));
-      const action = chooseSome(title, choices);
+      const action = chooseMultiple(title, choices);
       return action.do(state);
     },
   };

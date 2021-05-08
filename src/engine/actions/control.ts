@@ -24,7 +24,13 @@ export function action(title: string, update: (state: State) => ActionEffect): A
 
 export function sequence(...actions: Action[]): Action {
   return {
-    print: `sequence: ${actions.map((a) => a.print).join(",")}`,
+    print:
+      actions.length === 0
+        ? ""
+        : `(${actions
+            .map((a) => a.print)
+            .filter((a) => a)
+            .join(", ")})`,
     do: (state) => {
       if (actions.length === 0) {
         return {
@@ -58,7 +64,7 @@ export function sequence(...actions: Action[]): Action {
 
 export function whileDo(exp: Exp<boolean>, action: Action): Action {
   return {
-    print: `while (${exp.print}) do {${action.print}}`,
+    print: `whileDo(${exp.print}, ${action.print})`,
     do: (state) => {
       if (exp.eval(createView(state))) {
         const result = action.do(state);
@@ -95,7 +101,7 @@ export function bind<T>(exp: Exp<T>, factory: (v: T) => Action): Action {
 
 export function repeat(amount: number, action: Action): Action {
   return {
-    print: `repeat ${amount}x: [${action.print}]`,
+    print: `repeat(${amount}, ${action.print})`,
     do: (s) => {
       return sequence(...Array.from(new Array(amount)).map((_) => action)).do(s);
     },

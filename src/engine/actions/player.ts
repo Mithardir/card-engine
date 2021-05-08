@@ -32,9 +32,9 @@ export function resolveEnemyAttacks(playerId: PlayerId) {
 }
 
 export function incrementThreat(amount: number): PlayerAction {
-  return (id) =>
-    action(`player ${id}: increment threat by ${amount}`, (s) => {
-      const player = s.players.find((p) => p.id === id);
+  return (playerId) =>
+    action(`incrementThreat(${amount}, ${playerId})`, (s) => {
+      const player = s.players.find((p) => p.id === playerId);
       if (player) {
         player.thread += amount;
         return "full";

@@ -13,7 +13,7 @@ import { Action, CardAction, PlayerAction } from "./types";
 
 export const playerActions: (title: string) => Action = (title) => {
   return {
-    print: `player actions until ${title}`,
+    print: `playerActions`,
     do: (state) => {
       return {
         choice: {
@@ -37,7 +37,7 @@ export const dealShadowCards =
 export function declareDefender(attackerId: CardId, playerId: PlayerId): Action {
   const filter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
   return {
-    print: "declare defender",
+    print: `declareDefender(${attackerId}, ${playerId})`,
     do: (state) => {
       const view = createView(state);
       const cards = filterCards(filter, view);
@@ -63,7 +63,7 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
   };
 }
 
-export const passFirstPlayerToken: Action = action("pass first player token", (state) => {
+export const passFirstPlayerToken: Action = action("passFirstPlayerToken", (state) => {
   // TODO
   return "full";
 });
@@ -125,7 +125,7 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action {
 export function eachPlayer(factory: PlayerAction): Action {
   // TODO order
   return {
-    print: `each player: ${factory("X").print}`,
+    print: `eachPlayer(${factory("X").print})`,
     do: (s) => {
       const action = sequence(...s.players.map((p) => factory(p.id)));
       return action.do(s);
@@ -135,7 +135,7 @@ export function eachPlayer(factory: PlayerAction): Action {
 
 export function eachCard(filter: Filter<CardId>, action: CardAction): Action {
   return {
-    print: `each card (${filter(0).print}) {${action(0).print}}`,
+    print: `eachCard(${filter("X" as any).print}, ${action("X" as any).print})`,
     do: (state) => {
       const view = createView(state);
       const cards = filterCards(filter, view);
@@ -146,7 +146,7 @@ export function eachCard(filter: Filter<CardId>, action: CardAction): Action {
 }
 
 export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Action {
-  return action(`move to card from ${from.print} to ${to.print} with ${side} side up`, (state) => {
+  return action(`moveTopCard(${from.print}, ${to.print}, "${side}")`, (state) => {
     const fromZone = getZone(from)(state);
     const toZone = getZone(to)(state);
     if (fromZone.cards.length > 0) {

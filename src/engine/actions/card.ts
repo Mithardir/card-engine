@@ -38,7 +38,7 @@ export function commitToQuest(cardId: CardId): Action {
 }
 
 export function tap(cardId: CardId): Action {
-  return action(`tap card ${cardId}`, (state) => {
+  return action(`tapCard(${cardId})`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
     if (!card || card.tapped) {
       return "none";
@@ -50,7 +50,7 @@ export function tap(cardId: CardId): Action {
 }
 
 export function untap(cardId: CardId): Action {
-  return action(`untap card ${cardId}`, (state) => {
+  return action(`untap(${cardId})`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
     if (!card || !card.tapped) {
       return "none";
@@ -62,7 +62,7 @@ export function untap(cardId: CardId): Action {
 }
 
 export function assignToQuest(cardId: CardId): Action {
-  return action(`assign card ${cardId} to quest `, (state) => {
+  return action(`assignToQuest(${cardId})`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
     if (card && !card.commitedToQuest) {
       card.commitedToQuest = true;
@@ -75,7 +75,7 @@ export function assignToQuest(cardId: CardId): Action {
 
 export function addToken(type: Token): CardAction {
   return (cardId) =>
-    action(`add ${type} token to card ${cardId}`, (state) => {
+    action(`addToken(${type}, ${cardId})`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
       if (!card) {
         return "none";
@@ -101,7 +101,7 @@ export function removeToken(type: Token): CardAction {
 
 export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardAction {
   return (cardId) =>
-    action(`move to card ${cardId} from ${from.print} to ${to.print} with ${side} side up`, (s) => {
+    action(`moveCard(${cardId}, ${from.print}, ${to.print}, "${side}")`, (s) => {
       const fromZone = getZone(from)(s);
       const toZone = getZone(to)(s);
       if (fromZone.cards.includes(cardId)) {

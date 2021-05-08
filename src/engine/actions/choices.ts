@@ -85,7 +85,7 @@ export function chooseOrder<T>(
 
 export function chooseCardActionsOrder(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
-    print: `choose card order for cards ${filter(0).print} and action ${factory(0).print}`,
+    print: `chooseCardActionsOrder(${filter("X" as any).print}, ${factory("X" as any).print})`,
     do: (s) => {
       const cards = filterCards(filter, createView(s));
       const action = chooseOrder(
@@ -100,7 +100,7 @@ export function chooseCardActionsOrder(title: string, filter: Filter<CardId>, fa
 
 export function chooseCardAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
-    print: `choose card for action ${factory(0).print}`,
+    print: `chooseCardAction(${factory("X" as any).print})`,
     do: (state) => {
       const cards = filterCards(filter, createView(state));
       const action = chooseOne(
@@ -119,7 +119,7 @@ export function chooseCardAction(title: string, filter: Filter<CardId>, factory:
 
 export function chooseCardsActions(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
-    print: `choose cards for action: [${factory(0).print}]`,
+    print: `chooseCardsActions(${factory("X" as any).print})`,
     do: (state) => {
       const view = createView(state);
       const cards = filterCards(filter, view);

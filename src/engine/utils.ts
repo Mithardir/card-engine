@@ -47,7 +47,7 @@ export function zoneKey(type: PlayerZoneType | GameZoneType, player?: PlayerId):
   return {
     type,
     player,
-    print: player ? `${type} of player ${player}` : type,
+    print: player ? `zone(${type}, ${player})` : `zone(${type})`,
   } as ZoneKey;
 }
 

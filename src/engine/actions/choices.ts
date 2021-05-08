@@ -80,14 +80,14 @@ export function chooseCardActionOrder(
   };
 }
 
-export function chooseCardForAction(title: string, filter: Filter<CardId>, cardAction: CardAction): Action {
+export function chooseCardForAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
-    print: `choose card for action ${cardAction(0).print}`,
+    print: `choose card for action ${factory(0).print}`,
     do: (state) => {
       const cards = filterCards(filter, createView(state));
       const action = chooseOne(
         title,
-        cards.map((c) => ({ action: cardAction(c.id), label: c.props.name || "", image: c.props.image }))
+        cards.map((c) => ({ action: factory(c.id), label: c.props.name || "", image: c.props.image }))
       );
 
       if (cards.length === 0) {
@@ -99,7 +99,7 @@ export function chooseCardForAction(title: string, filter: Filter<CardId>, cardA
   };
 }
 
-export function chooseCardsForAction(title: string, filter: Filter<CardId>, factory: (id: CardId) => Action): Action {
+export function chooseCardsForAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
     print: `choose cards for action: [${factory(0).print}]`,
     do: (state) => {

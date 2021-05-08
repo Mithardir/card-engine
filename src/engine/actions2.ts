@@ -1,6 +1,8 @@
 import produce from "immer";
 import { moveTopCard2, repeat3, zoneKey } from "./commands";
+import { Exp } from "./filters";
 import { CardId, PlayerId, State } from "./state";
+import { createView } from "./view";
 
 export function chooseOne2(title: string, actions: Action2[]): Action2 {
   return {
@@ -20,16 +22,16 @@ export function chooseOne2(title: string, actions: Action2[]): Action2 {
   };
 }
 
-export function whileDo(exp: (state: State) => boolean, action: Action2): Action2 {
+export function whileDo2(exp: Exp<boolean>, action: Action2): Action2 {
   return {
-    print: `while x do ${action.print}`,
+    print: `while (${exp.print}) do {${action.print}}`,
     do: (state) => {
-      if (exp(state)) {
+      if (exp.eval(createView(state))) {
         const result = action.do(state);
 
         return {
           state: result.state,
-          next: result.next ? sequence2(result.next, whileDo(exp, action)) : whileDo(exp, action),
+          next: result.next ? sequence2(result.next, whileDo2(exp, action)) : whileDo2(exp, action),
           effect: result.effect,
           choice: result.choice,
         };
@@ -89,7 +91,7 @@ export function getStateTree(state: State, action: Action2): StateTree {
   }
 }
 
-export function action(title: string, update: (state: State) => ActionEffect): Action2 {
+export function action2(title: string, update: (state: State) => ActionEffect): Action2 {
   return {
     print: title,
     do: (state) => {
@@ -191,9 +193,9 @@ export type ActionResult = {
 
 export type ActionEffect = "none" | "partial" | "full";
 
-export type PlayerAction2 = (playerId: PlayerId) => Action2;
+export type PlayerAction3 = (playerId: PlayerId) => Action2;
 
-export type CardAction2 = (cardId: CardId) => Action2;
+export type CardAction3 = (cardId: CardId) => Action2;
 
 export const draw2 = (amount: number) => (playerId: PlayerId) =>
   repeat3(amount, moveTopCard2(zoneKey("library", playerId), zoneKey("hand", playerId), "face"));
@@ -206,7 +208,7 @@ export const playerActions2: (title: string) => Action2 = (title) => {
         choice: {
           title,
           dialog: false,
-          choices: [],
+          choices: [], // TODO choices
         },
         effect: "full",
         state,

@@ -5,7 +5,7 @@ import { sequence } from "./actions";
 import { mergeAndResults, mergeOrResults } from "./utils";
 import { createView } from "./view";
 import { filterCards } from "./filters";
-import { action, getActionChange, sequence2 } from "./actions2";
+import { action2, getActionChange, sequence2 } from "./actions2";
 import { isWhileStatement } from "typescript";
 
 export interface UI {

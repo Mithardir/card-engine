@@ -3,12 +3,12 @@ import * as React from "react";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { phaseQuest, startGame, beginScenario2 } from "../engine/actions";
+import { phaseQuest, startGame, beginScenario } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
 import { useEngine } from "./EngineContext";
-import { Action2, chooseOne2, draw2, playerActions2, sequence2 } from "../engine/actions2";
+import { Action2, chooseOne, draw, playerActions, sequence } from "../engine/actions2";
 
 export const GameShow = (props: { view: View; onAction: (action: Action2) => void }) => {
   const detail = React.useContext(DetailContext);
@@ -49,7 +49,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action2) => voi
 
         <Button
           onClick={() => {
-            props.onAction(beginScenario2(passageThroughMirkwood, coreTactics));
+            props.onAction(beginScenario(passageThroughMirkwood, coreTactics));
           }}
         >
           Start game
@@ -61,12 +61,12 @@ export const GameShow = (props: { view: View; onAction: (action: Action2) => voi
             // props.onAction2(sequence2(action, action));
 
             props.onAction(
-              sequence2(
-                playerActions2("A"),
-                playerActions2("B"),
-                playerActions2("C"),
-                playerActions2("D"),
-                playerActions2("E")
+              sequence(
+                playerActions("A"),
+                playerActions("B"),
+                playerActions("C"),
+                playerActions("D"),
+                playerActions("E")
               )
             );
           }}

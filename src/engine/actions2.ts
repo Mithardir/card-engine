@@ -1,10 +1,10 @@
 import produce from "immer";
-import { moveTopCard2, repeat3, zoneKey } from "./commands";
+import { moveTopCard, repeat, zoneKey } from "./commands";
 import { Exp } from "./filters";
 import { CardId, PlayerId, State } from "./state";
 import { createView } from "./view";
 
-export function chooseOne2(title: string, actions: Action2[]): Action2 {
+export function chooseOne(title: string, actions: Action2[]): Action2 {
   return {
     print: `choose one [${actions.map((a) => a.print).join(", ")}]`,
     do: (state) => {
@@ -23,7 +23,7 @@ export function chooseOne2(title: string, actions: Action2[]): Action2 {
   };
 }
 
-export function chooseSome2(
+export function chooseSome(
   title: string,
   choices: Array<{ label: string; image?: string; action: Action2 }>
 ): Action2 {
@@ -45,7 +45,7 @@ export function chooseSome2(
   };
 }
 
-export function whileDo2(exp: Exp<boolean>, action: Action2): Action2 {
+export function whileDo(exp: Exp<boolean>, action: Action2): Action2 {
   return {
     print: `while (${exp.print}) do {${action.print}}`,
     do: (state) => {
@@ -54,7 +54,7 @@ export function whileDo2(exp: Exp<boolean>, action: Action2): Action2 {
 
         return {
           state: result.state,
-          next: result.next ? sequence2(result.next, whileDo2(exp, action)) : whileDo2(exp, action),
+          next: result.next ? sequence(result.next, whileDo(exp, action)) : whileDo(exp, action),
           effect: result.effect,
           choice: result.choice,
         };
@@ -104,8 +104,8 @@ export function getStateTree(state: State, action: Action2): StateTree {
             return {
               label: c.label,
               get result() {
-                const next = result.next ? result.next : sequence2();
-                return getStateTree(result.state, sequence2(c.action, next));
+                const next = result.next ? result.next : sequence();
+                return getStateTree(result.state, sequence(c.action, next));
               },
             };
           }),
@@ -114,7 +114,7 @@ export function getStateTree(state: State, action: Action2): StateTree {
   }
 }
 
-export function action2(title: string, update: (state: State) => ActionEffect): Action2 {
+export function action(title: string, update: (state: State) => ActionEffect): Action2 {
   return {
     print: title,
     do: (state) => {
@@ -132,7 +132,7 @@ export function action2(title: string, update: (state: State) => ActionEffect): 
   };
 }
 
-export function sequence2(...actions: Action2[]): Action2 {
+export function sequence(...actions: Action2[]): Action2 {
   return {
     print: `sequence: ${actions.map((a) => a.print).join(",")}`,
     do: (state) => {
@@ -159,7 +159,7 @@ export function sequence2(...actions: Action2[]): Action2 {
                 choices: result.choice.choices.map((c) => ({ ...c, action: c.action })),
               }
             : undefined,
-          next: result.next ? sequence2(result.next, ...actions.slice(1)) : sequence2(...actions.slice(1)),
+          next: result.next ? sequence(result.next, ...actions.slice(1)) : sequence(...actions.slice(1)),
         };
       }
     },
@@ -221,14 +221,14 @@ export type ActionResult = {
 
 export type ActionEffect = "none" | "partial" | "full";
 
-export type PlayerAction3 = (playerId: PlayerId) => Action2;
+export type PlayerAction = (playerId: PlayerId) => Action2;
 
-export type CardAction3 = (cardId: CardId) => Action2;
+export type CardAction = (cardId: CardId) => Action2;
 
-export const draw2 = (amount: number) => (playerId: PlayerId) =>
-  repeat3(amount, moveTopCard2(zoneKey("library", playerId), zoneKey("hand", playerId), "face"));
+export const draw = (amount: number) => (playerId: PlayerId) =>
+  repeat(amount, moveTopCard(zoneKey("library", playerId), zoneKey("hand", playerId), "face"));
 
-export const playerActions2: (title: string) => Action2 = (title) => {
+export const playerActions: (title: string) => Action2 = (title) => {
   return {
     print: `player actions until ${title}`,
     do: (state) => {

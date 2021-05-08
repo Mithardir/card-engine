@@ -4,7 +4,7 @@ import { produce, produceWithPatches } from "immer";
 import { mergeAndResults, mergeOrResults } from "./utils";
 import { createView } from "./view";
 import { filterCards } from "./filters";
-import { action2, getActionChange, sequence2 } from "./actions2";
+import { action, getActionChange, sequence } from "./actions2";
 import { isWhileStatement } from "typescript";
 
 export interface UI {
@@ -44,7 +44,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
 
           if (result.choice.dialog) {
             const choosen = result.choice.multiple
-              ? sequence2(
+              ? sequence(
                   ...(await ui.chooseMultiple(
                     result.choice.title,
                     result.choice.choices.map((c) => ({
@@ -67,7 +67,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
             const next = result.next;
             result = choosen.do(result.state);
             if (next) {
-              result.next = result.next ? sequence2(result.next, next) : next;
+              result.next = result.next ? sequence(result.next, next) : next;
             }
           } else {
             await ui.playerActions(result.choice.title);

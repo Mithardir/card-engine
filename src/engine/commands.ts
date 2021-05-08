@@ -1,6 +1,6 @@
 import produce from "immer";
 import { shuffleArray } from "../utils";
-import { action2, Action2, CardAction3, sequence2 } from "./actions2";
+import { action, Action2, CardAction, sequence } from "./actions2";
 import { Exp } from "./filters";
 import { PlayerDeck, Scenario } from "./setup";
 import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
@@ -18,8 +18,8 @@ export function zoneKey(type: PlayerZoneType | GameZoneType, player?: PlayerId):
   } as ZoneKey;
 }
 
-export function moveTopCard2(from: ZoneKey, to: ZoneKey, side: Side): Action2 {
-  return action2(`move to card from ${from.print} to ${to.print} with ${side} side up`, (state) => {
+export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Action2 {
+  return action(`move to card from ${from.print} to ${to.print} with ${side} side up`, (state) => {
     const fromZone = getZone(from)(state);
     const toZone = getZone(to)(state);
     if (fromZone.cards.length > 0) {
@@ -34,9 +34,9 @@ export function moveTopCard2(from: ZoneKey, to: ZoneKey, side: Side): Action2 {
   });
 }
 
-export function moveCard2(from: ZoneKey, to: ZoneKey, side: Side): CardAction3 {
+export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardAction {
   return (cardId) =>
-    action2(`move to card ${cardId} from ${from.print} to ${to.print} with ${side} side up`, (s) => {
+    action(`move to card ${cardId} from ${from.print} to ${to.print} with ${side} side up`, (s) => {
       const fromZone = getZone(from)(s);
       const toZone = getZone(to)(s);
       if (fromZone.cards.includes(cardId)) {
@@ -51,9 +51,9 @@ export function moveCard2(from: ZoneKey, to: ZoneKey, side: Side): CardAction3 {
     });
 }
 
-export function addToken2(type: Token): CardAction3 {
+export function addToken(type: Token): CardAction {
   return (cardId) =>
-    action2(`add ${type} token to card ${cardId}`, (state) => {
+    action(`add ${type} token to card ${cardId}`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
       if (!card) {
         return "none";
@@ -64,17 +64,17 @@ export function addToken2(type: Token): CardAction3 {
     });
 }
 
-export function repeat3(amount: number, action: Action2): Action2 {
+export function repeat(amount: number, action: Action2): Action2 {
   return {
     print: `repeat ${amount}x: [${action.print}]`,
     do: (s) => {
-      return sequence2(...Array.from(new Array(amount)).map((_) => action)).do(s);
+      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(s);
     },
   };
 }
 
-export function setupScenario2(scenario: Scenario): Action2 {
-  return action2(`setup scenario ${scenario.name}`, (s) => {
+export function setupScenario(scenario: Scenario): Action2 {
+  return action(`setup scenario ${scenario.name}`, (s) => {
     const quest = scenario.questCards.map((q, index) => createCardState(index * 5 + 5, q, "back"));
     const cards = scenario.encounterCards.map((e, index) => createCardState((index + quest.length) * 5 + 5, e, "back"));
 
@@ -86,8 +86,8 @@ export function setupScenario2(scenario: Scenario): Action2 {
   });
 }
 
-export function addPlayer2(playerId: PlayerId, deck: PlayerDeck): Action2 {
-  return action2(`add player ${playerId} with deck ${deck.name}`, (s) => {
+export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action2 {
+  return action(`add player ${playerId} with deck ${deck.name}`, (s) => {
     const playerIndex = playerIds.findIndex((p) => p === playerId);
     const heroes = deck.heroes.map((h, index) => createCardState(index * 5 + playerIndex + 1, h, "face"));
     const library = deck.library.map((l, index) =>
@@ -111,8 +111,8 @@ export function addPlayer2(playerId: PlayerId, deck: PlayerDeck): Action2 {
   });
 }
 
-export function shuffleZone2(zoneKey: ZoneKey): Action2 {
-  return action2(`shuffle ${zoneKey.print}`, (s) => {
+export function shuffleZone(zoneKey: ZoneKey): Action2 {
+  return action(`shuffle ${zoneKey.print}`, (s) => {
     const cards = getZone(zoneKey)(s).cards;
     if (cards.length >= 1) {
       shuffleArray(cards);
@@ -123,8 +123,8 @@ export function shuffleZone2(zoneKey: ZoneKey): Action2 {
   });
 }
 
-export function tap2(cardId: CardId): Action2 {
-  return action2(`tap card ${cardId}`, (state) => {
+export function tap(cardId: CardId): Action2 {
+  return action(`tap card ${cardId}`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
     if (!card || card.tapped) {
       return "none";
@@ -135,8 +135,8 @@ export function tap2(cardId: CardId): Action2 {
   });
 }
 
-export function untap2(cardId: CardId): Action2 {
-  return action2(`untap card ${cardId}`, (state) => {
+export function untap(cardId: CardId): Action2 {
+  return action(`untap card ${cardId}`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
     if (!card || !card.tapped) {
       return "none";
@@ -147,8 +147,8 @@ export function untap2(cardId: CardId): Action2 {
   });
 }
 
-export function assignToQuest2(cardId: CardId): Action2 {
-  return action2(`assign card ${cardId} to quest `, (state) => {
+export function assignToQuest(cardId: CardId): Action2 {
+  return action(`assign card ${cardId} to quest `, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
     if (card && !card.commitedToQuest) {
       card.commitedToQuest = true;

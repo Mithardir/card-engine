@@ -1,5 +1,5 @@
 import * as React from "react";
-import { addToken2 } from "../engine/commands";
+import { addToken } from "../engine/commands";
 import { CardView } from "../engine/view";
 import { useEngine } from "./EngineContext";
 import { PropertyView } from "./PropertyView";
@@ -87,7 +87,7 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.damage}</td>
               <td>
-              <button onClick={() => engine.do(addToken2("damage")(c.id))}>+</button>
+              <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>
@@ -107,7 +107,7 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.damage}</td>
               <td>
-              <button onClick={() => engine.do(addToken2("damage")(c.id))}>+</button>
+              <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>

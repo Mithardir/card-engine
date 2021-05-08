@@ -1,6 +1,10 @@
 import produce from "immer";
 import { PrintedProps } from "./types";
 import { CardId, CardState, Effect, GameZoneType, PlayerId, PlayerState, Side, State, ZoneState } from "./state";
+import { Action, CardAction } from "./actions/types";
+import { sequence } from "./actions/control";
+import { moveCard, playAlly } from "./actions/card";
+import { zoneKey } from "./utils";
 
 export type View = {
   cards: CardView[];
@@ -24,6 +28,7 @@ export type CardView = {
   resources: number;
   sideUp: Side;
   commitedToQuest: boolean;
+  actions: Action[];
 };
 
 export type AbilityView = {
@@ -38,7 +43,8 @@ export function createCardView(state: CardState): CardView {
     ...printed,
     abilities: printed.abilities.map((a) => ({ ...a, applied: false })),
   };
-  return { ...state, printed, props };
+
+  return { ...state, printed, props, actions: [playAlly(state.id)] };
 }
 
 export function createView(state: State) {

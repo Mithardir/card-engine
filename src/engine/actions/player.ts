@@ -1,4 +1,4 @@
-import { and, isInZone, isEnemy, Filter, isHero, isReady, withMaxEngagement } from "../filters";
+import { and, isInZone, isEnemy, Filter, isHero, isReady, withMaxEngagement, isCharacter } from "../filters";
 import { PlayerId, CardId } from "../state";
 import { zoneKey } from "../utils";
 import { engagePlayer, resolveEnemyAttack, commitToQuest } from "./card";
@@ -47,6 +47,6 @@ export function incrementThreat(amount: number): PlayerAction {
 export const commitCharactersToQuest: PlayerAction = (player) =>
   chooseCardsActions(
     "Commit characters to quest",
-    and(isHero, isReady, isInZone(zoneKey("playerArea", player))),
+    and(isCharacter, isReady, isInZone(zoneKey("playerArea", player))),
     commitToQuest
   );

@@ -2,6 +2,7 @@ import { diff, getProp } from "../exps";
 import { CardId, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
+import { createView } from "../view";
 import { repeat, sequence, action, bind } from "./control";
 import { playerActions, declareDefender } from "./game";
 import { Action, CardAction } from "./types";
@@ -78,8 +79,8 @@ export function addToken(type: Token): CardAction {
       const card = state.cards.find((c) => c.id === cardId);
       if (!card) {
         return "none";
-      } else {        
-        card[type] += 1;        
+      } else {
+        card[type] += 1;
         return "full";
       }
     });
@@ -114,3 +115,20 @@ export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardAction {
       }
     });
 }
+
+export const playAlly: CardAction = (cardId) => {
+  // TODO  pay cost
+  return {
+    print: `play ally ${cardId}`,
+    do: (s) => {
+      const owner = s.players.find((p) => p.zones.hand.cards.includes(cardId));
+      const view = createView(s);
+      const card = view.cards.find((c) => c.id === cardId);
+      if (owner && card?.props.type === "ally") {
+        return moveCard(zoneKey("hand", owner.id), zoneKey("playerArea", owner.id), "face")(cardId).do(s);
+      } else {
+        return sequence().do(s);
+      }
+    },
+  };
+};

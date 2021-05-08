@@ -8,6 +8,7 @@ import resourceImage from "../Images/tokens/resource.png";
 import progressImage from "../Images/tokens/progress.png";
 import { CardId } from "../engine/state";
 import { useEngine } from "./EngineContext";
+import { getActionChange } from "../engine/actions/utils";
 
 export const CardShow = (props: {
   card?: CardView;
@@ -21,7 +22,7 @@ export const CardShow = (props: {
   const engine = useEngine();
 
   const card = props.card || createView(engine.state).cards.find((c) => c.id === props.cardId)!;
-  const actions: any[] = []; //c.actions.filter((a) => a.enabled);
+  const actions = card.actions.filter((a) => getActionChange(a, engine.state) !== "none");
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;
@@ -63,7 +64,7 @@ export const CardShow = (props: {
           return;
         } else {
           if (actions.length === 1) {
-            await actions[0].do();
+            await engine.do(actions[0]);
           } else {
             // TODO multiple actions
             // tslint:disable-next-line:no-console

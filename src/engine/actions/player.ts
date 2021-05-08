@@ -2,7 +2,8 @@ import { and, isInZone, isEnemy, Filter, isHero, isReady, withMaxEngagement } fr
 import { PlayerId, CardId } from "../state";
 import { zoneKey } from "../utils";
 import { engagePlayer, resolveEnemyAttack, commitToQuest } from "./card";
-import { repeat, sequence, chooseCardForAction, chooseCardActionOrder, action, chooseCardsForAction } from "./control";
+import { chooseCardForAction, chooseCardActionOrder, chooseCardsForAction } from "./choices";
+import { repeat, sequence, action } from "./control";
 import { moveTopCard } from "./game";
 import { PlayerAction } from "./types";
 

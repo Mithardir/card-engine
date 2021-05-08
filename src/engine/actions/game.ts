@@ -7,7 +7,8 @@ import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
 import { tap, resolveDefense, dealDamage, moveCard } from "./card";
-import { sequence, chooseOne, chooseCardForAction, action, bind } from "./control";
+import { chooseOne, chooseCardForAction } from "./choices";
+import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
 
 export const playerActions: (title: string) => Action = (title) => {

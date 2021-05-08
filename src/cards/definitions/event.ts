@@ -1,6 +1,27 @@
 import { EventProps, Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
 import playerBack from "../../Images/back/card.jpg";
+import { moveCard } from "../../engine/actions/card";
+import { sequence } from "../../engine/actions/control";
+import { Action } from "../../engine/actions/types";
+import { zoneKey } from "../../engine/utils";
+import { draw } from "../../engine/actions/player";
+
+export function action(props: { description: string; effect: Action }): Ability {
+  // TODO pay
+  return {
+    description: props.description,
+    activate: (view, self) => {
+      const card = view.cards.find((c) => c.id === self);
+      const owner = view.players.find((p) => p.zones.hand.cards.includes(self));
+      if (card && owner) {
+        card.actions.push(
+          sequence(props.effect, moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self))
+        );
+      }
+    },
+  };
+}
 
 export function event(props: EventProps, ...abilities: Ability[]): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
@@ -12,7 +33,12 @@ export function event(props: EventProps, ...abilities: Ability[]): CardDefinitio
       image,
       type: "event",
       keywords: emptyKeywords,
-      abilities,
+      abilities: [
+        action({
+          description: "test",
+          effect: draw(1)("A"),
+        }),
+      ],
       traits: [],
     },
     back: {

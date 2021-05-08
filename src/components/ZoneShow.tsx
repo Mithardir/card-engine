@@ -5,8 +5,8 @@ import { CardView, View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { useEngine } from "./EngineContext";
 
-export const CardBox = (props: { cards: CardView[] }) => {
-  const cards = props.cards;
+export const CardBox = (props: { card: CardView; attachments: CardView[] }) => {
+  const cards = [...props.attachments, props.card];
 
   return (
     <div
@@ -40,7 +40,7 @@ export const ZoneShow = (
     return <>Zone not found</>;
   }
 
-  const cards = zone.cards.map((card) => engine.state.cards.find((cd) => card === cd.id)!);
+  const zoneCards = zone.cards.map((card) => engine.state.cards.find((cd) => card === cd.id)!);
 
   return (
     <Paper
@@ -65,12 +65,13 @@ export const ZoneShow = (
       >
         {zone.cards.length !== 0 &&
           !zone.stack &&
-          cards
+          zoneCards
             .filter((c) => !c.attachedTo)
             .map((card) => (
               <CardBox
                 key={card.id}
-                cards={props.view.cards.filter((c) => c.id === card.id || c.attachedTo === card.id)}
+                card={props.view.cards.find((c) => c.id === card.id)!}
+                attachments={props.view.cards.filter((c) => c.attachedTo === card.id)}
               />
             ))}
 

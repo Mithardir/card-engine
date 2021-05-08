@@ -25,9 +25,6 @@ export function App() {
           onAction={async (action) => {
             engine.do(action);
           }}
-          onAction2={async (action) => {
-            engine.do2(action);
-          }}
         />
       </EngineProvider>
     </>

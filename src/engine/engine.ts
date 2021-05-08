@@ -9,9 +9,6 @@ import { filterCards } from "./utils";
 export type Engine = {
   state: State;
   do: (action: Action) => Promise<void>;
-  chooseCards: (title: string, filter: Filter<CardId>) => Promise<CardId[]>;
-  playerActions: (title: string) => Promise<void>;
-  chooseOne: <T>(title: string, options: Array<{ label: string; value: T; image?: string }>) => Promise<T>;
 };
 
 export interface UI {
@@ -83,26 +80,6 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
           }
         }
       }
-    },
-    chooseCards: async (title, filter) => {
-      const view = createView(state);
-      const cards = filterCards(filter, view);
-      const selected = await ui.chooseMultiple(
-        title,
-        cards.map((card) => ({
-          label: card.props.name || "",
-          value: card.id,
-          image: card.props.image,
-        }))
-      );
-
-      return selected;
-    },
-    playerActions: async (title) => {
-      await ui.playerActions(title);
-    },
-    chooseOne: (title, options) => {
-      throw new Error();
     },
   };
 

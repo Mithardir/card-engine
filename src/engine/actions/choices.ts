@@ -47,40 +47,58 @@ export function chooseOne(title: string, choices: Array<{ label: string; image?:
   };
 }
 
-export function chooseCardActionOrder(
+export function chooseOrder<T>(
   title: string,
-  filter: Filter<CardId>,
-  action: CardAction,
-  used: CardId[] = []
+  choices: Array<{ label: string; image?: string; action: Action; id: T }>,
+  used: T[] = []
 ): Action {
   return {
-    print: `choose card order for cards ${filter(0).print} and action ${action(0).print}`,
-    do: (s) => {
-      const cards = filterCards(filter, createView(s)).filter((c) => !used.includes(c.id));
-      if (cards.length === 0) {
-        return sequence().do(s);
-      } else {
+    print: `choose order [${choices.map((c) => c.action.print).join(", ")}]`,
+    do: (state) => {
+      const filtered = choices.filter((c) => !used.includes(c.id));
+      if (filtered.length === 0) {
         return {
-          state: s,
           effect: "full",
-          choice: {
-            title,
-            multiple: false,
-            dialog: true,
-            choices: cards.map((c) => ({
-              label: c.props.name || "",
-              action: sequence(action(c.id), chooseCardActionOrder(title, filter, action, [...used, c.id])),
-              image: c.props.image,
-            })),
-          },
+          state,
+          choice: undefined,
           next: undefined,
         };
       }
+      return {
+        effect: "full",
+        state: state,
+        choice: {
+          title,
+          multiple: false,
+          dialog: true,
+          choices: filtered.map((c) => ({
+            action: sequence(c.action, chooseOrder(title, choices, [...used, c.id])),
+            image: c.image,
+            label: c.label,
+          })),
+        },
+        next: undefined,
+      };
     },
   };
 }
 
-export function chooseCardForAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
+export function chooseCardActionsOrder(title: string, filter: Filter<CardId>, factory: CardAction): Action {
+  return {
+    print: `choose card order for cards ${filter(0).print} and action ${factory(0).print}`,
+    do: (s) => {
+      const cards = filterCards(filter, createView(s));
+      const action = chooseOrder(
+        title,
+        cards.map((c) => ({ id: c.id, action: factory(c.id), label: c.props.name || "", image: c.props.image }))
+      );
+
+      return action.do(s);
+    },
+  };
+}
+
+export function chooseCardAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
     print: `choose card for action ${factory(0).print}`,
     do: (state) => {
@@ -99,7 +117,7 @@ export function chooseCardForAction(title: string, filter: Filter<CardId>, facto
   };
 }
 
-export function chooseCardsForAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
+export function chooseCardsActions(title: string, filter: Filter<CardId>, factory: CardAction): Action {
   return {
     print: `choose cards for action: [${factory(0).print}]`,
     do: (state) => {

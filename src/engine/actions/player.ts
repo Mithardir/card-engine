@@ -2,7 +2,7 @@ import { and, isInZone, isEnemy, Filter, isHero, isReady, withMaxEngagement } fr
 import { PlayerId, CardId } from "../state";
 import { zoneKey } from "../utils";
 import { engagePlayer, resolveEnemyAttack, commitToQuest } from "./card";
-import { chooseCardForAction, chooseCardActionOrder, chooseCardsForAction } from "./choices";
+import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions } from "./choices";
 import { repeat, sequence, action } from "./control";
 import { moveTopCard } from "./game";
 import { PlayerAction } from "./types";
@@ -17,18 +17,18 @@ export function resolvePlayerAttacks(playerId: PlayerId) {
 
 export const optionalEngagement: PlayerAction = (player) =>
   // TODO no engagement
-  chooseCardForAction(
+  chooseCardAction(
     "Choose enemy to optionally engage",
     and(isInZone(zoneKey("stagingArea")), isEnemy),
     engagePlayer(player)
   );
 
 export const engagementCheck: PlayerAction = (player) =>
-  chooseCardForAction("Choose enemy to engage", withMaxEngagement(player), engagePlayer(player));
+  chooseCardAction("Choose enemy to engage", withMaxEngagement(player), engagePlayer(player));
 
 export function resolveEnemyAttacks(playerId: PlayerId) {
   const enemies: Filter<CardId> = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
-  return chooseCardActionOrder("Choose enemy attacker", enemies, resolveEnemyAttack(playerId));
+  return chooseCardActionsOrder("Choose enemy attacker", enemies, resolveEnemyAttack(playerId));
 }
 
 export function incrementThreat(amount: number): PlayerAction {
@@ -45,7 +45,7 @@ export function incrementThreat(amount: number): PlayerAction {
 }
 
 export const commitCharactersToQuest: PlayerAction = (player) =>
-  chooseCardsForAction(
+  chooseCardsActions(
     "Commit characters to quest",
     and(isHero, isReady, isInZone(zoneKey("playerArea", player))),
     commitToQuest

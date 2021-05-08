@@ -7,7 +7,7 @@ import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
 import { tap, resolveDefense, dealDamage, moveCard } from "./card";
-import { chooseOne, chooseCardForAction } from "./choices";
+import { chooseOne, chooseCardAction } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
 
@@ -50,7 +50,7 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
         })),
         {
           label: "No defender",
-          action: chooseCardForAction(
+          action: chooseCardAction(
             "Choose hero for undefended attack",
             and(isHero, isInZone(zoneKey("playerArea", playerId))),
             (hero) => bind(getProp("attack", attackerId), (attack) => dealDamage(attack)(hero))

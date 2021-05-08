@@ -4,7 +4,7 @@ import { Scenario, PlayerDeck } from "../setup";
 import { createCardState, playerIds } from "../state";
 import { zoneKey } from "../utils";
 import { generateResource, untap } from "./card";
-import { chooseCardForAction } from "./choices";
+import { chooseCardAction } from "./choices";
 import { sequence, repeat, whileDo, action, bind } from "./control";
 import { eachCard, moveTopCard, placeProgress, travelToLocation, passFirstPlayerToken, addPlayer, shuffleZone, dealShadowCards, eachPlayer, playerActions } from "./game";
 import { draw, commitCharactersToQuest, incrementThreat, optionalEngagement, engagementCheck, resolveEnemyAttacks, resolvePlayerAttacks } from "./player";
@@ -32,7 +32,7 @@ export const phaseQuest = sequence(
 export const phaseTravel = sequence(
   // TODO allow no travel
   bind(canTravel, (can) =>
-    can ? chooseCardForAction("Choose location for travel", isLocation, travelToLocation()) : sequence()
+    can ? chooseCardAction("Choose location for travel", isLocation, travelToLocation()) : sequence()
   ),
   playerActions("End travel phase")
 );

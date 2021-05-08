@@ -78,8 +78,8 @@ export function addToken(type: Token): CardAction {
       const card = state.cards.find((c) => c.id === cardId);
       if (!card) {
         return "none";
-      } else {
-        card[type] += 1;
+      } else {        
+        card[type] += 1;        
         return "full";
       }
     });

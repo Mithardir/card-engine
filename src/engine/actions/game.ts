@@ -1,9 +1,10 @@
 import { shuffleArray } from "../../utils";
-import { and, negate, isTapped, isCharacter, isInZone, filterCards, isHero, getProp, Filter } from "../filters";
+import { negate, getProp } from "../exps";
+import { and, isTapped, isCharacter, isInZone, isHero, Filter } from "../filters";
 import { PlayerDeck } from "../setup";
 import { CardId, PlayerId, playerIds, createCardState, Side } from "../state";
 import { ZoneKey } from "../types";
-import { zoneKey, getZone } from "../utils";
+import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
 import { tap, resolveDefense, dealDamage, moveCard } from "./card";
 import { sequence, chooseOne, chooseCardForAction, action, bind } from "./control";

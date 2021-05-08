@@ -1,9 +1,10 @@
 import { CardId, State } from "./state";
 import { createView } from "./view";
-import { Filter, filterCards } from "./filters";
+import { Filter } from "./filters";
 import { sequence } from "./actions/control";
 import { getActionChange } from "./actions/utils";
 import { Action } from "./actions/types";
+import { filterCards } from "./utils";
 
 export type Engine = {
   state: State;
@@ -63,6 +64,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
               : await ui.chooseOne(
                   result.choice.title,
                   result.choice.choices
+                    // eslint-disable-next-line no-loop-func
                     .filter((c) => getActionChange(c.action, state) !== "none")
                     .map((c) => ({
                       ...c,

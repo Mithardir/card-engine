@@ -2,8 +2,6 @@ import { Action2 } from "./actions2";
 import { Filter } from "./filters";
 import { CardId, GameZoneType, PlayerId, PlayerZoneType, State } from "./state";
 
-export type CommandResult = "none" | "partial" | "full";
-
 export type Engine = {
   state: State;
   do: (action: Action2) => Promise<void>;

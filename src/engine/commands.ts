@@ -1,12 +1,9 @@
-import produce from "immer";
 import { shuffleArray } from "../utils";
 import { action, Action2, CardAction, sequence } from "./actions2";
-import { Exp } from "./filters";
 import { PlayerDeck, Scenario } from "./setup";
 import { CardId, createCardState, GameZoneType, PlayerId, playerIds, PlayerZoneType, Side } from "./state";
-import { CommandResult, Token, ZoneKey } from "./types";
-import { getZone, mergeAndResults } from "./utils";
-import { createView } from "./view";
+import { Token, ZoneKey } from "./types";
+import { getZone } from "./utils";
 
 export function zoneKey(type: PlayerZoneType, player: PlayerId): ZoneKey;
 export function zoneKey(type: GameZoneType): ZoneKey;
@@ -59,6 +56,19 @@ export function addToken(type: Token): CardAction {
         return "none";
       } else {
         card[type] += 1;
+        return "full";
+      }
+    });
+}
+
+export function removeToken(type: Token): CardAction {
+  return (cardId) =>
+    action(`add ${type} token to card ${cardId}`, (state) => {
+      const card = state.cards.find((c) => c.id === cardId);
+      if (!card || !card[type]) {
+        return "none";
+      } else {
+        card[type] -= 1;
         return "full";
       }
     });

@@ -3,16 +3,14 @@ import * as React from "react";
 import { View } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
-import { phaseQuest, startGame, beginScenario } from "../engine/actions";
+import { beginScenario } from "../engine/actions";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
-import { useEngine } from "./EngineContext";
-import { Action2, chooseOne, draw, playerActions, sequence } from "../engine/actions2";
+import { Action2, playerActions, sequence } from "../engine/actions2";
 
 export const GameShow = (props: { view: View; onAction: (action: Action2) => void }) => {
   const detail = React.useContext(DetailContext);
-  const engine = useEngine();
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
       <div style={{ backgroundColor: "#5393ff", width: 215 }}>

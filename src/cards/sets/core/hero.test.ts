@@ -1,14 +1,14 @@
 import { addToken, removeToken } from "../../../engine/commands";
-import { createTestEngine } from "../../../test";
+import { createTestEngine } from "../../../test.utils";
 import * as hero from "./heroes";
 
 it("Gimli's attack bonus", () => {
   const engine = createTestEngine();
   const gimli = engine.addHero(hero.gimli);
   expect(gimli.attack).toEqual(2);
-  engine.exec(addToken(gimli.id, "damage"));
+  engine.do(addToken("damage")(gimli.id));
   expect(gimli.attack).toEqual(3);
-  engine.exec(removeToken(gimli.id, "damage"));
+  engine.do(removeToken("damage")(gimli.id));
   expect(gimli.attack).toEqual(2);
 });
 

@@ -1,5 +1,6 @@
+import { ActionEffect } from "./actions2";
 import { State, ZoneState } from "./state";
-import { ZoneKey, CommandResult } from "./types";
+import { ZoneKey } from "./types";
 import { View } from "./view";
 
 export function getZone(key: ZoneKey): (state: State | View) => ZoneState {
@@ -15,7 +16,7 @@ export function getZone(key: ZoneKey): (state: State | View) => ZoneState {
   };
 }
 
-export function mergeOrResults(results: CommandResult[]): CommandResult {
+export function mergeOrResults(results: ActionEffect[]): ActionEffect {
   if (results.some((c) => c === "full")) {
     return "full";
   }
@@ -27,7 +28,7 @@ export function mergeOrResults(results: CommandResult[]): CommandResult {
   return "partial";
 }
 
-export function mergeAndResults(...results: CommandResult[]): CommandResult {
+export function mergeAndResults(...results: ActionEffect[]): ActionEffect {
   if (results.every((c) => c === "full")) {
     return "full";
   }

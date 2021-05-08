@@ -67,6 +67,14 @@ export const isTapped: Filter<CardId> = (id) => ({
   },
 });
 
+export const isReady: Filter<CardId> = (id) => ({
+  print: "is ready",
+  eval: (view) => {
+    const card = view.cards.find((c) => c.id === id)!;
+    return !card.tapped;
+  },
+});
+
 export const totalWillpower: Exp<number> = {
   print: "total willpoer",
   eval: (v) => {

@@ -62,18 +62,10 @@ export const GameShow = (props: {
 
         <Button
           onClick={() => {
-            props.onAction2(beginScenario2(passageThroughMirkwood, coreTactics, coreTactics));
+            props.onAction2(beginScenario2(passageThroughMirkwood, coreTactics));
           }}
         >
-          Begin scenario
-        </Button>
-
-        <Button
-          onClick={() => {
-            console.log(phaseQuest().commands(engine.state));
-          }}
-        >
-          Test
+          Start game
         </Button>
 
         <Button

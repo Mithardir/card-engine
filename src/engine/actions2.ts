@@ -13,8 +13,31 @@ export function chooseOne2(title: string, actions: Action2[]): Action2 {
         state: state,
         choice: {
           title,
+          multiple: false,
           dialog: true,
           choices: actions.map((a) => ({ action: a, image: "", label: a.print })),
+        },
+        next: undefined,
+      };
+    },
+  };
+}
+
+export function chooseSome2(
+  title: string,
+  choices: Array<{ label: string; image?: string; action: Action2 }>
+): Action2 {
+  return {
+    print: `choose one [${choices.map((a) => a.action.print).join(", ")}]`,
+    do: (state) => {
+      return {
+        effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
+        state: state,
+        choice: {
+          title,
+          multiple: true,
+          dialog: true,
+          choices: choices.map((c) => ({ action: c.action, image: c.image, label: c.label })),
         },
         next: undefined,
       };
@@ -186,7 +209,12 @@ export type ActionResult = {
   state: State;
   effect: ActionEffect;
   choice:
-    | { title: string; dialog: boolean; choices: Array<{ label: string; image: string; action: Action2 }> }
+    | {
+        title: string;
+        multiple: boolean;
+        dialog: boolean;
+        choices: Array<{ label: string; image?: string; action: Action2 }>;
+      }
     | undefined;
   next: Action2 | undefined;
 };
@@ -207,6 +235,7 @@ export const playerActions2: (title: string) => Action2 = (title) => {
       return {
         choice: {
           title,
+          multiple: true,
           dialog: false,
           choices: [], // TODO choices
         },

@@ -58,15 +58,26 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
           state = result.state;
 
           if (result.choice.dialog) {
-            const choosen = await ui.chooseOne(
-              result.choice.title,
-              result.choice.choices
-                .filter((c) => getActionChange(c.action, state) !== "none")
-                .map((c) => ({
-                  ...c,
-                  value: c.action,
-                }))
-            );
+            const choosen = result.choice.multiple
+              ? sequence2(
+                  ...(await ui.chooseMultiple(
+                    result.choice.title,
+                    result.choice.choices.map((c) => ({
+                      label: c.label,
+                      value: c.action,
+                      image: c.image,
+                    }))
+                  ))
+                )
+              : await ui.chooseOne(
+                  result.choice.title,
+                  result.choice.choices
+                    .filter((c) => getActionChange(c.action, state) !== "none")
+                    .map((c) => ({
+                      ...c,
+                      value: c.action,
+                    }))
+                );
 
             const next = result.next;
             result = choosen.do(result.state);

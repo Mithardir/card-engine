@@ -4,8 +4,10 @@ import {
   addToken,
   addToken2,
   assignToQuest,
+  assignToQuest2,
   batch,
   moveCard,
+  moveCard2,
   moveTopCard,
   moveTopCard2,
   noCommand,
@@ -18,6 +20,7 @@ import {
   shuffleZone,
   shuffleZone2,
   tap,
+  tap2,
   untap,
   untap2,
   zoneKey,
@@ -46,6 +49,7 @@ import {
   totalThread,
   totalWillpower,
   withMaxEngegament as withMaxEngagement,
+  isReady,
 } from "./filters";
 import { Scenario, PlayerDeck } from "./setup";
 import { CardId, PlayerId, playerIds } from "./state";
@@ -53,7 +57,18 @@ import { Action, cardAction, CardAction, CardAction2, Command, PlayerAction } fr
 import { CardView, createView } from "./view";
 import { PowerSet } from "ts-combinatorics";
 import { getActionResult } from "./engine";
-import { action2, Action2, CardAction3, draw2, PlayerAction3, playerActions2, sequence2, whileDo2 } from "./actions2";
+import {
+  action2,
+  Action2,
+  CardAction3,
+  chooseOne2,
+  chooseSome2,
+  draw2,
+  PlayerAction3,
+  playerActions2,
+  sequence2,
+  whileDo2,
+} from "./actions2";
 
 export const draw: (amount: number) => PlayerAction = (amount) => (player) => {
   return action(
@@ -210,13 +225,14 @@ export const phaseResource = sequence2(
   playerActions2("End resource phase")
 );
 
-export function phasePlanning(): Action {
-  //  TODO set phase to game
-  return playerActions("End phase");
-}
+export const phasePlanning = playerActions2("End planning phase");
 
 export function commitToQuest(cardId: CardId): Action {
   return sequence(action(tap(cardId)), action(assignToQuest(cardId)));
+}
+
+export function commitToQuest2(cardId: CardId): Action2 {
+  return sequence2(tap2(cardId), assignToQuest2(cardId));
 }
 
 export function repeatAction(amountExp: Exp<number>, action: Action): Action {
@@ -236,20 +252,25 @@ export function repeatAction(amountExp: Exp<number>, action: Action): Action {
 export const commitCharactersToQuest: PlayerAction = (player) =>
   chooseCardsForAction(and(isHero, isInZone(zoneKey("playerArea", player))), commitToQuest);
 
-export function phaseQuest(): Action {
-  return sequence(
-    eachPlayer(commitCharactersToQuest),
-    playerActions("Staging"),
-    repeatAction(countOfPlayers, action(moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face"))),
-    playerActions("Quest resolution"),
-    ifThen(
-      isLess(totalWillpower, totalThread),
-      eachPlayer((p) => action(incrementThreat(diff(totalThread, totalWillpower))(p)))
-    ),
-    ifThen(isMore(totalWillpower, totalThread), placeProgress(diff(totalWillpower, totalThread))),
-    playerActions("End phase")
+export const commitCharactersToQuest2: PlayerAction3 = (player) =>
+  chooseCardsForAction2(
+    "Commit characters to quest",
+    and(isHero, isReady, isInZone(zoneKey("playerArea", player))),
+    commitToQuest2
   );
-}
+
+export const phaseQuest = sequence2(
+  eachPlayer2(commitCharactersToQuest2),
+  playerActions2("Staging"),
+  bind2(countOfPlayers, (count) =>
+    repeat3(count, moveTopCard2(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face"))
+  ),
+  playerActions2("Quest resolution"),
+  bind2(diff(totalWillpower, totalThread), (power) =>
+    power > 0 ? placeProgress2(power) : eachPlayer2(incrementThreat2(-power))
+  ),
+  playerActions2("End phase")
+);
 
 export function placeProgress(amount: Exp<number>): Action {
   return {
@@ -267,6 +288,19 @@ export function placeProgress(amount: Exp<number>): Action {
       return [{ first: cmd, next: [] }];
     },
   };
+}
+
+export function placeProgress2(amount: number): Action2 {
+  return action2(`place ${amount} progress`, (state) => {
+    const cardId = state.zones.quest.cards[0];
+    const card = state.cards.find((c) => c.id === cardId);
+    if (card) {
+      card.progress += amount;
+      return "full";
+    } else {
+      return "none";
+    }
+  });
 }
 
 export function incrementThreat(amount: Exp<number>): (playerId: PlayerId) => Command {
@@ -311,6 +345,27 @@ export function chooseCardsForAction(filter: Filter<CardId>, factory: (id: CardI
       const actions = cards.map((card) => factory(card.id)).filter((a) => getActionResult(a, s) !== "none");
       const combinations = [...PowerSet.of(actions)] as Action[][];
       return combinations.flatMap((list) => sequence(...list).commands(s));
+    },
+  };
+}
+
+export function chooseCardsForAction2(
+  title: string,
+  filter: Filter<CardId>,
+  factory: (id: CardId) => Action2
+): Action2 {
+  return {
+    print: `choose cards for action: [${factory(0).print}]`,
+    do: (state) => {
+      const view = createView(state);
+      const cards = filterCards(filter, view);
+      const choices = cards.map((card) => ({
+        label: card.props.name || "",
+        action: factory(card.id),
+        image: card.props.image,
+      }));
+      const action = chooseSome2(title, choices);
+      return action.do(state);
     },
   };
 }
@@ -426,16 +481,40 @@ export function ifThen(condition: Exp<boolean>, action: Action): Action {
   };
 }
 
-export function phaseTravel(): Action {
-  return sequence(
-    // TODO allow no travel
-    ifThen(
-      negate(existsActiveLocation),
-      chooseCardForAction("Choose location for travel", isLocation, travelToLocation)
-    ),
-    playerActions("End phase")
-  );
+export function bind2<T>(exp: Exp<T>, factory: (v: T) => Action2): Action2 {
+  return {
+    // TODO x
+    print: factory("x" as any).print,
+    do: (state) => {
+      const value = exp.eval(createView(state));
+      const action = factory(value);
+      return action.do(state);
+    },
+  };
 }
+
+export function chooseCardForAction3(title: string, filter: Filter<CardId>, cardAction: CardAction3): Action2 {
+  return {
+    print: `choose card for action ${cardAction(0).print}`,
+    do: (state) => {
+      const cards = filterCards(filter, createView(state));
+      const action = chooseOne2(
+        title,
+        cards.map((c) => cardAction(c.id))
+      );
+
+      return action.do(state);
+    },
+  };
+}
+
+export const phaseTravel = sequence2(
+  // TODO allow no travel
+  bind2(existsActiveLocation, (active) =>
+    !active ? chooseCardForAction3("Choose location for travel", isLocation, travelToLocation2()) : sequence2()
+  ),
+  playerActions2("End travel phase")
+);
 
 export const passFirstPlayerToken: Action2 = action2("pass first player token", (state) => {
   // TODO
@@ -456,6 +535,10 @@ export function ready(cardId: CardId): Action {
 export const travelToLocation = cardAction("travel to location", (cardId) =>
   action(moveCard(cardId, zoneKey("stagingArea"), zoneKey("activeLocation"), "face"))
 );
+
+export function travelToLocation2() {
+  return moveCard2(zoneKey("stagingArea"), zoneKey("activeLocation"), "face");
+}
 
 export function phaseEncounter(): Action {
   return sequence(
@@ -609,9 +692,9 @@ export function phaseCombat() {
 
 export const gameRound = sequence2(
   phaseResource,
-  // phasePlanning,
-  // phaseQuest,
-  // phaseTravel,
+  phasePlanning,
+  phaseQuest,
+  phaseTravel,
   // phaseEncounter,
   // phaseCombat,
   phaseRefresh

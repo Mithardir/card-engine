@@ -53,6 +53,23 @@ export function moveTopCard2(from: ZoneKey, to: ZoneKey, side: Side): Action2 {
   });
 }
 
+export function moveCard2(from: ZoneKey, to: ZoneKey, side: Side): CardAction3 {
+  return (cardId) =>
+    action2(`move to card ${cardId} from ${from.print} to ${to.print} with ${side} side up`, (s) => {
+      const fromZone = getZone(from)(s);
+      const toZone = getZone(to)(s);
+      if (fromZone.cards.includes(cardId)) {
+        fromZone.cards = fromZone.cards.filter((c) => c !== cardId);
+        const card = s.cards.find((c) => c.id === cardId)!;
+        card.sideUp = side;
+        toZone.cards.push(cardId);
+        return "full";
+      } else {
+        return "none";
+      }
+    });
+}
+
 export function moveCard(cardId: CardId, from: ZoneKey, to: ZoneKey, side: Side): Command {
   return {
     print: `move to card ${cardId} from ${from.print} to ${to.print} with ${side} side up`,
@@ -317,6 +334,18 @@ export function untap(cardId: CardId): Command {
   };
 }
 
+export function tap2(cardId: CardId): Action2 {
+  return action2(`tap card ${cardId}`, (state) => {
+    const card = state.cards.find((c) => c.id === cardId);
+    if (!card || card.tapped) {
+      return "none";
+    } else {
+      card.tapped = true;
+      return "full";
+    }
+  });
+}
+
 export function untap2(cardId: CardId): Action2 {
   return action2(`untap card ${cardId}`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
@@ -339,6 +368,18 @@ export function assignToQuest(cardId: CardId): Command {
       return s.cards.find((c) => c.id === cardId)!.commitedToQuest ? "none" : "full";
     },
   };
+}
+
+export function assignToQuest2(cardId: CardId): Action2 {
+  return action2(`assign card ${cardId} to quest `, (state) => {
+    const card = state.cards.find((c) => c.id === cardId);
+    if (card && !card.commitedToQuest) {
+      card.commitedToQuest = true;
+      return "full";
+    } else {
+      return "none";
+    }
+  });
 }
 
 export const noCommand: Command = {

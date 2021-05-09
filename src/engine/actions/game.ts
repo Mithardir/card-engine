@@ -1,6 +1,6 @@
 import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
-import { and, isTapped, isCharacter, isInZone, isHero, Filter } from "../filters";
+import { and, isTapped, isCharacter, isInZone, isHero, Filter, isLocation } from "../filters";
 import { PlayerDeck } from "../setup";
 import { CardId, PlayerId, playerIds, createCardState, Side, Mark } from "../state";
 import { ZoneKey } from "../types";
@@ -90,9 +90,7 @@ export const passFirstPlayerToken: Action = action("passFirstPlayerToken", (stat
   return "full";
 });
 
-export function travelToLocation() {
-  return moveCard(zoneKey("stagingArea"), zoneKey("activeLocation"), "face");
-}
+export const travelToLocation = moveCard(zoneKey("stagingArea"), zoneKey("activeLocation"), "face");
 
 export function placeProgress(amount: number): Action {
   return action(`place ${amount} progress`, (state) => {
@@ -192,3 +190,25 @@ export function clearMarks(type: Mark): Action {
     return "full";
   });
 }
+
+export const chooseTravelLocation: Action = {
+  print: "chooseTravelLocation",
+  do: (state) => {
+    const view = createView(state);
+    const cards = filterCards(and(isLocation, isInZone(zoneKey("stagingArea"))), view);
+
+    const action = chooseOne("Choose location for travel", [
+      ...cards.map((c) => ({
+        image: c.props.image,
+        label: c.props.name || "",
+        action: travelToLocation(c.id),
+      })),
+      {
+        label: "No travel",
+        action: sequence(),
+      },
+    ]);
+
+    return action.do(state);
+  },
+};

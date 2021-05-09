@@ -34,7 +34,7 @@ export function sequence(...actions: Action[]): Action {
     do: (state) => {
       if (actions.length === 0) {
         return {
-          effect: "none",
+          effect: "full",
           choice: undefined,
           next: undefined,
           state,

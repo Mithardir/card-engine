@@ -1,16 +1,14 @@
 import { countOfPlayers, diff, totalWillpower, totalThread, canTravel, enemiesToEngage, lit } from "../exps";
-import { isHero, isLocation, isTapped } from "../filters";
+import { isHero, isTapped } from "../filters";
 import { Scenario, PlayerDeck } from "../setup";
 import { createCardState, playerIds } from "../state";
 import { zoneKey } from "../utils";
 import { generateResource, untap } from "./card";
-import { chooseCardAction } from "./choices";
 import { sequence, repeat, whileDo, action, bind } from "./control";
 import {
   eachCard,
   moveTopCard,
   placeProgress,
-  travelToLocation,
   passFirstPlayerToken,
   addPlayer,
   shuffleZone,
@@ -18,6 +16,7 @@ import {
   eachPlayer,
   playerActions,
   clearMarks,
+  chooseTravelLocation,
 } from "./game";
 import {
   draw,
@@ -51,10 +50,7 @@ export const phaseQuest = sequence(
 );
 
 export const phaseTravel = sequence(
-  // TODO allow no travel
-  bind(canTravel, (can) =>
-    can ? chooseCardAction("Choose location for travel", isLocation, travelToLocation()) : sequence()
-  ),
+  bind(canTravel, (can) => (can ? chooseTravelLocation : sequence())),
   playerActions("End travel phase")
 );
 

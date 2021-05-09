@@ -23,26 +23,31 @@ export interface DialogState<T> {
 }
 
 export const DialogsProvider = (props: PropsWithChildren<{}>) => {
-  const [Dialog, setDialog] = useState<DialogState<any> | undefined>();
+  const [dialogs, setDialogs] = useState<Array<DialogState<any>>>([]);
 
   return (
     <DialogsContext.Provider
       value={{
         openDialog: (component) => {
           return new Promise((resolve) => {
-            setDialog({
-              Component: component,
-              onSubmit: async (data) => {
-                resolve(data);
-                setDialog(undefined);
+            setDialogs((prev) => [
+              ...prev,
+              {
+                Component: component,
+                onSubmit: async (data) => {                  
+                  resolve(data);
+                  setDialogs(prev.filter((d) => d.Component !== component));
+                },
               },
-            });
+            ]);
           });
         },
       }}
     >
       {props.children}
-      {Dialog && <Dialog.Component open={true} onSubmit={Dialog.onSubmit} />}
+      {dialogs.map((Dialog) => (
+        <Dialog.Component open={true} onSubmit={Dialog.onSubmit} />
+      ))}
     </DialogsContext.Provider>
   );
 };

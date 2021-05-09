@@ -22,6 +22,10 @@ export const optionalEngagement: PlayerAction = (player) => ({
     const view = createView(state);
     const cards = filterCards(and(isInZone(zoneKey("stagingArea")), isEnemy), view);
 
+    if (cards.length === 0) {
+      return sequence().do(state);
+    }
+
     const action = chooseOne("Choose enemy to optionally engage", [
       ...cards.map((c) => ({
         image: c.props.image,

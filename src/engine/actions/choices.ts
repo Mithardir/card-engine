@@ -13,6 +13,10 @@ export function chooseMultiple(
   return {
     print: `choose multiple [${choices.map((a) => a.action.print).join(", ")}]`,
     do: (state) => {
+      if (choices.length === 0) {
+        return sequence().do(state);
+      }
+
       return {
         effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
         state: state,
@@ -32,6 +36,10 @@ export function chooseOne(title: string, choices: Array<{ label: string; image?:
   return {
     print: `choose one [${choices.map((c) => c.action.print).join(", ")}]`,
     do: (state) => {
+      if (choices.length === 1) {
+        return choices[0].action.do(state);
+      }
+
       return {
         effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
         state: state,
@@ -64,6 +72,11 @@ export function chooseOrder<T>(
           next: undefined,
         };
       }
+
+      if (filtered.length === 1) {
+        return filtered[0].action.do(state);
+      }
+
       return {
         effect: "full",
         state: state,

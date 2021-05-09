@@ -67,6 +67,7 @@ export const phaseCombat = sequence(
   eachPlayer(resolveEnemyAttacks),
   playerActions("Resolve player attacks"),
   eachPlayer(resolvePlayerAttacks),
+  clearMarks("attacked"),
   playerActions("End combat phase")
 );
 

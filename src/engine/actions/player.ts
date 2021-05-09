@@ -1,4 +1,15 @@
-import { and, isInZone, isEnemy, Filter, isReady, withMaxEngagement, isCharacter } from "../filters";
+import { negate } from "../exps";
+import {
+  and,
+  isInZone,
+  isEnemy,
+  Filter,
+  isReady,
+  withMaxEngagement,
+  isCharacter,
+  hasNotMark,
+  isTapped,
+} from "../filters";
 import { PlayerId, CardId } from "../state";
 import { filterCards, zoneKey } from "../utils";
 import { createView } from "../view";
@@ -6,14 +17,45 @@ import { engagePlayer, resolveEnemyAttack, commitToQuest, resolvePlayerAttack } 
 import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions, chooseOne } from "./choices";
 import { repeat, action, sequence } from "./control";
 import { moveTopCard } from "./game";
-import { PlayerAction } from "./types";
+import { Action, PlayerAction } from "./types";
 
 export const draw = (amount: number) => (playerId: PlayerId) =>
   repeat(amount, moveTopCard(zoneKey("library", playerId), zoneKey("hand", playerId), "face"));
 
-export function resolvePlayerAttacks(playerId: PlayerId) {
-  const enemies: Filter<CardId> = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
-  return chooseCardActionsOrder("Choose enemy to attack", enemies, resolvePlayerAttack(playerId));
+export function resolvePlayerAttacks(playerId: PlayerId): Action {
+  const enemiesFiler: Filter<CardId> = and(isEnemy, hasNotMark("attacked"), isInZone(zoneKey("engaged", playerId)));
+  const attackersFilter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+  return {
+    print: `resolvePlayerAttacks(${playerId})`,
+    do: (s) => {
+      const view = createView(s);
+      const cards = filterCards(enemiesFiler, view);
+      const attackers = filterCards(attackersFilter, view);
+
+      if (attackers.length === 0) {
+        return sequence().do(s);
+      }
+
+      const choice = chooseOne("Choose enemy to attack", [
+        ...cards.map((c) => ({
+          action: sequence(resolvePlayerAttack(playerId)(c.id), resolvePlayerAttacks(playerId)),
+          label: c.props.name || "",
+          image: c.props.image,
+        })),
+        {
+          action: sequence(),
+          label: "Stop attacking",
+        },
+      ]);
+
+      return choice.do(s);
+    },
+  };
+
+  // return sequence(
+  //   chooseCardActionsOrder("Choose enemy to attack", enemies, resolvePlayerAttack(playerId)),
+  //   clearMarks("attacked")
+  // );
 }
 
 export const optionalEngagement: PlayerAction = (player) => ({

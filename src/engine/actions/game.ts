@@ -64,12 +64,12 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
 }
 
 export function declareAttackers(attackedId: CardId, playerId: PlayerId): Action {
-  const filter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+  const attackers = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
   return {
     print: `declareAttackers(${attackedId}, ${playerId})`,
     do: (state) => {
       const view = createView(state);
-      const cards = filterCards(filter, view);
+      const cards = filterCards(attackers, view);
 
       const action = chooseMultiple(
         "Declare attackers",

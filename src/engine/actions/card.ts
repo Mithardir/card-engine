@@ -1,11 +1,11 @@
 import { diff, getProp, totalAttack } from "../exps";
-import { CardId, Mark, PlayerId, Side, State } from "../state";
+import { CardId, Mark, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
 import { createView } from "../view";
 import { repeat, sequence, action, bind } from "./control";
 import { playerActions, declareDefender, declareAttackers, clearMarks } from "./game";
-import { Action, ActionEffect, ActionResult, CardAction } from "./types";
+import { Action, CardAction } from "./types";
 import { noChange } from "./utils";
 
 export function dealDamage(amount: number): CardAction {
@@ -39,7 +39,8 @@ export function resolvePlayerAttack(playerId: PlayerId): CardAction {
       bind(diff(totalAttack, getProp("defense", defenderId)), (damage) =>
         damage > 0 ? dealDamage(damage)(defenderId) : sequence()
       ),
-      clearMarks("attacking")
+      clearMarks("attacking"),
+      mark("attacked")(defenderId)
     );
   };
 }
@@ -148,5 +149,3 @@ export const playAlly: CardAction = (cardId) => {
     },
   };
 };
-
-

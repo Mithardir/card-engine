@@ -3,7 +3,7 @@ import { PlayerId, CardId } from "../state";
 import { zoneKey } from "../utils";
 import { engagePlayer, resolveEnemyAttack, commitToQuest, resolvePlayerAttack } from "./card";
 import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions } from "./choices";
-import { repeat, sequence, action } from "./control";
+import { repeat, action } from "./control";
 import { moveTopCard } from "./game";
 import { PlayerAction } from "./types";
 

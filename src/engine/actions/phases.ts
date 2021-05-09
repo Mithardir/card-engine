@@ -17,7 +17,7 @@ import {
   dealShadowCards,
   eachPlayer,
   playerActions,
-  clearQuestingMarks,
+  clearMarks,
 } from "./game";
 import {
   draw,
@@ -47,7 +47,7 @@ export const phaseQuest = sequence(
     power > 0 ? placeProgress(power) : eachPlayer(incrementThreat(-power))
   ),
   playerActions("End phase"),
-  clearQuestingMarks
+  clearMarks("questing")
 );
 
 export const phaseTravel = sequence(

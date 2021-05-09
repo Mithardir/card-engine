@@ -1,6 +1,6 @@
 import produce from "immer";
 import { PrintedProps } from "./types";
-import { CardId, CardState, Effect, GameZoneType, PlayerId, PlayerState, Side, State, ZoneState } from "./state";
+import { CardId, CardState, Effect, GameZoneType, Marks, PlayerId, PlayerState, Side, State, Tokens, ZoneState } from "./state";
 import { Action } from "./actions/types";
 import { playAlly } from "./actions/card";
 
@@ -21,12 +21,9 @@ export type CardView = {
   printed: Readonly<PrintedProps>;
   props: CardProps;
   tapped: boolean;
-  progress: number;
-  damage: number;
-  resources: number;
   sideUp: Side;
-  questing: boolean;
-  attacking: boolean;
+  token: Tokens;
+  mark: Marks;
   actions: Action[];
   attachedTo?: CardId;
 };

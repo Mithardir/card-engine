@@ -98,7 +98,7 @@ export const CardShow = (props: {
             top: 0,
           }}
         >
-          {card.progress ? (
+          {card.token.progress ? (
             <div
               style={{
                 position: "relative",
@@ -118,11 +118,11 @@ export const CardShow = (props: {
                   fontSize: "x-large",
                 }}
               >
-                {card.progress}
+                {card.token.progress}
               </div>
             </div>
           ) : undefined}
-          {card.resources ? (
+          {card.token.resources ? (
             <div
               style={{
                 position: "relative",
@@ -142,12 +142,12 @@ export const CardShow = (props: {
                   fontSize: "x-large",
                 }}
               >
-                {card.resources}
+                {card.token.resources}
               </div>
             </div>
           ) : undefined}
 
-          {card.damage ? (
+          {card.token.damage ? (
             <div
               style={{
                 position: "relative",
@@ -167,7 +167,7 @@ export const CardShow = (props: {
                   fontSize: "x-large",
                 }}
               >
-                {card.damage}
+                {card.token.damage}
               </div>
             </div>
           ) : undefined}

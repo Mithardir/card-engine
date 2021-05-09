@@ -1,5 +1,5 @@
 import { diff, getProp } from "../exps";
-import { CardId, PlayerId, Side } from "../state";
+import { CardId, Mark, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
 import { createView } from "../view";
@@ -40,7 +40,7 @@ export function generateResource(amount: number): CardAction {
 }
 
 export function commitToQuest(cardId: CardId): Action {
-  return sequence(tap(cardId), markAsQuesting(cardId));
+  return sequence(tap(cardId), mark("questing")(cardId));
 }
 
 export function tap(cardId: CardId): Action {
@@ -67,28 +67,17 @@ export function untap(cardId: CardId): Action {
   });
 }
 
-export function markAsQuesting(cardId: CardId): Action {
-  return action(`markAsQuesting(${cardId})`, (state) => {
-    const card = state.cards.find((c) => c.id === cardId);
-    if (card && !card.questing) {
-      card.questing = true;
-      return "full";
-    } else {
-      return "none";
-    }
-  });
-}
-
-export function markAsAttacking(cardId: CardId): Action {
-  return action(`markAsAttacking(${cardId})`, (state) => {
-    const card = state.cards.find((c) => c.id === cardId);
-    if (card && !card.attacking) {
-      card.attacking = true;
-      return "full";
-    } else {
-      return "none";
-    }
-  });
+export function mark(type: Mark): CardAction {
+  return (cardId) =>
+    action(`mark(${type})`, (state) => {
+      const card = state.cards.find((c) => c.id === cardId);
+      if (card && !card.mark[type]) {
+        card.mark[type] = true;
+        return "full";
+      } else {
+        return "none";
+      }
+    });
 }
 
 export function addToken(type: Token): CardAction {
@@ -98,7 +87,7 @@ export function addToken(type: Token): CardAction {
       if (!card) {
         return "none";
       } else {
-        card[type] += 1;
+        card.token[type] += 1;
         return "full";
       }
     });
@@ -108,10 +97,10 @@ export function removeToken(type: Token): CardAction {
   return (cardId) =>
     action(`add ${type} token to card ${cardId}`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
-      if (!card || !card[type]) {
+      if (!card || !card.token[type]) {
         return "none";
       } else {
-        card[type] -= 1;
+        card.token[type] -= 1;
         return "full";
       }
     });

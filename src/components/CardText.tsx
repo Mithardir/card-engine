@@ -64,12 +64,12 @@ export const CardText = (props: { card: CardView }) => {
             <PropertyView card={c} property="questPoints" label="Quest points" />
             <tr>
               <td>Progress</td>
-              <td>{c.progress}</td>
+              <td>{c.token.progress}</td>
               <td>
-                <button onClick={() => c.progress++}>+</button>
+                <button onClick={() => c.token.progress++}>+</button>
               </td>
               <td>
-                <button onClick={() => c.progress--}>-</button>
+                <button onClick={() => c.token.progress--}>-</button>
               </td>
             </tr>
             <tr>
@@ -85,7 +85,7 @@ export const CardText = (props: { card: CardView }) => {
             <PropertyView card={c} property="hitPoints" label="Hitpoints" />
             <tr>
               <td>Damage</td>
-              <td>{c.damage}</td>
+              <td>{c.token.damage}</td>
               <td>
               <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
               </td>
@@ -105,7 +105,7 @@ export const CardText = (props: { card: CardView }) => {
             <PropertyView card={c} property="hitPoints" label="Hitpoints" />
             <tr>
               <td>Damage</td>
-              <td>{c.damage}</td>
+              <td>{c.token.damage}</td>
               <td>
               <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
               </td>
@@ -117,7 +117,7 @@ export const CardText = (props: { card: CardView }) => {
             </tr>
             <tr>
               <td>Resources</td>
-              <td>{c.resources}</td>
+              <td>{c.token.resources}</td>
               <td>
                 {/* <button onClick={() => card.update(addToken("resources"))}>
                   +

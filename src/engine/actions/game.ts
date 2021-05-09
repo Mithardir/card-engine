@@ -2,12 +2,12 @@ import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
 import { and, isTapped, isCharacter, isInZone, isHero, Filter } from "../filters";
 import { PlayerDeck } from "../setup";
-import { CardId, PlayerId, playerIds, createCardState, Side } from "../state";
+import { CardId, PlayerId, playerIds, createCardState, Side, Mark } from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
 import { tap, resolveDefense, dealDamage, moveCard } from "./card";
-import { chooseOne, chooseCardAction, chooseCardsActions, chooseMultiple } from "./choices";
+import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
 
@@ -100,7 +100,7 @@ export function placeProgress(amount: number): Action {
     const cardId = state.zones.quest.cards[0];
     const card = state.cards.find((c) => c.id === cardId);
     if (card) {
-      card.progress += amount;
+      card.token.progress += amount;
       return "full";
     } else {
       return "none";
@@ -184,18 +184,12 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Action {
   });
 }
 
-export const clearQuestingMarks = action(`clearQuestingMarks`, (state) => {
-  for (const card of state.cards) {
-    card.questing = false;
-  }
+export function clearMarks(type: Mark): Action {
+  return action(`clearQuestingMarks`, (state) => {
+    for (const card of state.cards) {
+      card.mark[type] = false;
+    }
 
-  return "full";
-});
-
-export const clearAttackingMarks = action(`clearAttackingMarks`, (state) => {
-  for (const card of state.cards) {
-    card.attacking = false;
-  }
-
-  return "full";
-});
+    return "full";
+  });
+}

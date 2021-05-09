@@ -35,17 +35,22 @@ export type CardDefinition = {
   orientation: "landscape" | "portrait";
 };
 
+export type Token = "damage" | "progress" | "resources";
+
+export type Mark = "questing" | "attacking" | "defending";
+
+export type Tokens = Record<Token, number>;
+
+export type Marks = Record<Mark, boolean>;
+
 export interface CardState {
   id: CardId;
   definition: CardDefinition;
   sideUp: Side;
   tapped: boolean;
-  damage: number;
-  progress: number;
-  resources: number;
+  token: Tokens;
+  mark: Marks;
   attachedTo?: CardId;
-  questing: boolean;
-  attacking: boolean;
 }
 
 export interface ZoneState {
@@ -67,14 +72,19 @@ export interface State {
 export function createCardState(id: CardId, definition: CardDefinition, side: Side): CardState {
   return {
     id,
-    damage: 0,
-    progress: 0,
-    resources: 0,
+    token: {
+      damage: 0,
+      progress: 0,
+      resources: 0,
+    },
+    mark: {
+      questing: false,
+      attacking: false,
+      defending: false,
+    },
     sideUp: side,
     tapped: false,
     definition,
-    questing: false,
-    attacking: false,
   };
 }
 

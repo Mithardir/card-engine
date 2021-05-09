@@ -6,7 +6,7 @@ import { CardId, PlayerId, playerIds, createCardState, Side, Mark } from "../sta
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
-import { tap, resolveDefense, dealDamage, moveCard } from "./card";
+import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
 import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
@@ -76,8 +76,7 @@ export function declareAttackers(attackedId: CardId, playerId: PlayerId): Action
         cards.map((c) => ({
           image: c.props.image,
           label: c.props.name || "",
-          // TODO attack
-          action: sequence(tap(c.id)),
+          action: sequence(tap(c.id), mark("attacking")(c.id)),
         }))
       );
 

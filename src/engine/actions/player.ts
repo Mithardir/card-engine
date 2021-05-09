@@ -1,9 +1,10 @@
 import { and, isInZone, isEnemy, Filter, isReady, withMaxEngagement, isCharacter } from "../filters";
 import { PlayerId, CardId } from "../state";
-import { zoneKey } from "../utils";
+import { filterCards, zoneKey } from "../utils";
+import { createView } from "../view";
 import { engagePlayer, resolveEnemyAttack, commitToQuest, resolvePlayerAttack } from "./card";
-import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions } from "./choices";
-import { repeat, action } from "./control";
+import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions, chooseOne } from "./choices";
+import { repeat, action, sequence } from "./control";
 import { moveTopCard } from "./game";
 import { PlayerAction } from "./types";
 
@@ -15,13 +16,27 @@ export function resolvePlayerAttacks(playerId: PlayerId) {
   return chooseCardActionsOrder("Choose enemy to attack", enemies, resolvePlayerAttack(playerId));
 }
 
-export const optionalEngagement: PlayerAction = (player) =>
-  // TODO no engagement
-  chooseCardAction(
-    "Choose enemy to optionally engage",
-    and(isInZone(zoneKey("stagingArea")), isEnemy),
-    engagePlayer(player)
-  );
+export const optionalEngagement: PlayerAction = (player) => ({
+  print: "optionalEngagement",
+  do: (state) => {
+    const view = createView(state);
+    const cards = filterCards(and(isInZone(zoneKey("stagingArea")), isEnemy), view);
+
+    const action = chooseOne("Choose enemy to optionally engage", [
+      ...cards.map((c) => ({
+        image: c.props.image,
+        label: c.props.name || "",
+        action: engagePlayer(player)(c.id),
+      })),
+      {
+        label: "No enemy",
+        action: sequence(),
+      },
+    ]);
+
+    return action.do(state);
+  },
+});
 
 export const engagementCheck: PlayerAction = (player) =>
   chooseCardAction("Choose enemy to engage", withMaxEngagement(player), engagePlayer(player));

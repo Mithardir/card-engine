@@ -183,3 +183,19 @@ export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Action {
     }
   });
 }
+
+export const clearQuestingMarks = action(`clearQuestingMarks`, (state) => {
+  for (const card of state.cards) {
+    card.questing = false;
+  }
+
+  return "full";
+});
+
+export const clearAttackingMarks = action(`clearAttackingMarks`, (state) => {
+  for (const card of state.cards) {
+    card.attacking = false;
+  }
+
+  return "full";
+});

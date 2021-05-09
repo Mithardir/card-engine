@@ -40,7 +40,7 @@ export function generateResource(amount: number): CardAction {
 }
 
 export function commitToQuest(cardId: CardId): Action {
-  return sequence(tap(cardId), assignToQuest(cardId));
+  return sequence(tap(cardId), markAsQuesting(cardId));
 }
 
 export function tap(cardId: CardId): Action {
@@ -67,11 +67,23 @@ export function untap(cardId: CardId): Action {
   });
 }
 
-export function assignToQuest(cardId: CardId): Action {
-  return action(`assignToQuest(${cardId})`, (state) => {
+export function markAsQuesting(cardId: CardId): Action {
+  return action(`markAsQuesting(${cardId})`, (state) => {
     const card = state.cards.find((c) => c.id === cardId);
-    if (card && !card.commitedToQuest) {
-      card.commitedToQuest = true;
+    if (card && !card.questing) {
+      card.questing = true;
+      return "full";
+    } else {
+      return "none";
+    }
+  });
+}
+
+export function markAsAttacking(cardId: CardId): Action {
+  return action(`markAsAttacking(${cardId})`, (state) => {
+    const card = state.cards.find((c) => c.id === cardId);
+    if (card && !card.attacking) {
+      card.attacking = true;
       return "full";
     } else {
       return "none";

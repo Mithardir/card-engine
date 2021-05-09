@@ -25,7 +25,8 @@ export type CardView = {
   damage: number;
   resources: number;
   sideUp: Side;
-  commitedToQuest: boolean;
+  questing: boolean;
+  attacking: boolean;
   actions: Action[];
   attachedTo?: CardId;
 };

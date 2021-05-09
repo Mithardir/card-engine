@@ -12,8 +12,18 @@ export const totalWillpower: Exp<number> = {
   print: "total willpoer",
   eval: (v) => {
     return v.cards
-      .filter((c) => c.commitedToQuest)
+      .filter((c) => c.questing)
       .map((c) => c.props.willpower || 0)
+      .reduce((p, c) => p + c, 0);
+  },
+};
+
+export const totalAttack: Exp<number> = {
+  print: "total attack",
+  eval: (v) => {
+    return v.cards
+      .filter((c) => c.attacking)
+      .map((c) => c.props.attack || 0)
       .reduce((p, c) => p + c, 0);
   },
 };

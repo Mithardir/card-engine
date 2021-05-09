@@ -4,7 +4,7 @@ import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
 import { createView } from "../view";
 import { repeat, sequence, action, bind } from "./control";
-import { playerActions, declareDefender } from "./game";
+import { playerActions, declareDefender, declareAttackers } from "./game";
 import { Action, CardAction } from "./types";
 
 export function dealDamage(amount: number): CardAction {
@@ -26,6 +26,12 @@ export function resolveEnemyAttack(playerId: PlayerId): CardAction {
   return (attackerId) => {
     // TODO shadow effect
     return sequence(playerActions("Declare defender"), declareDefender(attackerId, playerId));
+  };
+}
+
+export function resolvePlayerAttack(playerId: PlayerId): CardAction {
+  return (attackedId) => {
+    return sequence(playerActions("Declare attackers"), declareAttackers(attackedId, playerId));
   };
 }
 

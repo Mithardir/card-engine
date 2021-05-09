@@ -1,7 +1,7 @@
 import { and, isInZone, isEnemy, Filter, isReady, withMaxEngagement, isCharacter } from "../filters";
 import { PlayerId, CardId } from "../state";
 import { zoneKey } from "../utils";
-import { engagePlayer, resolveEnemyAttack, commitToQuest } from "./card";
+import { engagePlayer, resolveEnemyAttack, commitToQuest, resolvePlayerAttack } from "./card";
 import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions } from "./choices";
 import { repeat, sequence, action } from "./control";
 import { moveTopCard } from "./game";
@@ -11,8 +11,8 @@ export const draw = (amount: number) => (playerId: PlayerId) =>
   repeat(amount, moveTopCard(zoneKey("library", playerId), zoneKey("hand", playerId), "face"));
 
 export function resolvePlayerAttacks(playerId: PlayerId) {
-  // TODO all
-  return sequence();
+  const enemies: Filter<CardId> = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
+  return chooseCardActionsOrder("Choose enemy to attack", enemies, resolvePlayerAttack(playerId));
 }
 
 export const optionalEngagement: PlayerAction = (player) =>

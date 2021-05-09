@@ -7,7 +7,7 @@ import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
 import { tap, resolveDefense, dealDamage, moveCard } from "./card";
-import { chooseOne, chooseCardAction } from "./choices";
+import { chooseOne, chooseCardAction, chooseCardsActions, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
 
@@ -57,6 +57,29 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
           ),
         },
       ]);
+
+      return action.do(state);
+    },
+  };
+}
+
+export function declareAttackers(attackedId: CardId, playerId: PlayerId): Action {
+  const filter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+  return {
+    print: `declareAttackers(${attackedId}, ${playerId})`,
+    do: (state) => {
+      const view = createView(state);
+      const cards = filterCards(filter, view);
+
+      const action = chooseMultiple(
+        "Declare attackers",
+        cards.map((c) => ({
+          image: c.props.image,
+          label: c.props.name || "",
+          // TODO attack
+          action: sequence(tap(c.id)),
+        }))
+      );
 
       return action.do(state);
     },

@@ -59,7 +59,7 @@ export const CardShow = (props: {
       // onWheel={e => {
       //   game.detailCard = e.deltaY > 0 ? c : undefined;
       // }}
-      onClick={async () => {
+      onClick={async () => {        
         if (actions.length === 0) {
           return;
         } else {

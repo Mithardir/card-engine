@@ -37,7 +37,7 @@ export type CardDefinition = {
 
 export type Token = "damage" | "progress" | "resources";
 
-export type Mark = "questing" | "attacking" | "defending";
+export type Mark = "questing" | "attacking" | "defending" | "attacked";
 
 export type Tokens = Record<Token, number>;
 
@@ -81,6 +81,7 @@ export function createCardState(id: CardId, definition: CardDefinition, side: Si
       questing: false,
       attacking: false,
       defending: false,
+      attacked: false,
     },
     sideUp: side,
     tapped: false,

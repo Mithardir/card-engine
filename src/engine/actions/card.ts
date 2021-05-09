@@ -1,11 +1,12 @@
 import { diff, getProp, totalAttack } from "../exps";
-import { CardId, Mark, PlayerId, Side } from "../state";
+import { CardId, Mark, PlayerId, Side, State } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
 import { createView } from "../view";
 import { repeat, sequence, action, bind } from "./control";
 import { playerActions, declareDefender, declareAttackers, clearMarks } from "./game";
-import { Action, CardAction } from "./types";
+import { Action, ActionEffect, ActionResult, CardAction } from "./types";
+import { noChange } from "./utils";
 
 export function dealDamage(amount: number): CardAction {
   return (card) => repeat(amount, addToken("damage")(card));
@@ -142,8 +143,10 @@ export const playAlly: CardAction = (cardId) => {
       if (owner && card?.props.type === "ally") {
         return moveCard(zoneKey("hand", owner.id), zoneKey("playerArea", owner.id), "face")(cardId).do(s);
       } else {
-        return sequence().do(s);
+        return noChange(s);
       }
     },
   };
 };
+
+

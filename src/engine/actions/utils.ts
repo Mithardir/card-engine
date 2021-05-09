@@ -1,6 +1,6 @@
 import { State } from "../state";
 import { sequence } from "./control";
-import { Action, ActionEffect, StateTree } from "./types";
+import { Action, ActionEffect, ActionResult, StateTree } from "./types";
 
 export function getActionChange(action: Action, state: State): ActionEffect {
   const result = action.do(state);
@@ -71,4 +71,13 @@ export function getStateTree(state: State, action: Action): StateTree {
       },
     };
   }
+}
+
+export function noChange(state: State): ActionResult {
+  return {
+    effect: "none",
+    choice: undefined,
+    next: undefined,
+    state,
+  };
 }

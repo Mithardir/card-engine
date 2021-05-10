@@ -59,7 +59,7 @@ export const CardShow = (props: {
       // onWheel={e => {
       //   game.detailCard = e.deltaY > 0 ? c : undefined;
       // }}
-      onClick={async () => {        
+      onClick={async () => {
         if (actions.length === 0) {
           return;
         } else {
@@ -84,6 +84,59 @@ export const CardShow = (props: {
           alt=""
         />
       )}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          marginLeft: "0%",
+          marginTop: "3%",
+          minWidth: "70%",
+          justifyContent: "space-evenly",
+          position: "absolute",
+          top: 0,
+        }}
+      >
+        {card.mark.questing && (
+          <div
+            style={{
+              position: "relative",
+              width: 20,
+              height: 20,
+              margin: 1,
+              backgroundColor: "white",
+            }}
+          >
+            <img src="http://hallofbeorn.com/Images/willpower-med.png" width={20} height={20} alt="" />
+          </div>
+        )}
+        {card.mark.attacking && (
+          <div
+            style={{
+              position: "relative",
+              width: 20,
+              height: 20,
+              margin: 1,
+              backgroundColor: "white",
+            }}
+          >
+            <img src="http://hallofbeorn.com/Images/attack-small.png" width={20} height={20} alt="" />
+          </div>
+        )}
+        {card.mark.defending && (
+          <div
+            style={{
+              position: "relative",
+              width: 20,
+              height: 20,
+              margin: 1,
+              backgroundColor: "white",
+            }}
+          >
+            <img src="http://hallofbeorn.com/Images/defense-small.png" width={20} height={20} alt="" />
+          </div>
+        )}
+      </div>
       {props.showTokens && (
         <div
           style={{
@@ -91,7 +144,7 @@ export const CardShow = (props: {
             flexDirection: "row",
             flexWrap: "wrap",
             marginLeft: "30%",
-            marginTop: "3%",
+            marginTop: "20%",
             minWidth: "70%",
             justifyContent: "space-evenly",
             position: "absolute",

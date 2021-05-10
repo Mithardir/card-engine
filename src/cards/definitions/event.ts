@@ -15,9 +15,13 @@ export function action(props: { description: string; effect: Action }): Ability 
       const card = view.cards.find((c) => c.id === self);
       const owner = view.players.find((p) => p.zones.hand.cards.includes(self));
       if (card && owner) {
-        card.actions.push(
-          sequence(props.effect, moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self))
-        );
+        card.actions.push({
+          description: props.description,
+          effect: sequence(
+            props.effect,
+            moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self)
+          ),
+        });
       }
     },
   };

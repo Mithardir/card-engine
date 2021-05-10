@@ -36,7 +36,7 @@ export type CardView = {
   sideUp: Side;
   token: Tokens;
   mark: Marks;
-  actions: Action[]; // TODO add description
+  actions: Array<{ description: string; effect: Action }>;
   attachedTo?: CardId;
 };
 
@@ -53,10 +53,10 @@ export function createCardView(state: CardState): CardView {
     abilities: printed.abilities.map((a) => ({ ...a, applied: false })),
   };
 
-  const actions: Action[] = [];
+  const actions: CardView["actions"] = [];
 
   if (printed.type === "ally") {
-    actions.push(playAlly(state.id));
+    actions.push({ description: "Play", effect: playAlly(state.id) });
   }
 
   return { ...state, printed, props, actions };

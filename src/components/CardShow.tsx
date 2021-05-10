@@ -22,7 +22,7 @@ export const CardShow = (props: {
   const engine = useEngine();
 
   const card = props.card || createView(engine.state).cards.find((c) => c.id === props.cardId)!;
-  const actions = card.actions.filter((a) => getActionChange(a, engine.state) !== "none");
+  const actions = card.actions.filter((a) => getActionChange(a.effect, engine.state) !== "none");
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;
@@ -64,7 +64,7 @@ export const CardShow = (props: {
           return;
         } else {
           if (actions.length === 1) {
-            await engine.do(actions[0]);
+            await engine.do(actions[0].effect);
           } else {
             // TODO multiple actions
             // tslint:disable-next-line:no-console

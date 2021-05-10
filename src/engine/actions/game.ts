@@ -26,10 +26,10 @@ export const playerActions: (title: string) => Action = (title) => {
             const choices = view.cards
               .map((card) => card.actions.map((action) => ({ card, action })))
               .flatMap((a) => a)
-              .filter((a) => getActionChange(a.action, state) !== "none")
+              .filter((a) => getActionChange(a.action.effect, state) !== "none")
               .map((ca) => ({
-                label: `${ca.card.props.name}: ${ca.action.print}`,
-                action: sequence(ca.action, playerActions(title)),
+                label: `${ca.card.props.name}: ${ca.action.description}`,
+                action: sequence(ca.action.effect, playerActions(title)),
               }));
             return [...choices, { label: "Continue", action: sequence() }];
           },

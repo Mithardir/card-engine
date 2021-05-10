@@ -13,7 +13,10 @@ export function attaches(props: { description: string; filter: Filter<CardId> })
       // TODO pay cost
       const card = view.cards.find((c) => c.id === self);
       if (card && view.players.some((p) => p.zones.hand.cards.includes(self))) {
-        card.actions.push(chooseCardAction("Attach to", props.filter, attachTo(self)));
+        card.actions.push({
+          description: props.description,
+          effect: chooseCardAction("Attach to", props.filter, attachTo(self)),
+        });
       }
     },
   };

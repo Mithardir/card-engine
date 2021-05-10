@@ -1,4 +1,5 @@
-import { diff, getProp, totalAttack } from "../exps";
+import { findZoneOf } from "../../cards/definitions/attachment";
+import { diff, getProp, getTokens, totalAttack } from "../exps";
 import { CardId, Mark, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
@@ -9,7 +10,13 @@ import { Action, CardAction } from "./types";
 import { noChange } from "./utils";
 
 export function dealDamage(amount: number): CardAction {
-  return (card) => repeat(amount, addToken("damage")(card));
+  return (card) =>
+    sequence(
+      repeat(amount, addToken("damage")(card)),
+      bind(diff(getProp("hitPoints", card), getTokens("damage", card)), (lives) =>
+        lives > 0 ? sequence() : destroy(card)
+      )
+    );
 }
 
 export function resolveDefense(attacker: CardId): CardAction {
@@ -133,6 +140,23 @@ export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardAction {
     });
 }
 
+export function moveCardTo(to: ZoneKey, side: Side): CardAction {
+  return (cardId) =>
+    action(`moveCardTo(${cardId}, ${to.print}, "${side}")`, (s) => {
+      const fromZone = findZoneOf(cardId, s);
+      const toZone = getZone(to)(s);
+      if (fromZone.cards.includes(cardId)) {
+        fromZone.cards = fromZone.cards.filter((c) => c !== cardId);
+        const card = s.cards.find((c) => c.id === cardId)!;
+        card.sideUp = side;
+        toZone.cards.push(cardId);
+        return "full";
+      } else {
+        return "none";
+      }
+    });
+}
+
 export const playAlly: CardAction = (cardId) => {
   // TODO  pay cost
   return {
@@ -145,6 +169,43 @@ export const playAlly: CardAction = (cardId) => {
         return moveCard(zoneKey("hand", owner.id), zoneKey("playerArea", owner.id), "face")(cardId).do(s);
       } else {
         return noChange(s);
+      }
+    },
+  };
+};
+
+export const removeTokensAndMarks: CardAction = (cardId) =>
+  action("removeTokensAndMarks", (s) => {
+    const card = s.cards.find((c) => c.id === cardId)!;
+    card.mark.attacked = false;
+    card.mark.attacking = false;
+    card.mark.defending = false;
+    card.mark.questing = false;
+    card.token.damage = 0;
+    card.token.progress = 0;
+    card.token.resources = 0;
+    card.tapped = false;
+    card.attachedTo = undefined;
+    return "full";
+  });
+
+export const destroy: CardAction = (cardId) => {
+  return {
+    print: `destroy ${cardId}`,
+    do: (s) => {
+      const owner = s.players.find(
+        (p) => p.zones.hand.cards.includes(cardId) || p.zones.playerArea.cards.includes(cardId)
+      );
+      const view = createView(s);
+      const card = view.cards.find((c) => c.id === cardId);
+      if (owner && card) {
+        return sequence(removeTokensAndMarks(cardId), moveCardTo(zoneKey("discardPile", owner.id), "face")(cardId)).do(
+          s
+        );
+      } else if (!owner && card) {
+        return sequence(removeTokensAndMarks(cardId), moveCardTo(zoneKey("discardPile"), "face")(cardId)).do(s);
+      } else {
+        return sequence().do(s);
       }
     },
   };

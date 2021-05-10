@@ -1,5 +1,5 @@
 import { and, isLocation, isInZone, Filter } from "./filters";
-import { PlayerId, playerIds, CardId } from "./state";
+import { PlayerId, playerIds, CardId, Token } from "./state";
 import { filterCards, zoneKey } from "./utils";
 import { CardView, View } from "./view";
 
@@ -121,11 +121,20 @@ export function countOfCards(filter: Filter<CardId>): Exp<number> {
   };
 }
 
-export function getProp(property: "attack" | "defense", cardId: CardId): Exp<number> {
+export function getProp(property: "attack" | "defense" | "hitPoints", cardId: CardId): Exp<number> {
   return {
     print: `${property} of card ${cardId}`,
     eval: (v) => {
       return v.cards.find((c) => c.id === cardId)!.props[property]!;
+    },
+  };
+}
+
+export function getTokens(property: Token, cardId: CardId): Exp<number> {
+  return {
+    print: `${property} of card ${cardId}`,
+    eval: (v) => {
+      return v.cards.find((c) => c.id === cardId)!.token[property]!;
     },
   };
 }

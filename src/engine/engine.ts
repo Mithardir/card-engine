@@ -2,7 +2,6 @@ import { State } from "./state";
 import { sequence } from "./actions/control";
 import { getActionChange } from "./actions/utils";
 import { Action } from "./actions/types";
-import { playerActions } from "./actions/game";
 
 export type Engine = {
   state: State;
@@ -128,7 +127,7 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
               result.next = result.next ? sequence(result.next, next) : next;
             }
           } else {
-            console.log(playerActions(result.choice.title).do(engine.state));
+            //console.log(playerActions(result.choice.title).do(engine.state));
             await ui.playerActions(result.choice.title);
             result.choice = undefined;
             result.state = state;

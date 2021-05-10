@@ -41,7 +41,7 @@ export function chooseOne(title: string, choices: Array<{ label: string; image?:
       }
 
       return {
-        effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
+        effect: "full",
         state: state,
         choice: {
           title,

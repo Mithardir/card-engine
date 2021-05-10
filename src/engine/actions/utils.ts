@@ -71,7 +71,7 @@ export function playRandomlyUntilEnd(state: State, action: Action): [State, "win
       return playRandomlyUntilEnd(result.state, result.next);
     }
   } else {
-    const choosen = sample(result.choice.choices)!;    
+    const choosen = sample(result.choice.choices)!;
     return playRandomlyUntilEnd(result.state, result.next ? sequence(choosen.action, result.next) : choosen.action);
   }
 }

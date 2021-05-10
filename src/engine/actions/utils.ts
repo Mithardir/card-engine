@@ -2,11 +2,19 @@ import { State } from "../state";
 import { sequence } from "./control";
 import { Action, ActionEffect, ActionResult, StateTree } from "./types";
 import { sample } from "lodash";
+import st from "stacktrace-js";
 
 export function getActionChange(action: Action, state: State): ActionEffect {
+  // const stack = st.getSync({ filter: (f) => f.functionName === "getActionChange" });
+  // if (stack.length > 10) {
+  //   debugger;
+  // }
+
   const result = action.do(state);
 
   if (result.choice) {
+    // TODO skip player actions
+
     const results = result.choice.choices.map((c) => {
       return getActionChange(c.action, state);
     });

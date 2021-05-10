@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from "react";
-import { createInitState } from "./engine/state";
+import { createInitState, State } from "./engine/state";
 import { createView } from "./engine/view";
 import { GameShow } from "./components/GameShow";
 import { DialogsContext } from "./components/DialogsContext";
@@ -7,8 +7,8 @@ import { CssBaseline } from "@material-ui/core";
 import { reactUI, EngineProvider } from "./components/EngineContext";
 import { createEngine } from "./engine/engine";
 
-export function App() {
-  const [state, setState] = useState(createInitState());
+export function App(props: { state?: State }) {
+  const [state, setState] = useState(props.state || createInitState());
   const view = createView(state);
 
   const dialog = useContext(DialogsContext);

@@ -1,10 +1,17 @@
 import prettier from "prettier";
-import {
-  startGame,
-} from "../engine/actions/phases";
+import { beginScenario, startGame } from "../engine/actions/phases";
+import { playRandomlyUntilEnd } from "../engine/actions/utils";
+import { coreTactics, passageThroughMirkwood } from "../engine/setup";
+import { createInitState } from "../engine/state";
 
-it("Prints rule script", () => {  
+it("Prints rule script", () => {
   const action = startGame;
   console.log(action.print);
   console.log(prettier.format(action.print));
 });
+
+// it("Random ai test", () => {
+//   const state = createInitState();
+//   const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
+//   console.log(result);
+// });

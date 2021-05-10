@@ -1,6 +1,7 @@
 import { State } from "../state";
 import { sequence } from "./control";
 import { Action, ActionEffect, ActionResult, StateTree } from "./types";
+import { sample } from "lodash";
 
 export function getActionChange(action: Action, state: State): ActionEffect {
   const result = action.do(state);
@@ -40,8 +41,51 @@ export function mergeEffect(type: "and" | "or", ...effects: ActionEffect[]): Act
   return "partial";
 }
 
+export function checkEndCondition(state: State): "win" | "loose" | undefined {
+  // TODO all checks
+  if (state.players.some((p) => p.thread >= 50)) {
+    return "loose";
+  }
+
+  if (state.players.some((p) => p.zones.playerArea.cards.length === 0)) {
+    return "loose";
+  }
+
+  if (state.cards.some((c) => c.token.progress > 5)) {
+    return "win";
+  }
+}
+
+export function playRandomlyUntilEnd(state: State, action: Action): [State, "win" | "loose"] {
+  const result = action.do(state);
+  const end = checkEndCondition(result.state);
+  if (end) {
+    return [result.state, end];
+  }
+
+  if (!result.choice) {
+    if (!result.next) {
+      debugger;
+      throw new Error("out of options");
+    } else {
+      return playRandomlyUntilEnd(result.state, result.next);
+    }
+  } else {
+    const choosen = sample(result.choice.choices)!;    
+    return playRandomlyUntilEnd(result.state, result.next ? sequence(choosen.action, result.next) : choosen.action);
+  }
+}
+
 export function getStateTree(state: State, action: Action): StateTree {
   const result = action.do(state);
+
+  const end = checkEndCondition(state);
+  if (end) {
+    return {
+      state,
+      next: undefined,
+    };
+  }
 
   if (!result.choice) {
     if (!result.next) {
@@ -57,17 +101,15 @@ export function getStateTree(state: State, action: Action): StateTree {
       state: result.state,
       next: {
         title: result.choice.title,
-        choices: result.choice.choices
-          .filter((c) => getActionChange(c.action, result.state) !== "none")
-          .map((c) => {
-            return {
-              label: c.label,
-              get result() {
-                const next = result.next ? result.next : sequence();
-                return getStateTree(result.state, sequence(c.action, next));
-              },
-            };
-          }),
+        choices: result.choice.choices.map((c) => {
+          return {
+            label: c.label,
+            get result() {
+              const next = result.next ? result.next : sequence();
+              return getStateTree(result.state, sequence(c.action, next));
+            },
+          };
+        }),
       },
     };
   }

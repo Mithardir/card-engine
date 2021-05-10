@@ -2474,6 +2474,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash@npm:^4.14.168":
+  version: 4.14.168
+  resolution: "@types/lodash@npm:4.14.168"
+  checksum: 9a4e25f89fc035b9f0388f1f7be85e5eff49f9e6db0d93432c9a89fce0916f8a89db4e8290415f7ea02de6b00d3573826378dcb655b7b2d20530a6e8d6dd6fd0
+  languageName: node
+  linkType: hard
+
 "@types/memoizee@npm:^0.4.5":
   version: 0.4.5
   resolution: "@types/memoizee@npm:0.4.5"
@@ -9673,6 +9680,13 @@ fsevents@^2.1.3:
   languageName: node
   linkType: hard
 
+"lodash@npm:^4.17.21":
+  version: 4.17.21
+  resolution: "lodash@npm:4.17.21"
+  checksum: 4983720b9abca930a4a46f18db163d7dad8dd00dbed6db0cc7b499b33b717cce69f80928b27bbb1ff2cbd3b19d251ee90669a8b5ea466072ca81c2ebe91e7468
+  languageName: node
+  linkType: hard
+
 "loglevel@npm:^1.6.8":
   version: 1.7.1
   resolution: "loglevel@npm:1.7.1"
@@ -14432,6 +14446,7 @@ resolve@1.18.1:
     "@testing-library/user-event": ^12.1.10
     "@types/jest": ^26.0.15
     "@types/js-combinatorics": ^0.5.32
+    "@types/lodash": ^4.14.168
     "@types/memoizee": ^0.4.5
     "@types/node": ^12.0.0
     "@types/react": ^17.0.0
@@ -14439,6 +14454,7 @@ resolve@1.18.1:
     generatorics: ^1.1.0
     immer: ^8.0.1
     js-combinatorics: ^1.4.5
+    lodash: ^4.17.21
     memoizee: ^0.4.15
     prettier: ^2.2.1
     react: ^17.0.1

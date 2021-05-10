@@ -41,8 +41,8 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
                 justifyContent: "space-evenly",
               }}
             >
-              {items.map((a) => (
-                <Grid item xs={!a.image ? 12 : undefined}>
+              {items.map((a, i) => (
+                <Grid key={i} item xs={!a.image ? 12 : undefined}>
                   <ListItem
                     button
                     key={a.label}

@@ -34,7 +34,7 @@ export const DialogsProvider = (props: PropsWithChildren<{}>) => {
               ...prev,
               {
                 Component: component,
-                onSubmit: async (data) => {                  
+                onSubmit: async (data) => {
                   resolve(data);
                   setDialogs(prev.filter((d) => d.Component !== component));
                 },
@@ -45,8 +45,8 @@ export const DialogsProvider = (props: PropsWithChildren<{}>) => {
       }}
     >
       {props.children}
-      {dialogs.map((Dialog) => (
-        <Dialog.Component open={true} onSubmit={Dialog.onSubmit} />
+      {dialogs.map((Dialog, i) => (
+        <Dialog.Component key={i.toString()} open={true} onSubmit={Dialog.onSubmit} />
       ))}
     </DialogsContext.Provider>
   );

@@ -10,6 +10,7 @@ import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
 import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
+import { getActionChange } from "./utils";
 
 export const playerActions: (title: string) => Action = (title) => {
   return {
@@ -20,7 +21,18 @@ export const playerActions: (title: string) => Action = (title) => {
           title,
           multiple: true,
           dialog: false,
-          choices: [], // TODO choices
+          get choices() {
+            const view = createView(state);
+            const choices = view.cards
+              .map((card) => card.actions.map((action) => ({ card, action })))
+              .flatMap((a) => a)
+              .filter((a) => getActionChange(a.action, state) !== "none")
+              .map((ca) => ({
+                label: `${ca.card.props.name}: ${ca.action.print}`,
+                action: sequence(ca.action, playerActions(title)),
+              }));
+            return [...choices, { label: "Continue", action: sequence() }];
+          },
         },
         effect: "full",
         state,
@@ -31,7 +43,7 @@ export const playerActions: (title: string) => Action = (title) => {
 };
 
 export const dealShadowCards =
-  // TODO all
+  // TODO dealShadowCards
   sequence();
 
 export function declareDefender(attackerId: CardId, playerId: PlayerId): Action {

@@ -23,7 +23,7 @@ export function App() {
         <GameShow
           view={view}
           onAction={async (action) => {
-            engine.do(action);
+            await engine.do(action);
           }}
         />
       </EngineProvider>

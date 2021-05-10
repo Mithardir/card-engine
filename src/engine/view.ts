@@ -1,6 +1,18 @@
 import produce from "immer";
 import { PrintedProps } from "./types";
-import { CardId, CardState, Effect, GameZoneType, Marks, PlayerId, PlayerState, Side, State, Tokens, ZoneState } from "./state";
+import {
+  CardId,
+  CardState,
+  Effect,
+  GameZoneType,
+  Marks,
+  PlayerId,
+  PlayerState,
+  Side,
+  State,
+  Tokens,
+  ZoneState,
+} from "./state";
 import { Action } from "./actions/types";
 import { playAlly } from "./actions/card";
 
@@ -24,7 +36,7 @@ export type CardView = {
   sideUp: Side;
   token: Tokens;
   mark: Marks;
-  actions: Action[];
+  actions: Action[]; // TODO add description
   attachedTo?: CardId;
 };
 

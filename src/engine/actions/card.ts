@@ -123,11 +123,11 @@ export function addToken(type: Token): CardAction {
 
 export function removeToken(type: Token): CardAction {
   return (cardId) =>
-    action(`add ${type} token to card ${cardId}`, (state) => {
+    action(`remove ${type} token from card ${cardId}`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
       if (!card || !card.token[type]) {
         return "none";
-      } else {        
+      } else {                
         card.token[type] -= 1;                
         return "full";
       }

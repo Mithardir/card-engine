@@ -1,6 +1,11 @@
 import { addToken, removeToken } from "../../../engine/actions/card";
+import { addPlayer } from "../../../engine/actions/game";
 import { createTestEngine } from "../../../tests/utils";
 import * as hero from "./heroes";
+import * as ally from "./allies";
+import { createCardState, createInitState } from "../../../engine/state";
+import { draw, payResources } from "../../../engine/actions/player";
+import { createView } from "../../../engine/view";
 
 it("Gimli's attack bonus", () => {
   const engine = createTestEngine();
@@ -10,6 +15,20 @@ it("Gimli's attack bonus", () => {
   expect(gimli.attack).toEqual(3);
   engine.do(removeToken("damage")(gimli.id));
   expect(gimli.attack).toEqual(2);
+});
+
+it("Pay test", async () => {
+  let state = createInitState();
+
+  // state.cards.push(createCardState(1, hero.gimli, "face"));
+  state = addPlayer("A", { heroes: [hero.gimli], library: [], name: "X" }).do(state).state;
+  state = addToken("resources")(1).do(state).state;
+  state = addToken("resources")(1).do(state).state;    
+  //state = draw(1)("A").do(state).state;
+
+  console.log(state.cards);
+
+  console.log(payResources(2, "tactics")("A").do(state).next);
 });
 
 // it("Glorfindel's action", async () => {

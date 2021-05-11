@@ -125,6 +125,9 @@ export function chooseCardAction(title: string, filter: Filter<CardId>, factory:
         return sequence().do(state);
       }
 
+      console.log(state.cards[0])
+      console.log(action)
+
       return action.do(state);
     },
   };

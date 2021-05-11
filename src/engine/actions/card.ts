@@ -4,7 +4,7 @@ import { CardId, Mark, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
 import { createView } from "../view";
-import { repeat, sequence, action, bind } from "./control";
+import { repeat, sequence, action, bind, pay } from "./control";
 import {
   playerActions,
   declareDefender,

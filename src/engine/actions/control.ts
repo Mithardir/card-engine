@@ -3,18 +3,16 @@ import { Exp } from "../exps";
 import { State } from "../state";
 import { createView } from "../view";
 import { ActionEffect, Action } from "./types";
+import { getActionChange, noChange } from "./utils";
 
-export function action(
-  title: string,
-  update: (state: State) => ActionEffect
-): Action {
+export function action(title: string, update: (state: State) => ActionEffect): Action {
   return {
     print: title,
     do: (state) => {
-      let change: ActionEffect = "none";      
+      let change: ActionEffect = "none";
       const newState = produce(state, (draft) => {
         change = update(draft);
-      });            
+      });
       return {
         effect: change,
         state: newState,
@@ -61,9 +59,7 @@ export function sequence(...actions: Action[]): Action {
                 })),
               }
             : undefined,
-          next: result.next
-            ? sequence(result.next, ...actions.slice(1))
-            : sequence(...actions.slice(1)),
+          next: result.next ? sequence(result.next, ...actions.slice(1)) : sequence(...actions.slice(1)),
         };
       }
     },
@@ -79,9 +75,7 @@ export function whileDo(exp: Exp<boolean>, action: Action): Action {
 
         return {
           state: result.state,
-          next: result.next
-            ? sequence(result.next, whileDo(exp, action))
-            : whileDo(exp, action),
+          next: result.next ? sequence(result.next, whileDo(exp, action)) : whileDo(exp, action),
           effect: result.effect,
           choice: result.choice,
         };
@@ -113,9 +107,21 @@ export function repeat(amount: number, action: Action): Action {
   return {
     print: `repeat(${amount}, ${action.print})`,
     do: (s) => {
-      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(
-        s
-      );
+      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(s);
+    },
+  };
+}
+
+export function pay(cost: Action, effect: Action): Action {
+  return {
+    print: `pay(${cost}, ${effect})`,
+    do: (s) => {
+      const paymentResult = getActionChange(cost, s);
+      if (paymentResult !== "full") {
+        return noChange(s);
+      } else {
+        return sequence(cost, effect).do(s);
+      }
     },
   };
 }

@@ -121,7 +121,7 @@ export function payResources(amount: number, sphere: Sphere): PlayerAction {
   return (player) => ({
     print: `payResources(${amount}, ${sphere})`,
     do: (s) => {
-      const heroes = and(isHero, isInZone(zoneKey("playerArea", player)));
+      const heroes = and(isHero, hasToken("resources"), isInZone(zoneKey("playerArea", player)));
       const action = chooseCardAction(`Choose hero to pay ${sphere} resource`, heroes, (card) =>
         sequence(removeToken("resources")(card), amount > 1 ? payResources(amount - 1, sphere)(player) : sequence())
       );

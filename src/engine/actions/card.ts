@@ -162,6 +162,7 @@ export const playAlly: CardAction = (cardId) => {
   return {
     print: `play ally ${cardId}`,
     do: (s) => {
+      
       const owner = s.players.find((p) => p.zones.hand.cards.includes(cardId));
       const view = createView(s);
       const card = view.cards.find((c) => c.id === cardId);

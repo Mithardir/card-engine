@@ -2,34 +2,37 @@ import { State } from "../state";
 import { sequence } from "./control";
 import { Action, ActionEffect, ActionResult, StateTree } from "./types";
 import { sample } from "lodash";
-import st from "stacktrace-js";
 
 export function getActionChange(action: Action, state: State): ActionEffect {
-  // const stack = st.getSync({ filter: (f) => f.functionName === "getActionChange" });
-  // if (stack.length > 10) {
-  //   debugger;
-  // }
-
   const result = action.do(state);
 
   if (result.choice) {
-    // TODO skip player actions
+    if (result.choice.dialog && !result.choice.multiple) {
+      const results = result.choice.choices.map((c) => {
+        return getActionChange(c.action, state);
+      });
 
-    const results = result.choice.choices.map((c) => {
-      return getActionChange(c.action, state);
-    });
-
-    return mergeEffect("and", result.effect, mergeEffect("or", ...results));
+      return mergeEffect("and", result.effect, mergeEffect("or", ...results));
+    } else {
+      return "full";
+    }
   } else {
     if (result.next) {
-      return mergeEffect("and", result.effect, getActionChange(result.next, state));
+      return mergeEffect(
+        "and",
+        result.effect,
+        getActionChange(result.next, state)
+      );
     } else {
       return result.effect;
     }
   }
 }
 
-export function mergeEffect(type: "and" | "or", ...effects: ActionEffect[]): ActionEffect {
+export function mergeEffect(
+  type: "and" | "or",
+  ...effects: ActionEffect[]
+): ActionEffect {
   if (effects.length === 0) {
     return type === "and" ? "full" : "none";
   }
@@ -64,7 +67,10 @@ export function checkEndCondition(state: State): "win" | "loose" | undefined {
   }
 }
 
-export function playRandomlyUntilEnd(state: State, action: Action): [State, "win" | "loose"] {
+export function playRandomlyUntilEnd(
+  state: State,
+  action: Action
+): [State, "win" | "loose"] {
   const result = action.do(state);
   const end = checkEndCondition(result.state);
   if (end) {
@@ -80,7 +86,11 @@ export function playRandomlyUntilEnd(state: State, action: Action): [State, "win
     }
   } else {
     const choosen = sample(result.choice.choices)!;
-    return playRandomlyUntilEnd(result.state, result.next ? sequence(choosen.action, result.next) : choosen.action);
+    console.log(result.choice.title, choosen.label);
+    return playRandomlyUntilEnd(
+      result.state,
+      result.next ? sequence(choosen.action, result.next) : choosen.action
+    );
   }
 }
 

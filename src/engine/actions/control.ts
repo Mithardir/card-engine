@@ -4,14 +4,17 @@ import { State } from "../state";
 import { createView } from "../view";
 import { ActionEffect, Action } from "./types";
 
-export function action(title: string, update: (state: State) => ActionEffect): Action {
+export function action(
+  title: string,
+  update: (state: State) => ActionEffect
+): Action {
   return {
     print: title,
     do: (state) => {
-      let change: ActionEffect = "none";
+      let change: ActionEffect = "none";      
       const newState = produce(state, (draft) => {
         change = update(draft);
-      });
+      });            
       return {
         effect: change,
         state: newState,
@@ -52,10 +55,15 @@ export function sequence(...actions: Action[]): Action {
           choice: result.choice
             ? {
                 ...result.choice,
-                choices: result.choice.choices.map((c) => ({ ...c, action: c.action })),
+                choices: result.choice.choices.map((c) => ({
+                  ...c,
+                  action: c.action,
+                })),
               }
             : undefined,
-          next: result.next ? sequence(result.next, ...actions.slice(1)) : sequence(...actions.slice(1)),
+          next: result.next
+            ? sequence(result.next, ...actions.slice(1))
+            : sequence(...actions.slice(1)),
         };
       }
     },
@@ -71,7 +79,9 @@ export function whileDo(exp: Exp<boolean>, action: Action): Action {
 
         return {
           state: result.state,
-          next: result.next ? sequence(result.next, whileDo(exp, action)) : whileDo(exp, action),
+          next: result.next
+            ? sequence(result.next, whileDo(exp, action))
+            : whileDo(exp, action),
           effect: result.effect,
           choice: result.choice,
         };
@@ -103,7 +113,9 @@ export function repeat(amount: number, action: Action): Action {
   return {
     print: `repeat(${amount}, ${action.print})`,
     do: (s) => {
-      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(s);
+      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(
+        s
+      );
     },
   };
 }

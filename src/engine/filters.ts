@@ -1,6 +1,6 @@
 import { Exp } from "./exps";
 import { CardId, Mark, PlayerId } from "./state";
-import { ZoneKey } from "./types";
+import { Token, ZoneKey } from "./types";
 import { getZone } from "./utils";
 
 // TODO print
@@ -58,6 +58,16 @@ export const isTapped: Filter<CardId> = (id) => ({
     return card.tapped;
   },
 });
+
+export function hasToken(type: Token): Filter<CardId> {
+  return (id) => ({
+    print: "hasMark",
+    eval: (view) => {
+      const card = view.cards.find((c) => c.id === id)!;
+      return card.token[type] > 0;
+    },
+  });
+}
 
 export function hasMark(type: Mark): Filter<CardId> {
   return (id) => ({

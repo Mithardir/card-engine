@@ -4,7 +4,8 @@ import playerBack from "../../Images/back/card.jpg";
 import { Filter } from "../../engine/filters";
 import { chooseCardAction } from "../../engine/actions/choices";
 import { CardAction } from "../../engine/actions/types";
-import { action } from "../../engine/actions/control";
+import { action, pay } from "../../engine/actions/control";
+import { payResources } from "../../engine/actions/player";
 
 export function attaches(props: { description: string; filter: Filter<CardId> }): Ability {
   return {
@@ -12,10 +13,13 @@ export function attaches(props: { description: string; filter: Filter<CardId> })
     activate: (view, self) => {
       // TODO pay cost
       const card = view.cards.find((c) => c.id === self);
-      if (card && view.players.some((p) => p.zones.hand.cards.includes(self))) {
+      const owner = view.players.find((p) => p.zones.hand.cards.includes(self))?.id;
+      const cost = card?.props.cost;
+      const sphere = card?.props.sphere;
+      if (card && owner && cost && sphere && view.players.some((p) => p.zones.hand.cards.includes(self))) {
         card.actions.push({
           description: props.description,
-          effect: chooseCardAction("Attach to", props.filter, attachTo(self)),
+          effect: pay(payResources(cost, sphere)(owner), chooseCardAction("Attach to", props.filter, attachTo(self))),
         });
       }
     },

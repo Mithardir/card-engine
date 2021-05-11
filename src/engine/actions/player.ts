@@ -10,7 +10,6 @@ import {
   hasNotMark,
   isTapped,
   isHero,
-  hasMark,
   hasToken,
 } from "../filters";
 import { PlayerId, CardId } from "../state";

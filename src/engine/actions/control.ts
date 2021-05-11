@@ -116,7 +116,7 @@ export function pay(cost: Action, effect: Action): Action {
   return {
     print: `pay(${cost}, ${effect})`,
     do: (s) => {
-      const paymentResult = getActionChange(cost, s);
+      const paymentResult = getActionChange(cost, s);            
       if (paymentResult !== "full") {
         return noChange(s);
       } else {

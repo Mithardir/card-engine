@@ -4,7 +4,7 @@ import { filterCards } from "../utils";
 import { createView } from "../view";
 import { sequence } from "./control";
 import { Action, CardAction } from "./types";
-import { mergeEffect, getActionChange } from "./utils";
+import { mergeEffect, getActionChange, noChange } from "./utils";
 
 export function chooseMultiple(
   title: string,
@@ -122,7 +122,7 @@ export function chooseCardAction(title: string, filter: Filter<CardId>, factory:
       );
 
       if (cards.length === 0) {
-        return sequence().do(state);
+        return noChange(state);
       }
 
       return action.do(state);

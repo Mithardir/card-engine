@@ -2,10 +2,10 @@ import { EventProps, Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
 import playerBack from "../../Images/back/card.jpg";
 import { moveCard } from "../../engine/actions/card";
-import { sequence } from "../../engine/actions/control";
+import { pay, sequence } from "../../engine/actions/control";
 import { Action } from "../../engine/actions/types";
 import { zoneKey } from "../../engine/utils";
-import { draw } from "../../engine/actions/player";
+import { draw, payResources } from "../../engine/actions/player";
 
 export function action(props: { description: string; effect: Action }): Ability {
   // TODO pay
@@ -14,12 +14,12 @@ export function action(props: { description: string; effect: Action }): Ability 
     activate: (view, self) => {
       const card = view.cards.find((c) => c.id === self);
       const owner = view.players.find((p) => p.zones.hand.cards.includes(self));
-      if (card && owner) {
+      if (card && owner && card.props.cost && card.props.sphere) {
         card.actions.push({
           description: props.description,
-          effect: sequence(
-            props.effect,
-            moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self)
+          effect: pay(
+            payResources(card.props.cost, card.props.sphere)(owner.id),
+            sequence(props.effect, moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self))
           ),
         });
       }

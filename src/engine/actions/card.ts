@@ -195,7 +195,7 @@ export const playAlly: CardAction = (cardId) => {
           "face"
         )(cardId);
 
-        return sequence(payAction, moveAction).do(s);
+        return pay(payAction, moveAction).do(s);
       } else {
         return noChange(s);
       }

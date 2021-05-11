@@ -9,16 +9,14 @@ import { passageThroughMirkwood, coreTactics } from "./engine/setup";
 import { createInitState } from "./engine/state";
 
 // const state = createInitState();
-// const result = playRandomlyUntilEnd(
-//   state,
-//   beginScenario(passageThroughMirkwood, coreTactics)
-// );
+// const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
 // console.log(result);
 
 ReactDOM.render(
   <DialogsProvider>
     <DetailProvider>
       <App state={createInitState()} />
+      {/* <App state={result[0]} /> */}
     </DetailProvider>
   </DialogsProvider>,
   document.getElementById("root")

@@ -18,21 +18,14 @@ export function getActionChange(action: Action, state: State): ActionEffect {
     }
   } else {
     if (result.next) {
-      return mergeEffect(
-        "and",
-        result.effect,
-        getActionChange(result.next, state)
-      );
+      return mergeEffect("and", result.effect, getActionChange(result.next, result.state));
     } else {
       return result.effect;
     }
   }
 }
 
-export function mergeEffect(
-  type: "and" | "or",
-  ...effects: ActionEffect[]
-): ActionEffect {
+export function mergeEffect(type: "and" | "or", ...effects: ActionEffect[]): ActionEffect {
   if (effects.length === 0) {
     return type === "and" ? "full" : "none";
   }
@@ -67,10 +60,7 @@ export function checkEndCondition(state: State): "win" | "loose" | undefined {
   }
 }
 
-export function playRandomlyUntilEnd(
-  state: State,
-  action: Action
-): [State, "win" | "loose"] {
+export function playRandomlyUntilEnd(state: State, action: Action): [State, "win" | "loose"] {
   const result = action.do(state);
   const end = checkEndCondition(result.state);
   if (end) {
@@ -87,10 +77,7 @@ export function playRandomlyUntilEnd(
   } else {
     const choosen = sample(result.choice.choices)!;
     console.log(result.choice.title, choosen.label);
-    return playRandomlyUntilEnd(
-      result.state,
-      result.next ? sequence(choosen.action, result.next) : choosen.action
-    );
+    return playRandomlyUntilEnd(result.state, result.next ? sequence(choosen.action, result.next) : choosen.action);
   }
 }
 

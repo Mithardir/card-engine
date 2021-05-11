@@ -1,4 +1,4 @@
-import { addToken, removeToken } from "../../../engine/actions/card";
+import { addToken, removeToken, tap } from "../../../engine/actions/card";
 import { addPlayer } from "../../../engine/actions/game";
 import { createTestEngine } from "../../../tests/utils";
 import * as hero from "./heroes";
@@ -6,6 +6,7 @@ import * as ally from "./allies";
 import { createCardState, createInitState } from "../../../engine/state";
 import { draw, payResources } from "../../../engine/actions/player";
 import { createView } from "../../../engine/view";
+import { sequence } from "../../../engine/actions/control";
 
 it("Gimli's attack bonus", () => {
   const engine = createTestEngine();
@@ -23,12 +24,17 @@ it("Pay test", async () => {
   // state.cards.push(createCardState(1, hero.gimli, "face"));
   state = addPlayer("A", { heroes: [hero.gimli], library: [], name: "X" }).do(state).state;
   state = addToken("resources")(1).do(state).state;
-  state = addToken("resources")(1).do(state).state;    
+  state = addToken("resources")(1).do(state).state;
   //state = draw(1)("A").do(state).state;
 
   console.log(state.cards);
 
   console.log(payResources(2, "tactics")("A").do(state).next);
+
+  console.log(tap(1).do(state).effect);
+  console.log(sequence(tap(1), tap(1)).do(state).effect);
+  state = tap(1).do(state).state;
+  console.log(tap(1).do(state).effect);
 });
 
 // it("Glorfindel's action", async () => {

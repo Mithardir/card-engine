@@ -1,6 +1,6 @@
 import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
-import { and, isTapped, isCharacter, isInZone, isHero, Filter, isLocation } from "../filters";
+import { and, isTapped, isCharacter, isInZone, isHero, Filter, isLocation, CardFilter } from "../filters";
 import { PlayerDeck } from "../setup";
 import { CardId, PlayerId, playerIds, createCardState, Side, Mark, Phase } from "../state";
 import { ZoneKey } from "../types";
@@ -165,7 +165,7 @@ export function eachPlayer(factory: PlayerAction): Action {
   };
 }
 
-export function eachCard(filter: Filter<CardId>, action: CardAction): Action {
+export function eachCard(filter: CardFilter, action: CardAction): Action {
   return {
     print: `eachCard(${filter("X" as any).print}, ${action("X" as any).print})`,
     do: (state) => {

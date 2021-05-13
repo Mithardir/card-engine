@@ -11,6 +11,7 @@ import {
   isTapped,
   isHero,
   hasToken,
+  CardFilter,
 } from "../filters";
 import { PlayerId, CardId } from "../state";
 import { Sphere } from "../types";
@@ -26,7 +27,7 @@ export const draw = (amount: number) => (playerId: PlayerId) =>
   repeat(amount, moveTopCard(zoneKey("library", playerId), zoneKey("hand", playerId), "face"));
 
 export function resolvePlayerAttacks(playerId: PlayerId): Action {
-  const enemiesFiler: Filter<CardId> = and(isEnemy, hasNotMark("attacked"), isInZone(zoneKey("engaged", playerId)));
+  const enemiesFiler: CardFilter = and(isEnemy, hasNotMark("attacked"), isInZone(zoneKey("engaged", playerId)));
   const attackersFilter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
   return {
     print: `resolvePlayerAttacks(${playerId})`,
@@ -91,7 +92,7 @@ export const engagementCheck: PlayerAction = (player) =>
   chooseCardAction("Choose enemy to engage", withMaxEngagement(player), engagePlayer(player));
 
 export function resolveEnemyAttacks(playerId: PlayerId) {
-  const enemies: Filter<CardId> = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
+  const enemies: CardFilter = and(isEnemy, isInZone(zoneKey("engaged", playerId)));
   return chooseCardActionsOrder("Choose enemy attacker", enemies, resolveEnemyAttack(playerId));
 }
 

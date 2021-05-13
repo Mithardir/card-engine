@@ -1,4 +1,4 @@
-import { and, isLocation, isInZone, Filter } from "./filters";
+import { and, isLocation, isInZone, Filter, CardFilter } from "./filters";
 import { PlayerId, playerIds, CardId, Token } from "./state";
 import { filterCards, zoneKey } from "./utils";
 import { CardView, View } from "./view";
@@ -112,9 +112,9 @@ export const countOfPlayers: Exp<number> = {
   },
 };
 
-export function countOfCards(filter: Filter<CardId>): Exp<number> {
+export function countOfCards(filter: CardFilter): Exp<number> {
   return {
-    print: `count of cards that ${filter(0).print}`,
+    print: `count of cards that ${filter.toString()}`,
     eval: (v) => {
       return filterCards(filter, v).length;
     },
@@ -139,9 +139,9 @@ export function getTokens(property: Token, cardId: CardId): Exp<number> {
   };
 }
 
-export function filteredCards(filter: Filter<CardId>): Exp<CardView[]> {
+export function filteredCards(filter: CardFilter): Exp<CardView[]> {
   return {
-    print: `cards that ${filter(0)}`,
+    print: `cards that ${filter.toString()}`,
     eval: (v) => filterCards(filter, v),
   };
 }

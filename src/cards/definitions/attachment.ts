@@ -1,13 +1,13 @@
 import { AttachmentProps, Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition, CardId, State, ZoneState } from "../../engine/state";
 import playerBack from "../../Images/back/card.jpg";
-import { Filter } from "../../engine/filters";
+import { CardFilter, Filter } from "../../engine/filters";
 import { chooseCardAction } from "../../engine/actions/choices";
 import { CardAction } from "../../engine/actions/types";
 import { action, pay } from "../../engine/actions/control";
 import { payResources } from "../../engine/actions/player";
 
-export function attaches(props: { description: string; filter: Filter<CardId> }): Ability {
+export function attaches(props: { description: string; filter: CardFilter }): Ability {
   return {
     description: props.description,
     activate: (view, self) => {

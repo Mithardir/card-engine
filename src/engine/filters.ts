@@ -2,30 +2,33 @@ import { Exp } from "./exps";
 import { CardId, Mark, PlayerId } from "./state";
 import { Token, ZoneKey } from "./types";
 import { getZone } from "./utils";
+import { CardView } from "./view";
 
 // TODO print
 export type Filter<T> = (value: T) => Exp<boolean>;
 
+export type CardFilter = Filter<CardView>;
+
 export const all: Filter<any> = () => ({ print: "all", eval: () => true });
 
-export const isHero: Filter<CardId> = (card) => ({
+export const isHero: CardFilter = (card) => ({
   print: "isHero",
   eval: (view) => {
-    return view.cards.find((c) => c.id === card)!.props.type === "hero";
+    return card.props.type === "hero";
   },
 });
 
-export const isEnemy: Filter<CardId> = (card) => ({
+export const isEnemy: CardFilter = (card) => ({
   print: "isEnemy",
   eval: (view) => {
-    return view.cards.find((c) => c.id === card)!.props.type === "enemy";
+    return card.props.type === "enemy";
   },
 });
 
-export function isInZone(zone: ZoneKey): Filter<CardId> {
+export function isInZone(zone: ZoneKey): CardFilter {
   return (card) => ({
     print: `isInZone(${zone.print})`,
-    eval: (view) => getZone(zone)(view).cards.includes(card),
+    eval: (view) => getZone(zone)(view).cards.includes(card.id),
   });
 }
 
@@ -36,69 +39,64 @@ export function and<T>(...filters: Filter<T>[]): Filter<T> {
   });
 }
 
-export const isLocation: Filter<CardId> = (card) => ({
+export const isLocation: CardFilter = (card) => ({
   print: "is location",
   eval: (view) => {
-    return view.cards.find((c) => c.id === card)!.props.type === "location";
+    return card.props.type === "location";
   },
 });
 
-export const isCharacter: Filter<CardId> = (card) => ({
+export const isCharacter: CardFilter = (card) => ({
   print: "is character",
   eval: (view) => {
-    const type = view.cards.find((c) => c.id === card)!.props.type;
+    const type = card.props.type;
     return type === "hero" || type === "ally";
   },
 });
 
-export const isTapped: Filter<CardId> = (id) => ({
+export const isTapped: CardFilter = (card) => ({
   print: "isTapped",
   eval: (view) => {
-    const card = view.cards.find((c) => c.id === id)!;
     return card.tapped;
   },
 });
 
-export function hasToken(type: Token): Filter<CardId> {
-  return (id) => ({
+export function hasToken(type: Token): CardFilter {
+  return (card) => ({
     print: "hasMark",
     eval: (view) => {
-      const card = view.cards.find((c) => c.id === id)!;
       return card.token[type] > 0;
     },
   });
 }
 
-export function hasMark(type: Mark): Filter<CardId> {
-  return (id) => ({
+export function hasMark(type: Mark): CardFilter {
+  return (card) => ({
     print: "hasMark",
     eval: (view) => {
-      const card = view.cards.find((c) => c.id === id)!;
       return card.mark[type];
     },
   });
 }
 
-export function hasNotMark(type: Mark): Filter<CardId> {
-  return (id) => ({
+export function hasNotMark(type: Mark): CardFilter {
+  return (card) => ({
     print: "hasMark",
     eval: (view) => {
-      const card = view.cards.find((c) => c.id === id)!;
       return !card.mark[type];
     },
   });
 }
 
-export const isReady: Filter<CardId> = (id) => ({
+export const isReady: CardFilter = (card) => ({
   print: "is ready",
   eval: (view) => {
-    const card = view.cards.find((c) => c.id === id)!;
     return !card.tapped;
   },
 });
 
-export function withMaxEngagement(player: PlayerId): Filter<CardId> {
-  return (cardId) => ({
+export function withMaxEngagement(player: PlayerId): CardFilter {
+  return (card) => ({
     print: "withMaxEngagement",
     eval: (v) => {
       const threat = v.players.find((p) => p.id === player)!.thread;
@@ -114,8 +112,6 @@ export function withMaxEngagement(player: PlayerId): Filter<CardId> {
         .filter((c) => c.props.engagement !== undefined)
         .map((c) => c.props.engagement!)
         .reduce((p, c) => (p > c ? p : c), 0);
-
-      const card = v.cards.find((c) => c.id === cardId)!;
 
       return card.props.engagement === max;
     },

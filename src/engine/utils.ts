@@ -1,5 +1,5 @@
 import { ActionEffect } from "./actions/types";
-import { Filter } from "./filters";
+import { CardFilter, Filter } from "./filters";
 import { CardId, GameZoneType, PlayerId, PlayerZoneType, State, ZoneState } from "./state";
 import { ZoneKey } from "./types";
 import { View } from "./view";
@@ -51,5 +51,5 @@ export function zoneKey(type: PlayerZoneType | GameZoneType, player?: PlayerId):
   } as ZoneKey;
 }
 
-export const filterCards = (filter: Filter<CardId>, view: View) =>
-  view.cards.filter((c) => filter(c.id).eval(view)).map((z) => z);
+export const filterCards = (filter: CardFilter, view: View) =>
+  view.cards.filter((c) => filter(c).eval(view)).map((z) => z);

@@ -1,4 +1,4 @@
-import { Filter } from "../filters";
+import { CardFilter, Filter } from "../filters";
 import { CardId } from "../state";
 import { filterCards } from "../utils";
 import { createView } from "../view";
@@ -96,7 +96,7 @@ export function chooseOrder<T>(
   };
 }
 
-export function chooseCardActionsOrder(title: string, filter: Filter<CardId>, factory: CardAction): Action {
+export function chooseCardActionsOrder(title: string, filter: CardFilter, factory: CardAction): Action {
   return {
     print: `chooseCardActionsOrder(${filter("X" as any).print}, ${factory("X" as any).print})`,
     do: (s) => {
@@ -111,7 +111,7 @@ export function chooseCardActionsOrder(title: string, filter: Filter<CardId>, fa
   };
 }
 
-export function chooseCardAction(title: string, filter: Filter<CardId>, factory: CardAction): Action {
+export function chooseCardAction(title: string, filter: CardFilter, factory: CardAction): Action {
   return {
     print: `chooseCardAction(${factory("X" as any).print})`,
     do: (state) => {
@@ -130,7 +130,7 @@ export function chooseCardAction(title: string, filter: Filter<CardId>, factory:
   };
 }
 
-export function chooseCardsActions(title: string, filter: Filter<CardId>, factory: CardAction): Action {
+export function chooseCardsActions(title: string, filter: CardFilter, factory: CardAction): Action {
   return {
     print: `chooseCardsActions(${factory("X" as any).print})`,
     do: (state) => {

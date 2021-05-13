@@ -2,7 +2,7 @@ import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
 import { and, isTapped, isCharacter, isInZone, isHero, Filter, isLocation } from "../filters";
 import { PlayerDeck } from "../setup";
-import { CardId, PlayerId, playerIds, createCardState, Side, Mark } from "../state";
+import { CardId, PlayerId, playerIds, createCardState, Side, Mark, Phase } from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { createView } from "../view";
@@ -224,3 +224,10 @@ export const chooseTravelLocation: Action = {
     return action.do(state);
   },
 };
+
+export function beginPhase(type: Phase): Action {
+  return action(`beginPhase(${type})`, (s) => {
+    s.phase = type;
+    return "full";
+  });
+}

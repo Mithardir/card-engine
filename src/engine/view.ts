@@ -6,6 +6,7 @@ import {
   Effect,
   GameZoneType,
   Marks,
+  Phase,
   PlayerId,
   PlayerState,
   Side,
@@ -17,6 +18,7 @@ import { Action } from "./actions/types";
 import { playAlly } from "./actions/card";
 
 export type View = {
+  phase: Phase;
   cards: CardView[];
   players: PlayerState[];
   zones: Record<GameZoneType, ZoneState>;

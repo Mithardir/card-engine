@@ -17,6 +17,7 @@ import {
   playerActions,
   clearMarks,
   chooseTravelLocation,
+  beginPhase,
 } from "./game";
 import {
   draw,
@@ -30,14 +31,16 @@ import {
 import { Action } from "./types";
 
 export const phaseResource = sequence(
+  beginPhase("resource"),
   eachPlayer(draw(1)),
   eachCard(isHero, generateResource(1)),
   playerActions("End resource phase")
 );
 
-export const phasePlanning = playerActions("End planning phase");
+export const phasePlanning = sequence(beginPhase("resource"), playerActions("End planning phase"));
 
 export const phaseQuest = sequence(
+  beginPhase("quest"),
   eachPlayer(commitCharactersToQuest),
   playerActions("Staging"),
   bind(countOfPlayers, (count) => repeat(count, moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face"))),
@@ -50,11 +53,13 @@ export const phaseQuest = sequence(
 );
 
 export const phaseTravel = sequence(
+  beginPhase("travel"),
   bind(canTravel, (can) => (can ? chooseTravelLocation : sequence())),
   playerActions("End travel phase")
 );
 
 export const phaseEncounter = sequence(
+  beginPhase("encounter"),
   eachPlayer(optionalEngagement),
   playerActions("Engagement Checks"),
   whileDo(enemiesToEngage, eachPlayer(engagementCheck)),
@@ -62,6 +67,7 @@ export const phaseEncounter = sequence(
 );
 
 export const phaseCombat = sequence(
+  beginPhase("combat"),
   dealShadowCards,
   playerActions("Resolve enemy attacks"),
   eachPlayer(resolveEnemyAttacks),
@@ -72,6 +78,7 @@ export const phaseCombat = sequence(
 );
 
 export const phaseRefresh = sequence(
+  beginPhase("refresh"),
   eachCard(isTapped, untap),
   eachPlayer(incrementThreat(1)),
   passFirstPlayerToken,

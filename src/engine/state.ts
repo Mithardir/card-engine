@@ -60,8 +60,11 @@ export interface ZoneState {
 
 export type Effect = { modifier: (view: View) => void; until?: "end_of_phase" };
 
+export type Phase = "setup" | "resource" | "planning" | "quest" | "travel" | "encounter" | "combat" | "refresh";
+
 export interface State {
   version: number;
+  phase: Phase;
   firstPlayer: PlayerId;
   cards: CardState[];
   players: PlayerState[];
@@ -94,6 +97,7 @@ export function createInitState(): State {
     version: 0,
     cards: [],
     effects: [],
+    phase: "setup",
     firstPlayer: "A",
     players: [],
     zones: {

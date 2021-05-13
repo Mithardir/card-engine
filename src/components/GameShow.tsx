@@ -37,8 +37,8 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
           )}
         </Paper>
         <Paper style={{ margin: 4 }}>
-          {/* <Typography>First player: {game.view.firstPlayerId}</Typography>
-          <Typography>Phase: {game.view.phase.type}</Typography> */}
+          <Typography>First player: {props.view.firstPlayer}</Typography>
+          <Typography>Phase: {props.view.phase}</Typography>
         </Paper>
         <Paper style={{ margin: 4 }}>
           <Typography>Effects:</Typography>

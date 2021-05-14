@@ -55,11 +55,6 @@ export function resolvePlayerAttacks(playerId: PlayerId): Action {
       return choice.do(s);
     },
   };
-
-  // return sequence(
-  //   chooseCardActionsOrder("Choose enemy to attack", enemies, resolvePlayerAttack(playerId)),
-  //   clearMarks("attacked")
-  // );
 }
 
 export const optionalEngagement: PlayerAction = (player) => ({

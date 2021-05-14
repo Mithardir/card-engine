@@ -171,8 +171,7 @@ export function moveCardTo(to: ZoneKey, side: Side): CardAction {
     });
 }
 
-export const playAlly: CardAction = (cardId) => {
-  // TODO  pay cost
+export const playAlly: CardAction = (cardId) => {  
   return {
     print: `play ally ${cardId}`,
     do: (s) => {

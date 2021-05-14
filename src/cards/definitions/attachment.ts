@@ -10,8 +10,7 @@ import { payResources } from "../../engine/actions/player";
 export function attaches(props: { description: string; filter: CardFilter }): Ability {
   return {
     description: props.description,
-    activate: (view, self) => {
-      // TODO pay cost
+    activate: (view, self) => {      
       const card = view.cards.find((c) => c.id === self);
       const owner = view.players.find((p) => p.zones.hand.cards.includes(self))?.id;
       const cost = card?.props.cost;

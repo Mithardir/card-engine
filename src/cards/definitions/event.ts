@@ -7,8 +7,7 @@ import { Action } from "../../engine/actions/types";
 import { zoneKey } from "../../engine/utils";
 import { draw, payResources } from "../../engine/actions/player";
 
-export function action(props: { description: string; effect: Action }): Ability {
-  // TODO pay
+export function action(props: { description: string; effect: Action }): Ability {  
   return {
     description: props.description,
     activate: (view, self) => {

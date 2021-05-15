@@ -1,4 +1,3 @@
-import produce from "immer";
 import { PrintedProps } from "./types";
 import {
   CardId,
@@ -64,32 +63,30 @@ export function createView(state: State) {
 
   const baseState = toJS(state);
 
-  const baseView: View = {
+  const view: View = {
     ...baseState,
     cards: baseState.cards.map(createCardView),
   };
 
-  const view = produce(baseView, (draft) => {
-    while (true) {
-      let allApplied = true;
-      draft.cards.forEach((card) => {
-        card.props.abilities
-          .filter((a) => !a.applied)
-          .forEach((ability) => {
-            allApplied = false;
-            ability.activate(draft, card.id);
-            ability.applied = true;
-          });
-      });
-
-      if (allApplied) {
-        break;
-      }
-    }
-
-    draft.effects.forEach((e) => {
-      e.modifier(draft);
+  while (true) {
+    let allApplied = true;
+    view.cards.forEach((card) => {
+      card.props.abilities
+        .filter((a) => !a.applied)
+        .forEach((ability) => {
+          allApplied = false;
+          ability.activate(view, card.id);
+          ability.applied = true;
+        });
     });
+
+    if (allApplied) {
+      break;
+    }
+  }
+
+  view.effects.forEach((e) => {
+    e.modifier(view);
   });
 
   //const end = new Date();

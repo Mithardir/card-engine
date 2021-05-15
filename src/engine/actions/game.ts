@@ -5,7 +5,6 @@ import { PlayerDeck } from "../setup";
 import { CardId, PlayerId, playerIds, createCardState, Side, Mark, Phase } from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
-import { createView } from "../view";
 import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
 import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
@@ -21,7 +20,7 @@ export const playerActions: (title: string) => Action = (title) => {
           multiple: true,
           dialog: false,
           get choices() {
-            const view = createView(state);
+            const view = state.view;
             const choices = view.cards
               .map((card) => card.actions.map((action) => ({ card, action })))
               .flatMap((a) => a)              
@@ -49,7 +48,7 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
   return {
     print: `declareDefender(${attackerId}, ${playerId})`,
     do: (state) => {
-      const view = createView(state);
+      const view = state.view;
       const cards = filterCards(filter, view);
 
       const action = chooseOne("Declare defender", [
@@ -78,7 +77,7 @@ export function declareAttackers(attackedId: CardId, playerId: PlayerId): Action
   return {
     print: `declareAttackers(${attackedId}, ${playerId})`,
     do: (state) => {
-      const view = createView(state);
+      const view = state.view;
       const cards = filterCards(attackers, view);
 
       const action = chooseMultiple(
@@ -167,7 +166,7 @@ export function eachCard(filter: CardFilter, action: CardAction): Action {
   return {
     print: `eachCard(${filter("X" as any).print}, ${action("X" as any).print})`,
     do: (state) => {
-      const view = createView(state);
+      const view = state.view;
       const cards = filterCards(filter, view);
       const actions = sequence(...cards.map((card) => action(card.id)));
       return actions.do(state);
@@ -204,7 +203,7 @@ export function clearMarks(type: Mark): Action {
 export const chooseTravelLocation: Action = {
   print: "chooseTravelLocation",
   do: (state) => {
-    const view = createView(state);
+    const view = state.view;
     const cards = filterCards(and(isLocation, isInZone(zoneKey("stagingArea"))), view);
 
     const action = chooseOne("Choose location for travel", [

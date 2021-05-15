@@ -3,7 +3,6 @@ import { diff, getProp, getTokens, totalAttack } from "../exps";
 import { CardId, Mark, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
-import { createView } from "../view";
 import { repeat, sequence, action, bind } from "./control";
 import { playerActions, declareDefender, declareAttackers, clearMarks } from "./game";
 import { Action, CardAction } from "./types";
@@ -178,7 +177,7 @@ export const destroy: CardAction = (cardId) => {
       const owner = s.players.find(
         (p) => p.zones.hand.cards.includes(cardId) || p.zones.playerArea.cards.includes(cardId)
       );
-      const view = createView(s);
+      const view = s.view;
       const card = view.cards.find((c) => c.id === cardId);
       if (owner && card) {
         return sequence(removeTokensAndMarks(cardId), moveCardTo(zoneKey("discardPile", owner.id), "face")(cardId)).do(

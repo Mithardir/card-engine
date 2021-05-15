@@ -1,6 +1,5 @@
 import { Exp } from "../exps";
 import { State } from "../state";
-import { createView } from "../view";
 import { Action } from "./types";
 
 export function action(title: string, update: (state: State) => void): Action {
@@ -64,7 +63,7 @@ export function whileDo(exp: Exp<boolean>, action: Action): Action {
   return {
     print: `whileDo(${exp.print}, ${action.print})`,
     do: (state) => {
-      if (exp.eval(createView(state))) {
+      if (exp.eval(state.view)) {
         const result = action.do(state);
 
         return {
@@ -86,7 +85,7 @@ export function bind<T>(exp: Exp<T>, factory: (v: T) => Action): Action {
     // TODO x
     print: factory("x" as any).print,
     do: (state) => {
-      const value = exp.eval(createView(state));
+      const value = exp.eval(state.view);
       const action = factory(value);
       return action.do(state);
     },

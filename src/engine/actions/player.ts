@@ -15,7 +15,6 @@ import {
 import { PlayerId } from "../state";
 import { Sphere } from "../types";
 import { filterCards, zoneKey } from "../utils";
-import { createView } from "../view";
 import { engagePlayer, resolveEnemyAttack, commitToQuest, resolvePlayerAttack, removeToken } from "./card";
 import { chooseCardAction, chooseCardActionsOrder, chooseCardsActions, chooseOne } from "./choices";
 import { repeat, action, sequence } from "./control";
@@ -31,7 +30,7 @@ export function resolvePlayerAttacks(playerId: PlayerId): Action {
   return {
     print: `resolvePlayerAttacks(${playerId})`,
     do: (s) => {
-      const view = createView(s);
+      const view = s.view;
       const cards = filterCards(enemiesFiler, view);
       const attackers = filterCards(attackersFilter, view);
 
@@ -59,7 +58,7 @@ export function resolvePlayerAttacks(playerId: PlayerId): Action {
 export const optionalEngagement: PlayerAction = (player) => ({
   print: "optionalEngagement",
   do: (state) => {
-    const view = createView(state);
+    const view = state.view;
     const cards = filterCards(and(isInZone(zoneKey("stagingArea")), isEnemy), view);
 
     if (cards.length === 0) {

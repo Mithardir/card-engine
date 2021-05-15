@@ -1,6 +1,5 @@
 import { CardFilter } from "../filters";
 import { filterCards } from "../utils";
-import { createView } from "../view";
 import { sequence } from "./control";
 import { Action, CardAction } from "./types";
 import { noChange } from "./utils";
@@ -97,7 +96,7 @@ export function chooseCardActionsOrder(title: string, filter: CardFilter, factor
   return {
     print: `chooseCardActionsOrder(${filter("X" as any).print}, ${factory("X" as any).print})`,
     do: (s) => {
-      const cards = filterCards(filter, createView(s));
+      const cards = filterCards(filter, s.view);
       const action = chooseOrder(
         title,
         cards.map((c) => ({ id: c.id, action: factory(c.id), label: c.props.name || "", image: c.props.image }))
@@ -112,7 +111,7 @@ export function chooseCardAction(title: string, filter: CardFilter, factory: Car
   return {
     print: `chooseCardAction(${factory("X" as any).print})`,
     do: (state) => {
-      const cards = filterCards(filter, createView(state));
+      const cards = filterCards(filter, state.view);
       const action = chooseOne(
         title,
         cards.map((c) => ({ action: factory(c.id), label: c.props.name || "", image: c.props.image }))
@@ -131,7 +130,7 @@ export function chooseCardsActions(title: string, filter: CardFilter, factory: C
   return {
     print: `chooseCardsActions(${factory("X" as any).print})`,
     do: (state) => {
-      const view = createView(state);
+      const view = state.view;
       const cards = filterCards(filter, view);
       const choices = cards.map((card) => ({
         label: card.props.name || "",

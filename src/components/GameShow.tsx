@@ -1,6 +1,5 @@
 import { Button, Paper, Typography } from "@material-ui/core";
 import * as React from "react";
-import { createView } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
 import { PlayerShow } from "./PlayerShow";
@@ -14,7 +13,7 @@ import { Engine } from "../engine/engine";
 
 export const GameShow = observer((props: { engine: Engine }) => {
   const detail = React.useContext(DetailContext);
-  const view = createView(props.engine.state);
+  const view = props.engine.state.view;
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
       <div style={{ backgroundColor: "#5393ff", width: 215 }}>

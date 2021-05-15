@@ -1,7 +1,6 @@
 import { setAutoFreeze } from "immer";
 import { UI, createEngine, Engine } from "../engine/engine";
 import { CardId, createInitState, createCardState, CardDefinition } from "../engine/state";
-import { createView } from "../engine/view";
 
 export const testUi: UI = {
   chooseOne: async (title, items) => {
@@ -19,7 +18,7 @@ export function createCardProxy(cardId: CardId, engine: Engine) {
   return {
     id: cardId,
     get attack() {
-      return createView(engine.state).cards.find((c) => c.id === cardId)!.props.attack!;
+      return engine.state.view.cards.find((c) => c.id === cardId)!.props.attack!;
     },
   };
 }

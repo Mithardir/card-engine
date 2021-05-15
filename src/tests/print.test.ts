@@ -1,4 +1,5 @@
 import { setAutoFreeze } from "immer";
+import { autorun, isComputed, isObservable } from "mobx";
 import prettier from "prettier";
 import { beginScenario, startGame } from "../engine/actions/phases";
 import { playRandomlyUntilEnd } from "../engine/actions/utils";
@@ -15,6 +16,11 @@ it("Prints rule script", () => {
 
 it("Random ai test", () => {
   const state = createInitState();
+
+  autorun(() => {
+    console.log(state.phase);
+  });
+
   const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
   console.log(result);
 });

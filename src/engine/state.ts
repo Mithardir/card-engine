@@ -1,6 +1,7 @@
+import { computed, observable } from "mobx";
 import { Flavor } from "../utils";
 import { PrintedProps } from "./types";
-import { View } from "./view";
+import { createView, View } from "./view";
 
 export const playerIds = ["A", "B", "C", "D"];
 
@@ -70,6 +71,7 @@ export interface State {
   players: PlayerState[];
   zones: Record<GameZoneType, ZoneState>;
   effects: Effect[];
+  view: View;
 }
 
 export function createCardState(id: CardId, definition: CardDefinition, side: Side): CardState {
@@ -92,8 +94,8 @@ export function createCardState(id: CardId, definition: CardDefinition, side: Si
   };
 }
 
-export function createInitState(): State {  
-  return {
+export function createInitState(): State {
+  const state: State = observable({
     version: 0,
     cards: [],
     effects: [],
@@ -109,5 +111,10 @@ export function createInitState(): State {
       stagingArea: { cards: [], stack: false },
       victoryDisplay: { cards: [], stack: true },
     },
-  };
+    get view(): View {
+      return createView(state);
+    },
+  });
+
+  return state;
 }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CardView, createView } from "../engine/view";
+import { CardView } from "../engine/view";
 import { CardText } from "./CardText";
 import { DetailContext } from "./DetailContext";
 
@@ -22,7 +22,7 @@ export const CardShow = observer(
   }) => {
     const engine = useEngine();
 
-    const card = props.card || createView(engine.state).cards.find((c) => c.id === props.cardId)!;
+    const card = props.card || engine.state.view.cards.find((c) => c.id === props.cardId)!;
     const actions = card.actions;
 
     const scale = props.scale || 0.28;

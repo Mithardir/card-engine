@@ -6,8 +6,6 @@ export type Action = {
 };
 
 export type ActionResult = {
-  state: State;
-  effect: ActionEffect;
   choice:
     | {
         title: string;
@@ -18,8 +16,6 @@ export type ActionResult = {
     | undefined;
   next: Action | undefined;
 };
-
-export type ActionEffect = "none" | "partial" | "full";
 
 export type PlayerAction = (playerId: PlayerId) => Action;
 

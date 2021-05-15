@@ -1,7 +1,7 @@
 import { State } from "./state";
 import { sequence } from "./actions/control";
-import { getActionChange } from "./actions/utils";
 import { Action } from "./actions/types";
+import { observable, runInAction } from "mobx";
 
 export type Engine = {
   state: State;
@@ -14,9 +14,8 @@ export interface UI {
   playerActions: (title: string) => Promise<void>;
 }
 
-export async function processAction(init: State, action: Action, ui: UI, onStateChange: (state: State) => void) {
-  const result = action.do(init);
-  let state = result.state;
+export async function processAction(state: State, action: Action, ui: UI, onStateChange: (state: State) => void) {
+  const result = action.do(state);
   onStateChange(state);
 
   if (result.choice && !result.choice.dialog) {
@@ -28,23 +27,19 @@ export async function processAction(init: State, action: Action, ui: UI, onState
       ? sequence(
           ...(await ui.chooseMultiple(
             result.choice.title,
-            result.choice.choices
-              .filter((c) => getActionChange(c.action, state) !== "none")
-              .map((c) => ({
-                label: c.label,
-                value: c.action,
-                image: c.image,
-              }))
+            result.choice.choices.map((c) => ({
+              label: c.label,
+              value: c.action,
+              image: c.image,
+            }))
           ))
         )
       : await ui.chooseOne(
           result.choice.title,
-          result.choice.choices
-            .filter((c) => getActionChange(c.action, state) !== "none")
-            .map((c) => ({
-              ...c,
-              value: c.action,
-            }))
+          result.choice.choices.map((c) => ({
+            ...c,
+            value: c.action,
+          }))
         );
 
     await processAction(state, choosen, ui, (s) => {
@@ -62,7 +57,7 @@ export async function processAction(init: State, action: Action, ui: UI, onState
 }
 
 export function createEngine(ui: UI, init: State, onStateChange?: (state: State) => void) {
-  let state = init;
+  let state = observable(init);
 
   const engine: Engine = {
     get state() {
@@ -77,14 +72,13 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
     //   });
     // },
     do: async (action) => {
-      let result = action.do(state);
+      let result = runInAction(() => action.do(state));
 
       while (true) {
         while (!result.choice) {
           if (result.next) {
-            result = result.next.do(result.state);
+            result = result.next.do(state);
           } else {
-            state = result.state;
             if (onStateChange) {
               onStateChange(state);
             }
@@ -93,10 +87,9 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
         }
 
         if (result.choice) {
-          if (onStateChange && state !== result.state) {
-            onStateChange(result.state);
+          if (onStateChange) {
+            onStateChange(state);
           }
-          state = result.state;
 
           if (result.choice.dialog) {
             const choosen = result.choice.multiple
@@ -112,17 +105,14 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
                 )
               : await ui.chooseOne(
                   result.choice.title,
-                  result.choice.choices
-                    // eslint-disable-next-line no-loop-func
-                    .filter((c) => getActionChange(c.action, state) !== "none")
-                    .map((c) => ({
-                      ...c,
-                      value: c.action,
-                    }))
+                  result.choice.choices.map((c) => ({
+                    ...c,
+                    value: c.action,
+                  }))
                 );
 
             const next = result.next;
-            result = choosen.do(result.state);
+            result = runInAction(() => choosen.do(state));
             if (next) {
               result.next = result.next ? sequence(result.next, next) : next;
             }
@@ -130,7 +120,6 @@ export function createEngine(ui: UI, init: State, onStateChange?: (state: State)
             //console.log(playerActions(result.choice.title).do(engine.state));
             await ui.playerActions(result.choice.title);
             result.choice = undefined;
-            result.state = state;
           }
         }
       }

@@ -1,4 +1,4 @@
-import { and, isLocation, isInZone, Filter, CardFilter } from "./filters";
+import { and, isLocation, isInZone, CardFilter } from "./filters";
 import { PlayerId, playerIds, CardId, Token } from "./state";
 import { filterCards, zoneKey } from "./utils";
 import { CardView, View } from "./view";

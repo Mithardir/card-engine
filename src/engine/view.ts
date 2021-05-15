@@ -16,6 +16,7 @@ import {
 } from "./state";
 import { Action } from "./actions/types";
 import { playAlly } from "./actions/card";
+import { toJS } from "mobx";
 
 export type View = {
   phase: Phase;
@@ -67,9 +68,11 @@ export function createCardView(state: CardState): CardView {
 export function createView(state: State) {
   //const begin = new Date();
 
+  const baseState = toJS(state);
+
   const baseView: View = {
-    ...state,
-    cards: state.cards.map(createCardView),
+    ...baseState,
+    cards: baseState.cards.map(createCardView),
   };
 
   const view = produce(baseView, (draft) => {

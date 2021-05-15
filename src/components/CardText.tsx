@@ -1,10 +1,11 @@
+import { observer } from "mobx-react-lite";
 import * as React from "react";
 import { addToken } from "../engine/actions/card";
 import { CardView } from "../engine/view";
 import { useEngine } from "./EngineContext";
 import { PropertyView } from "./PropertyView";
 
-export const CardText = (props: { card: CardView }) => {
+export const CardText = observer((props: { card: CardView }) => {
   const c = props.card;
 
   const engine = useEngine();
@@ -87,7 +88,7 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.token.damage}</td>
               <td>
-              <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
+                <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>
@@ -107,7 +108,7 @@ export const CardText = (props: { card: CardView }) => {
               <td>Damage</td>
               <td>{c.token.damage}</td>
               <td>
-              <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
+                <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>
@@ -161,4 +162,4 @@ export const CardText = (props: { card: CardView }) => {
       </tbody>
     </table>
   );
-};
+});

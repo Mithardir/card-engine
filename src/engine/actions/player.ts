@@ -3,7 +3,6 @@ import {
   and,
   isInZone,
   isEnemy,
-  Filter,
   isReady,
   withMaxEngagement,
   isCharacter,
@@ -13,7 +12,7 @@ import {
   hasToken,
   CardFilter,
 } from "../filters";
-import { PlayerId, CardId } from "../state";
+import { PlayerId } from "../state";
 import { Sphere } from "../types";
 import { filterCards, zoneKey } from "../utils";
 import { createView } from "../view";

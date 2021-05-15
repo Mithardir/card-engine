@@ -1,6 +1,6 @@
 import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
-import { and, isTapped, isCharacter, isInZone, isHero, Filter, isLocation, CardFilter } from "../filters";
+import { and, isTapped, isCharacter, isInZone, isHero, isLocation, CardFilter } from "../filters";
 import { PlayerDeck } from "../setup";
 import { CardId, PlayerId, playerIds, createCardState, Side, Mark, Phase } from "../state";
 import { ZoneKey } from "../types";
@@ -10,7 +10,6 @@ import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
 import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardAction, PlayerAction } from "./types";
-import { getActionChange } from "./utils";
 
 export const playerActions: (title: string) => Action = (title) => {
   return {
@@ -25,8 +24,7 @@ export const playerActions: (title: string) => Action = (title) => {
             const view = createView(state);
             const choices = view.cards
               .map((card) => card.actions.map((action) => ({ card, action })))
-              .flatMap((a) => a)
-              .filter((a) => getActionChange(a.action.effect, state) !== "none")
+              .flatMap((a) => a)              
               .map((ca) => ({
                 label: `${ca.card.props.name}: ${ca.action.description}`,
                 action: sequence(ca.action.effect, playerActions(title)),

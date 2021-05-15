@@ -1,6 +1,5 @@
-import { ActionEffect } from "./actions/types";
-import { CardFilter, Filter } from "./filters";
-import { CardId, GameZoneType, PlayerId, PlayerZoneType, State, ZoneState } from "./state";
+import { CardFilter } from "./filters";
+import { GameZoneType, PlayerId, PlayerZoneType, State, ZoneState } from "./state";
 import { ZoneKey } from "./types";
 import { View } from "./view";
 
@@ -15,30 +14,6 @@ export function getZone(key: ZoneKey): (state: State | View) => ZoneState {
       return (v.zones as any)[key.type];
     }
   };
-}
-
-export function mergeOrResults(results: ActionEffect[]): ActionEffect {
-  if (results.some((c) => c === "full")) {
-    return "full";
-  }
-
-  if (results.every((c) => c === "none")) {
-    return "none";
-  }
-
-  return "partial";
-}
-
-export function mergeAndResults(...results: ActionEffect[]): ActionEffect {
-  if (results.every((c) => c === "full")) {
-    return "full";
-  }
-
-  if (results.every((c) => c === "none")) {
-    return "none";
-  }
-
-  return "partial";
 }
 
 export function zoneKey(type: PlayerZoneType, player: PlayerId): ZoneKey;

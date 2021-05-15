@@ -1,18 +1,20 @@
 import { Button, Paper, Typography } from "@material-ui/core";
 import * as React from "react";
-import { View } from "../engine/view";
+import { createView } from "../engine/view";
 import { CardShow } from "./CardShow";
 import { DetailContext } from "./DetailContext";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
-import { Action } from "../engine/actions/types";
 import { sequence } from "../engine/actions/control";
 import { playerActions } from "../engine/actions/game";
 import { beginScenario } from "../engine/actions/phases";
+import { observer } from "mobx-react-lite";
+import { Engine } from "../engine/engine";
 
-export const GameShow = (props: { view: View; onAction: (action: Action) => void }) => {
+export const GameShow = observer((props: { engine: Engine }) => {
   const detail = React.useContext(DetailContext);
+  const view = createView(props.engine.state);
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
       <div style={{ backgroundColor: "#5393ff", width: 215 }}>
@@ -24,7 +26,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         >
           {detail.cardId && (
             <CardShow
-              card={props.view.cards.find((c) => c.id === detail.cardId)!}
+              card={view.cards.find((c) => c.id === detail.cardId)!}
               content="text"
               scale={0.5}
               style={{
@@ -37,8 +39,8 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
           )}
         </Paper>
         <Paper style={{ margin: 4 }}>
-          <Typography>First player: {props.view.firstPlayer}</Typography>
-          <Typography>Phase: {props.view.phase}</Typography>
+          <Typography>First player: {view.firstPlayer}</Typography>
+          <Typography>Phase: {view.phase}</Typography>
         </Paper>
         <Paper style={{ margin: 4 }}>
           <Typography>Effects:</Typography>
@@ -49,7 +51,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
 
         <Button
           onClick={() => {
-            props.onAction(beginScenario(passageThroughMirkwood, coreTactics));
+            props.engine.do(beginScenario(passageThroughMirkwood, coreTactics));
           }}
         >
           Start game
@@ -60,7 +62,7 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
             // const action = chooseOne2("choose one", [draw2(1)("A"), draw2(1)("B"), draw2(2)("A"), draw2(2)("B")]);
             // props.onAction2(sequence2(action, action));
 
-            props.onAction(
+            props.engine.do(
               sequence(
                 playerActions("A"),
                 playerActions("B"),
@@ -95,18 +97,18 @@ export const GameShow = (props: { view: View; onAction: (action: Action) => void
         }}
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
-          <ZoneShow type="discardPile" view={props.view} />
-          <ZoneShow type="encounterDeck" view={props.view} />
-          <ZoneShow type="quest" view={props.view} />
-          <ZoneShow type="activeLocation" view={props.view} />
-          <ZoneShow type="stagingArea" view={props.view} />
+          <ZoneShow type="discardPile" view={view} />
+          <ZoneShow type="encounterDeck" view={view} />
+          <ZoneShow type="quest" view={view} />
+          <ZoneShow type="activeLocation" view={view} />
+          <ZoneShow type="stagingArea" view={view} />
         </div>
         <div style={{ display: "flex" }}>
-          {props.view.players.map((p) => (
-            <PlayerShow player={p} key={p.id} view={props.view} />
+          {view.players.map((p) => (
+            <PlayerShow player={p} key={p.id} view={view} />
           ))}
         </div>
       </div>
     </div>
   );
-};
+});

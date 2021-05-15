@@ -1,10 +1,9 @@
-import { CardFilter, Filter } from "../filters";
-import { CardId } from "../state";
+import { CardFilter } from "../filters";
 import { filterCards } from "../utils";
 import { createView } from "../view";
 import { sequence } from "./control";
 import { Action, CardAction } from "./types";
-import { mergeEffect, getActionChange, noChange } from "./utils";
+import { noChange } from "./utils";
 
 export function chooseMultiple(
   title: string,
@@ -18,8 +17,6 @@ export function chooseMultiple(
       }
 
       return {
-        effect: mergeEffect("or", ...choices.map((c) => getActionChange(c.action, state))),
-        state: state,
         choice: {
           title,
           multiple: true,

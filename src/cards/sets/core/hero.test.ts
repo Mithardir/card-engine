@@ -1,13 +1,6 @@
-import { addToken, removeToken, tap } from "../../../engine/actions/card";
-import { addPlayer } from "../../../engine/actions/game";
+import { addToken, removeToken } from "../../../engine/actions/card";
 import { createTestEngine } from "../../../tests/utils";
 import * as hero from "./heroes";
-import * as ally from "./allies";
-import { createCardState, createInitState } from "../../../engine/state";
-import { draw, payResources } from "../../../engine/actions/player";
-import { createView } from "../../../engine/view";
-import { pay, sequence } from "../../../engine/actions/control";
-import { getActionChange } from "../../../engine/actions/utils";
 
 it("Gimli's attack bonus", () => {
   const engine = createTestEngine();
@@ -17,35 +10,6 @@ it("Gimli's attack bonus", () => {
   expect(gimli.attack).toEqual(3);
   engine.do(removeToken("damage")(gimli.id));
   expect(gimli.attack).toEqual(2);
-});
-
-it("Pay test", async () => {
-  let state = createInitState();
-
-  // state.cards.push(createCardState(1, hero.gimli, "face"));
-  state = addPlayer("A", { heroes: [hero.gimli], library: [], name: "X" }).do(state).state;
-  state = addToken("resources")(1).do(state).state;
-  //state = addToken("resources")(1).do(state).state;
-  state = addToken("damage")(1).do(state).state;
-  //state = draw(1)("A").do(state).state;
-
-  console.log(state.cards);
-
-  console.log(payResources(2, "tactics")("A").do(state).next);
-
-
-
-
-  console.log(tap(1).do(state).effect);
-  
-  //const payment1 = pay(removeToken("resources")(1), removeToken("damage")(1));
-  const payment2 = pay(payResources(4, "tactics")("A"), removeToken("damage")(1));
-
-  //console.log(getActionChange(payment1, state))
-  //console.log(payment1.do(state).effect);  
-
-  console.log(getActionChange(payment2, state))
-  console.log(payment2.do(state).effect);  
 });
 
 // it("Glorfindel's action", async () => {

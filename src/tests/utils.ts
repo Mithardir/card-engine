@@ -1,3 +1,4 @@
+import { setAutoFreeze } from "immer";
 import { UI, createEngine, Engine } from "../engine/engine";
 import { CardId, createInitState, createCardState, CardDefinition } from "../engine/state";
 import { createView } from "../engine/view";
@@ -24,8 +25,8 @@ export function createCardProxy(cardId: CardId, engine: Engine) {
 }
 
 export function createTestEngine() {
-  const state = createInitState();
-  const engine = createEngine(testUi, state);
+  setAutoFreeze(false);
+  const engine = createEngine(testUi, createInitState());
 
   let id = 1;
 
@@ -34,9 +35,9 @@ export function createTestEngine() {
     addHero: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
-      state.cards.push(cardState);
-      if (state.players.length === 0) {
-        state.players.push({
+      engine.state.cards.push(cardState);
+      if (engine.state.players.length === 0) {
+        engine.state.players.push({
           id: "A",
           thread: 0,
           zones: {
@@ -48,7 +49,7 @@ export function createTestEngine() {
           },
         });
 
-        state.players[0].zones.playerArea.cards.push(cardState.id);
+        engine.state.players[0].zones.playerArea.cards.push(cardState.id);
       }
 
       return createCardProxy(cardId, engine);

@@ -1,5 +1,5 @@
 import { Exp } from "./exps";
-import { CardId, Mark, PlayerId } from "./state";
+import { Mark, PlayerId } from "./state";
 import { Token, ZoneKey } from "./types";
 import { getZone } from "./utils";
 import { CardView } from "./view";

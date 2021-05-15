@@ -92,7 +92,7 @@ export function createCardState(id: CardId, definition: CardDefinition, side: Si
   };
 }
 
-export function createInitState(): State {
+export function createInitState(): State {  
   return {
     version: 0,
     cards: [],

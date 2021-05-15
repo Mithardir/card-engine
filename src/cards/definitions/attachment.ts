@@ -6,20 +6,25 @@ import { chooseCardAction } from "../../engine/actions/choices";
 import { CardAction } from "../../engine/actions/types";
 import { action, pay } from "../../engine/actions/control";
 import { payResources } from "../../engine/actions/player";
+import { countResources } from "../../engine/exps";
 
 export function attaches(props: { description: string; filter: CardFilter }): Ability {
   return {
     description: props.description,
-    activate: (view, self) => {      
+    implicit: false,
+    activate: (view, self) => {
       const card = view.cards.find((c) => c.id === self);
       const owner = view.players.find((p) => p.zones.hand.cards.includes(self))?.id;
       const cost = card?.props.cost;
       const sphere = card?.props.sphere;
       if (card && owner && cost && sphere && view.players.some((p) => p.zones.hand.cards.includes(self))) {
-        card.actions.push({
-          description: props.description,
-          effect: pay(payResources(cost, sphere)(owner), chooseCardAction("Attach to", props.filter, attachTo(self))),
-        });
+        const canPay = countResources(sphere, owner).eval(view) >= cost;
+        if (canPay) {
+          card.actions.push({
+            description: props.description,
+            effect: pay(payResources(cost, sphere)(owner), chooseCardAction("Attach to", props.filter, attachTo(self))),
+          });
+        }
       }
     },
   };

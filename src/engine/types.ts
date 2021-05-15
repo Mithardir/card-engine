@@ -42,6 +42,7 @@ export type Keywords = {
 
 export type Ability = {
   description: string;
+  implicit: boolean;
   activate: (view: View, self: CardId) => void;
 };
 

@@ -19,7 +19,13 @@ export function checkEndCondition(state: State): "win" | "loose" | undefined {
 }
 
 export function playRandomlyUntilEnd(state: State, action: Action): "win" | "loose" {
-  const result = action.do(state);
+  let result: ActionResult;
+  try {
+    result = action.do(state);
+  } catch (error) {
+    action.do(state);
+    throw error;
+  }
   const end = checkEndCondition(state);
   if (end) {
     return end;
@@ -34,7 +40,7 @@ export function playRandomlyUntilEnd(state: State, action: Action): "win" | "loo
     }
   } else {
     const choosen = sample(result.choice.choices)!;
-    console.log(result.choice.title, choosen.label);
+    //console.log(result.choice.title, choosen.label);
     return playRandomlyUntilEnd(state, result.next ? sequence(choosen.action, result.next) : choosen.action);
   }
 }

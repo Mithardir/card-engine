@@ -7,7 +7,12 @@ export function action(title: string, update: (state: State) => void): Action {
   return {
     print: title,
     do: (state) => {
-      update(state);
+      try {
+        update(state);
+      } catch (error) {
+        console.log("Error in action: ", title);
+        throw error;
+      }
       return {
         choice: undefined,
         next: undefined,

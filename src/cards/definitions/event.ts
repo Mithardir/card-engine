@@ -6,21 +6,29 @@ import { pay, sequence } from "../../engine/actions/control";
 import { Action } from "../../engine/actions/types";
 import { zoneKey } from "../../engine/utils";
 import { draw, payResources } from "../../engine/actions/player";
+import { countResources } from "../../engine/exps";
 
-export function action(props: { description: string; effect: Action }): Ability {  
+export function action(props: { description: string; effect: Action }): Ability {
   return {
     description: props.description,
+    implicit: false,
     activate: (view, self) => {
       const card = view.cards.find((c) => c.id === self);
       const owner = view.players.find((p) => p.zones.hand.cards.includes(self));
       if (card && owner && card.props.cost && card.props.sphere) {
-        card.actions.push({
-          description: props.description,
-          effect: pay(
-            payResources(card.props.cost, card.props.sphere)(owner.id),
-            sequence(props.effect, moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self))
-          ),
-        });
+        const canPay = countResources(card.props.sphere, owner.id).eval(view) >= card.props.cost;
+        if (canPay) {
+          card.actions.push({
+            description: props.description,
+            effect: pay(
+              payResources(card.props.cost, card.props.sphere)(owner.id),
+              sequence(
+                props.effect,
+                moveCard(zoneKey("hand", owner.id), zoneKey("discardPile", owner.id), "face")(self)
+              )
+            ),
+          });
+        }
       }
     },
   };

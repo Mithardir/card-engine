@@ -139,11 +139,13 @@ export const CardText = observer((props: { card: CardView }) => {
             </td>
           </tr>
         )}
-        {c.props.abilities.map((a, i) => (
-          <tr key={i}>
-            <td colSpan={4}>{a.description}</td>
-          </tr>
-        ))}
+        {c.props.abilities
+          .filter((a) => !a.implicit)
+          .map((a, i) => (
+            <tr key={i}>
+              <td colSpan={4}>{a.description}</td>
+            </tr>
+          ))}
         {/* <tr>
       <td>
         <button disabled={c.exhausted} onClick={() => c.exhaust()}>

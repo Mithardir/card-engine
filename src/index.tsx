@@ -13,15 +13,15 @@ import { configure } from "mobx";
 configure({ enforceActions: "never" });
 setAutoFreeze(false);
 
-// const state = createInitState();
-// const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
-// console.log(result);
+const state = createInitState();
+const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
+console.log(result);
 
 ReactDOM.render(
   <DialogsProvider>
     <DetailProvider>
-      <App state={createInitState()} />
-      {/* <App state={state} /> */}
+      {/* <App state={createInitState()} /> */}
+      <App state={state} />
     </DetailProvider>
   </DialogsProvider>,
   document.getElementById("root")

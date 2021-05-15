@@ -1,5 +1,6 @@
-import { and, isLocation, isInZone, CardFilter } from "./filters";
+import { and, isLocation, isInZone, CardFilter, isHero, matchesSphere } from "./filters";
 import { PlayerId, playerIds, CardId, Token } from "./state";
+import { Sphere } from "./types";
 import { filterCards, zoneKey } from "./utils";
 import { CardView, View } from "./view";
 
@@ -143,5 +144,15 @@ export function filteredCards(filter: CardFilter): Exp<CardView[]> {
   return {
     print: `cards that ${filter.toString()}`,
     eval: (v) => filterCards(filter, v),
+  };
+}
+
+export function countResources(sphere: Sphere, player: PlayerId): Exp<number> {
+  return {
+    print: `countResources(${sphere})`,
+    eval: (v) => {
+      const heroes = filterCards(and(isHero, matchesSphere(sphere), isInZone(zoneKey("playerArea", player))), v);
+      return heroes.reduce((p, c) => p + c.token.resources || 0, 0);
+    },
   };
 }

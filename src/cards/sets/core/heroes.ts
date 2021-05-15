@@ -13,6 +13,7 @@ export const gimli = hero(
   },
   {
     description: "Gimli gets +1 [attack] for each damage token on him.",
+    implicit: false,
     activate: (v, s) => {
       const card = v.cards.find((c) => c.id === s)!;
       card.props.attack! += card.token.damage;

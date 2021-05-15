@@ -1,6 +1,6 @@
 import { Exp } from "./exps";
 import { Mark, PlayerId } from "./state";
-import { Token, ZoneKey } from "./types";
+import { Sphere, Token, ZoneKey } from "./types";
 import { getZone } from "./utils";
 import { CardView } from "./view";
 
@@ -17,6 +17,15 @@ export const isHero: CardFilter = (card) => ({
     return card.props.type === "hero";
   },
 });
+
+export function matchesSphere(sphere: Sphere): CardFilter {
+  return (card) => ({
+    print: `hasSphere(${sphere})`,
+    eval: (view) => {
+      return sphere === "neutral" || card.props.sphere === sphere;
+    },
+  });
+}
 
 export const isEnemy: CardFilter = (card) => ({
   print: "isEnemy",

@@ -15,7 +15,6 @@ import {
   ZoneState,
 } from "./state";
 import { Action } from "./actions/types";
-import { playAlly } from "./actions/card";
 import { toJS } from "mobx";
 
 export type View = {
@@ -45,6 +44,7 @@ export type CardView = {
 
 export type AbilityView = {
   description: string;
+  implicit: boolean;
   activate: (view: View, self: CardId) => void;
   applied: boolean;
 };
@@ -55,13 +55,7 @@ export function createCardView(state: CardState): CardView {
     ...printed,
     abilities: printed.abilities.map((a) => ({ ...a, applied: false })),
   };
-
   const actions: CardView["actions"] = [];
-
-  if (printed.type === "ally") {
-    actions.push({ description: "Play", effect: playAlly(state.id) });
-  }
-
   return { ...state, printed, props, actions };
 }
 

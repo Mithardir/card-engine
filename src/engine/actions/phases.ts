@@ -1,9 +1,18 @@
-import { countOfPlayers, diff, totalWillpower, totalThread, canTravel, enemiesToEngage, lit } from "../exps";
+import { reverse } from "lodash";
+import {
+  countOfPlayers,
+  diff,
+  totalWillpower,
+  totalThread,
+  canTravel,
+  enemiesToEngage,
+  lit,
+} from "../exps";
 import { isHero, isTapped } from "../filters";
 import { Scenario, PlayerDeck } from "../setup";
 import { createCardState, playerIds } from "../state";
 import { zoneKey } from "../utils";
-import { generateResource, untap } from "./card";
+import { generateResource, setSide, untap } from "./card";
 import { sequence, repeat, whileDo, action, bind } from "./control";
 import {
   eachCard,
@@ -37,13 +46,21 @@ export const phaseResource = sequence(
   playerActions("End resource phase")
 );
 
-export const phasePlanning = sequence(beginPhase("resource"), playerActions("End planning phase"));
+export const phasePlanning = sequence(
+  beginPhase("resource"),
+  playerActions("End planning phase")
+);
 
 export const phaseQuest = sequence(
   beginPhase("quest"),
   eachPlayer(commitCharactersToQuest),
   playerActions("Staging"),
-  bind(countOfPlayers, (count) => repeat(count, moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face"))),
+  bind(countOfPlayers, (count) =>
+    repeat(
+      count,
+      moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")
+    )
+  ),
   playerActions("Quest resolution"),
   bind(diff(totalWillpower, totalThread), (power) =>
     power > 0 ? placeProgress(power) : eachPlayer(incrementThreat(-power))
@@ -99,18 +116,38 @@ export const startGame = whileDo(lit(true), gameRound);
 
 export function setupScenario(scenario: Scenario): Action {
   return action(`setup scenario ${scenario.name}`, (s) => {
-    const quest = scenario.questCards.map((q, index) => createCardState(index * 5 + 5, q, "back"));
-    const cards = scenario.encounterCards.map((e, index) => createCardState((index + quest.length) * 5 + 5, e, "back"));
+    const quest = scenario.questCards.map((q, index) =>
+      createCardState(index * 5 + 5, q, "back")
+    );
+    const cards = scenario.encounterCards.map((e, index) =>
+      createCardState((index + quest.length) * 5 + 5, e, "back")
+    );
 
     s.zones.encounterDeck.cards.push(...cards.map((c) => c.id));
-    s.zones.questDeck.cards.push(...quest.map((c) => c.id));
+    s.zones.questDeck.cards.push(...reverse(quest.map((c) => c.id)));
 
     s.cards.push(...quest, ...cards);
-    return "full";
   });
 }
 
-export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Action {
+export const questSetup: Action = {
+  print: `questSetup`,
+  do: (s) => {
+    const cardId = s.zones.quest.cards[0];
+    const card = s.view.cards.find((c) => c.id === cardId);
+
+    if (card) {
+      return sequence(card.setup ?? sequence(), setSide("back")(cardId)).do(s);
+    }
+
+    return sequence().do(s);
+  },
+};
+
+export function beginScenario(
+  scenario: Scenario,
+  ...decks: PlayerDeck[]
+): Action {
   return sequence(
     setupScenario(scenario),
     ...decks.map((d, i) => addPlayer(playerIds[i], d)),
@@ -118,6 +155,7 @@ export function beginScenario(scenario: Scenario, ...decks: PlayerDeck[]): Actio
     eachPlayer((p) => shuffleZone(zoneKey("library", p))),
     eachPlayer(draw(6)),
     moveTopCard(zoneKey("questDeck"), zoneKey("quest"), "face"),
+    questSetup,
     startGame
   );
 }

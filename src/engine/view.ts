@@ -38,6 +38,7 @@ export type CardView = {
   token: Tokens;
   mark: Marks;
   actions: Array<{ description: string; effect: Action }>;
+  setup?: Action;
   attachedTo?: CardId;
 };
 

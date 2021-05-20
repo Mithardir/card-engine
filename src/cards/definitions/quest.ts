@@ -1,26 +1,69 @@
-import { QuestProps, Ability, emptyKeywords } from "../../engine/types";
+import { Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
+import { Action } from "../../engine/actions/types";
 
-export function quest(props: QuestProps, ...abilities: Ability[]): CardDefinition {
-  const front = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
-    .split(" ")
-    .join("-")}-${props.sequence}A.jpg`;
+export type QuestDefinition =
+  | {
+      sequence: number;
+      name?: never;
+      a: { name: string; image?: string };
+      b: { name: string; image?: string; questPoints: number };
+    }
+  | {
+      sequence: number;
+      name: string;
+      a: { name?: never; image?: string };
+      b: { name?: never; image?: string; questPoints: number };
+    };
 
-  const back = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
-    .split(" ")
-    .join("-")}-${props.sequence}B.jpg`;
+export function setup(props: { description: string; action: Action }): Ability {
+  return {
+    description: props.description,
+    implicit: false,
+    activate: (view, self) => {
+      const card = view.cards.find((c) => c.id === self);
+      if (card) {
+        card.setup = props.action;
+      }
+    },
+  };
+}
+
+export function quest(
+  def: QuestDefinition,
+  ...abilities: Ability[]
+): CardDefinition {
+  const nameA = def.name ?? def.a.name;
+  const nameB = def.name ?? def.b.name;
+
+  const front =
+    def.a.image ??
+    `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${nameA
+      .split(" ")
+      .join("-")}-${def.sequence}A.jpg`;
+
+  const back =
+    def.b.image ??
+    `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${nameB
+      .split(" ")
+      .join("-")}-${def.sequence}B.jpg`;
 
   return {
     face: {
-      ...props,
+      name: nameA,
       image: front,
+      sequence: def.sequence,
       type: "quest",
       keywords: emptyKeywords,
       abilities,
       traits: [],
     },
     back: {
+      name: nameB,
       image: back,
+      sequence: def.sequence,
+      type: "quest",
+      questPoints: def.b.questPoints,
       abilities: [],
       traits: [],
       keywords: emptyKeywords,

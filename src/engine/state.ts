@@ -50,7 +50,7 @@ export interface CardState {
   sideUp: Side;
   tapped: boolean;
   token: Tokens;
-  mark: Marks;
+  mark: Marks;  
   attachedTo?: CardId;
 }
 

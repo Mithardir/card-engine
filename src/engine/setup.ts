@@ -1,5 +1,16 @@
-import { beorn, gondorianSpearman, horsebackArcher, veteranAxehand, gandalf } from "../cards/sets/core/allies";
-import { bladeOfGondolin, citadelPlate, dwarvenAxe, hornOfGondor } from "../cards/sets/core/attachments";
+import {
+  beorn,
+  gondorianSpearman,
+  horsebackArcher,
+  veteranAxehand,
+  gandalf,
+} from "../cards/sets/core/allies";
+import {
+  bladeOfGondolin,
+  citadelPlate,
+  dwarvenAxe,
+  hornOfGondor,
+} from "../cards/sets/core/attachments";
 import {
   kingSpider,
   hummerhorns,
@@ -29,8 +40,18 @@ import {
   oldForestRoad,
   forestGate,
 } from "../cards/sets/core/locations";
-import { fliesAndSpiders } from "../cards/sets/core/quests";
-import { eyesOfTheForest, caughtInAWeb, drivenByShadow, theNecromancersReach } from "../cards/sets/core/treacheries";
+import {
+  achosenPath1,
+  achosenPath2,
+  aForkInTheRoad,
+  fliesAndSpiders,
+} from "../cards/sets/core/quests";
+import {
+  eyesOfTheForest,
+  caughtInAWeb,
+  drivenByShadow,
+  theNecromancersReach,
+} from "../cards/sets/core/treacheries";
 import { CardDefinition } from "./state";
 
 export interface Scenario {
@@ -104,7 +125,7 @@ export const coreTactics: PlayerDeck = {
 
 export const passageThroughMirkwood: Scenario = {
   name: "Passage Through Mirkwood",
-  questCards: [fliesAndSpiders],
+  questCards: [fliesAndSpiders, aForkInTheRoad, achosenPath1, achosenPath2],
   encounterCards: [
     kingSpider,
     kingSpider,

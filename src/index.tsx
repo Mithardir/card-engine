@@ -4,9 +4,9 @@ import ReactDOM from "react-dom";
 import { App } from "./App";
 import { DetailProvider } from "./components/DetailContext";
 import { DialogsProvider } from "./components/DialogsContext";
-import { beginScenario } from "./engine/actions/phases";
-import { playRandomlyUntilEnd } from "./engine/actions/utils";
-import { passageThroughMirkwood, coreTactics } from "./engine/setup";
+// import { beginScenario } from "./engine/actions/phases";
+// import { playRandomlyUntilEnd } from "./engine/actions/utils";
+// import { passageThroughMirkwood, coreTactics } from "./engine/setup";
 import { createInitState } from "./engine/state";
 import { configure } from "mobx";
 

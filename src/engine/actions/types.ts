@@ -6,14 +6,12 @@ export type Action = {
 };
 
 export type ActionResult = {
-  choice:
-    | {
-        title: string;
-        multiple: boolean;
-        dialog: boolean;
-        choices: Array<{ label: string; image?: string; action: Action }>;
-      }
-    | undefined;
+  choice?: {
+    title: string;
+    multiple: boolean;
+    dialog: boolean;
+    choices: Array<{ label: string; image?: string; action: Action }>;
+  };
   next: Action | undefined;
 };
 

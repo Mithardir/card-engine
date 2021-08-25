@@ -1,4 +1,4 @@
-import { computed, observable } from "mobx";
+import { observable } from "mobx";
 import { Flavor } from "../utils";
 import { PrintedProps } from "./types";
 import { createView, View } from "./view";

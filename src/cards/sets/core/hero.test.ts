@@ -1,6 +1,12 @@
-import { addToken, removeToken } from "../../../engine/actions/card";
+import {
+  addToken,
+  dealDamage,
+  removeToken,
+} from "../../../engine/actions/card";
 import { createTestEngine } from "../../../tests/utils";
+import { dolGuldurOrcs } from "./enemies";
 import * as hero from "./heroes";
+import { fliesAndSpiders } from "./quests";
 
 it("Gimli's attack bonus", () => {
   const engine = createTestEngine();
@@ -10,6 +16,15 @@ it("Gimli's attack bonus", () => {
   expect(gimli.attack).toEqual(3);
   engine.do(removeToken("damage")(gimli.id));
   expect(gimli.attack).toEqual(2);
+});
+
+it("Lelogas placing progress", async () => {
+  const game = createTestEngine([0]);
+  const legolas = game.addHero(hero.legolas);
+  const enemy = game.addEnemy(dolGuldurOrcs);
+  const quest = game.addQuest(fliesAndSpiders);
+  await game.do(dealDamage(3, [legolas.id])(enemy.id));
+  expect(quest.progress).toEqual(2);
 });
 
 // it("Glorfindel's action", async () => {
@@ -80,15 +95,6 @@ it("Gimli's attack bonus", () => {
 // //   await game.endTurn();
 // //   expect(eowyn.playerActions.filter(a => a.canDo).length).toEqual(1);
 // // });
-
-// it("Lelogas placing progress", async () => {
-//   const game = new GameEngine({ choices: [0] });
-//   const legolas = game.addHero(hero.legolas);
-//   const enemy = game.addEnemy(dolGuldurOrcs);
-//   const location = game.addLocation(mountainsOfMirkwood);
-//   await game.execute(destroy(enemy.id, [legolas.id]));
-//   expect(location.get.progress).toEqual(2);
-// });
 
 // it("Thalin damaging enemies", async () => {
 //   const game = new GameEngine({ choices: [0] });

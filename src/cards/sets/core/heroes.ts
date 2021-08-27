@@ -1,3 +1,4 @@
+import { placeProgress } from "../../../engine/actions/game";
 import { hero } from "../../definitions/hero";
 
 export const gimli = hero(
@@ -31,15 +32,30 @@ export const legolas = hero(
     hitPoints: 4,
     traits: ["noble", "silvan", "warrior"],
     sphere: "tactics",
+  },
+  {
+    description: "Ranged",
+    implicit: true,
+    activate: (v, s) => {
+      const card = v.cards.find((c) => c.id === s)!;
+      card.props.keywords.ranged = true;
+    },
+  },
+  {
+    description:
+      "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
+    implicit: false,
+    activate: (v, s) => {
+      v.responses.destroyed.push({
+        description:
+          "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
+        condition: (e, v) =>
+          e.attackers.includes(s) &&
+          v.cards.some((c) => c.id === e.cardId && c.props.type === "enemy"),
+        action: () => placeProgress(2),
+      });
+    },
   }
-  // keyword("ranged"),
-  // response({
-  //   description:
-  //     "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-  //   event: destroyed(),
-  //   condition: (e, v) => e.attackers.includes(self) && v.cards[e.cardId].props.type === "enemy",
-  //   action: () => placeProgress(2),
-  // })
 );
 
 export const thalin = hero(

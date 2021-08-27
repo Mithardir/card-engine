@@ -1,8 +1,24 @@
 import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
-import { and, isTapped, isCharacter, isInZone, isHero, isLocation, CardFilter } from "../filters";
+import {
+  and,
+  isTapped,
+  isCharacter,
+  isInZone,
+  isHero,
+  isLocation,
+  CardFilter,
+} from "../filters";
 import { PlayerDeck } from "../setup";
-import { CardId, PlayerId, playerIds, createCardState, Side, Mark, Phase } from "../state";
+import {
+  CardId,
+  PlayerId,
+  playerIds,
+  createCardState,
+  Side,
+  Mark,
+  Phase,
+} from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
 import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
@@ -23,7 +39,7 @@ export const playerActions: (title: string) => Action = (title) => {
             const view = state.view;
             const choices = view.cards
               .map((card) => card.actions.map((action) => ({ card, action })))
-              .flatMap((a) => a)              
+              .flatMap((a) => a)
               .map((ca) => ({
                 label: `${ca.card.props.name}: ${ca.action.description}`,
                 action: sequence(ca.action.effect, playerActions(title)),
@@ -43,8 +59,15 @@ export const dealShadowCards =
   // TODO dealShadowCards
   sequence();
 
-export function declareDefender(attackerId: CardId, playerId: PlayerId): Action {
-  const filter = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+export function declareDefender(
+  attackerId: CardId,
+  playerId: PlayerId
+): Action {
+  const filter = and(
+    (id) => negate(isTapped(id)),
+    isCharacter,
+    isInZone(zoneKey("playerArea", playerId))
+  );
   return {
     print: `declareDefender(${attackerId}, ${playerId})`,
     do: (state) => {
@@ -62,7 +85,10 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
           action: chooseCardAction(
             "Choose hero for undefended attack",
             and(isHero, isInZone(zoneKey("playerArea", playerId))),
-            (hero) => bind(getProp("attack", attackerId), (attack) => dealDamage(attack)(hero))
+            (hero) =>
+              bind(getProp("attack", attackerId), (attack) =>
+                dealDamage(attack, [attackerId])(hero)
+              )
           ),
         },
       ]);
@@ -72,8 +98,15 @@ export function declareDefender(attackerId: CardId, playerId: PlayerId): Action 
   };
 }
 
-export function declareAttackers(attackedId: CardId, playerId: PlayerId): Action {
-  const attackers = and((id) => negate(isTapped(id)), isCharacter, isInZone(zoneKey("playerArea", playerId)));
+export function declareAttackers(
+  attackedId: CardId,
+  playerId: PlayerId
+): Action {
+  const attackers = and(
+    (id) => negate(isTapped(id)),
+    isCharacter,
+    isInZone(zoneKey("playerArea", playerId))
+  );
   return {
     print: `declareAttackers(${attackedId}, ${playerId})`,
     do: (state) => {
@@ -94,16 +127,24 @@ export function declareAttackers(attackedId: CardId, playerId: PlayerId): Action
   };
 }
 
-export const passFirstPlayerToken: Action = action("passFirstPlayerToken", (state) => {
-  // TODO
-  return "full";
-});
+export const passFirstPlayerToken: Action = action(
+  "passFirstPlayerToken",
+  (state) => {
+    // TODO
+    return "full";
+  }
+);
 
-export const travelToLocation = moveCard(zoneKey("stagingArea"), zoneKey("activeLocation"), "face");
+export const travelToLocation = moveCard(
+  zoneKey("stagingArea"),
+  zoneKey("activeLocation"),
+  "face"
+);
 
 export function placeProgress(amount: number): Action {
+  // TODO to active location
   return action(`place ${amount} progress`, (state) => {
-    const cardId = state.zones.quest.cards[0];
+    const cardId = state.zones.quest.cards[0];    
     const card = state.cards.find((c) => c.id === cardId);
     if (card) {
       card.token.progress += amount;
@@ -129,14 +170,18 @@ export function shuffleZone(zoneKey: ZoneKey): Action {
 export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action {
   return action(`add player ${playerId} with deck ${deck.name}`, (s) => {
     const playerIndex = playerIds.findIndex((p) => p === playerId);
-    const heroes = deck.heroes.map((h, index) => createCardState(index * 5 + playerIndex + 1, h, "face"));
+    const heroes = deck.heroes.map((h, index) =>
+      createCardState(index * 5 + playerIndex + 1, h, "face")
+    );
     const library = deck.library.map((l, index) =>
       createCardState((index + heroes.length) * 5 + playerIndex + 1, l, "back")
     );
 
     s.players.push({
       id: playerId,
-      thread: heroes.map((h) => h.definition.face.threatCost!).reduce((p, c) => p + c, 0),
+      thread: heroes
+        .map((h) => h.definition.face.threatCost!)
+        .reduce((p, c) => p + c, 0),
       zones: {
         hand: { cards: [], stack: false },
         library: { cards: library.map((l) => l.id), stack: true },
@@ -175,19 +220,22 @@ export function eachCard(filter: CardFilter, action: CardAction): Action {
 }
 
 export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Action {
-  return action(`moveTopCard(${from.print}, ${to.print}, "${side}")`, (state) => {
-    const fromZone = getZone(from)(state);
-    const toZone = getZone(to)(state);
-    if (fromZone.cards.length > 0) {
-      const cardId = fromZone.cards.pop()!;
-      const card = state.cards.find((c) => c.id === cardId)!;
-      card.sideUp = side;
-      toZone.cards.push(cardId);
-      return "full";
-    } else {
-      return "none";
+  return action(
+    `moveTopCard(${from.print}, ${to.print}, "${side}")`,
+    (state) => {
+      const fromZone = getZone(from)(state);
+      const toZone = getZone(to)(state);
+      if (fromZone.cards.length > 0) {
+        const cardId = fromZone.cards.pop()!;
+        const card = state.cards.find((c) => c.id === cardId)!;
+        card.sideUp = side;
+        toZone.cards.push(cardId);
+        return "full";
+      } else {
+        return "none";
+      }
     }
-  });
+  );
 }
 
 export function clearMarks(type: Mark): Action {
@@ -204,7 +252,10 @@ export const chooseTravelLocation: Action = {
   print: "chooseTravelLocation",
   do: (state) => {
     const view = state.view;
-    const cards = filterCards(and(isLocation, isInZone(zoneKey("stagingArea"))), view);
+    const cards = filterCards(
+      and(isLocation, isInZone(zoneKey("stagingArea"))),
+      view
+    );
 
     const action = chooseOne("Choose location for travel", [
       ...cards.map((c) => ({

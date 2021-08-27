@@ -1,8 +1,16 @@
 import { findZoneOf } from "../../cards/definitions/attachment";
-import { diff, getProp, getTokens, totalAttack } from "../exps";
+import {
+  attackers as getAttackers,
+  diff,
+  getProp,
+  getTokens,
+  totalAttack,
+} from "../exps";
 import { CardId, Mark, PlayerId, Side } from "../state";
 import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
+import { Responses, Response, createView } from "../view";
+import { chooseOrder } from "./choices";
 import { repeat, sequence, action, bind } from "./control";
 import {
   playerActions,
@@ -12,13 +20,13 @@ import {
 } from "./game";
 import { Action, CardAction } from "./types";
 
-export function dealDamage(amount: number): CardAction {
+export function dealDamage(amount: number, attackers: CardId[]): CardAction {
   return (card) =>
     sequence(
       repeat(amount, addToken("damage")(card)),
       bind(
         diff(getProp("hitPoints", card), getTokens("damage", card)),
-        (lives) => (lives > 0 ? sequence() : destroy(card))
+        (lives) => (lives > 0 ? sequence() : destroy(attackers)(card))
       )
     );
 }
@@ -27,7 +35,8 @@ export function resolveDefense(attacker: CardId): CardAction {
   return (defender) =>
     bind(
       diff(getProp("attack", attacker), getProp("defense", defender)),
-      (damage) => (damage > 0 ? dealDamage(damage)(defender) : sequence())
+      (damage) =>
+        damage > 0 ? dealDamage(damage, [attacker])(defender) : sequence()
     );
 }
 
@@ -52,7 +61,11 @@ export function resolvePlayerAttack(playerId: PlayerId): CardAction {
       declareAttackers(defenderId, playerId),
       playerActions("Determine combat damage"),
       bind(diff(totalAttack, getProp("defense", defenderId)), (damage) =>
-        damage > 0 ? dealDamage(damage)(defenderId) : sequence()
+        damage > 0
+          ? bind(getAttackers, (attackers) =>
+              dealDamage(damage, attackers)(defenderId)
+            )
+          : sequence()
       ),
       clearMarks("attacking"),
       mark("attacked")(defenderId)
@@ -193,7 +206,32 @@ export const removeTokensAndMarks: CardAction = (cardId) =>
     return "full";
   });
 
-export const destroy: CardAction = (cardId) => {
+export function processResponses<T>(
+  selector: (r: Responses) => Array<Response<T>>,
+  event: T,
+  choiceTitle: string
+): Action {
+  return {
+    print: "process responses",
+    do: (s) => {
+      const view = createView(s);
+      const list = selector(view.responses);
+
+      return chooseOrder("Choose next response", [
+        ...list.map((l, i) => ({
+          label: l.description,
+          action: l.action(event),
+          id: i.toString(),
+        })),
+        { label: "No response", action: sequence(), id: "none" },
+      ]).do(s);
+    },
+  };
+}
+
+export const destroy: (attackers: CardId[]) => CardAction = (attackers) => (
+  cardId
+) => {
   return {
     print: `destroy ${cardId}`,
     do: (s) => {
@@ -204,15 +242,24 @@ export const destroy: CardAction = (cardId) => {
       );
       const view = s.view;
       const card = view.cards.find((c) => c.id === cardId);
+
+      const response = processResponses(
+        (r) => r.destroyed,
+        { cardId, attackers },
+        "Choose response for destroying " + cardId
+      );
+
       if (owner && card) {
         return sequence(
           removeTokensAndMarks(cardId),
-          moveCardTo(zoneKey("discardPile", owner.id), "face")(cardId)
+          moveCardTo(zoneKey("discardPile", owner.id), "face")(cardId),
+          response
         ).do(s);
       } else if (!owner && card) {
         return sequence(
           removeTokensAndMarks(cardId),
-          moveCardTo(zoneKey("discardPile"), "face")(cardId)
+          moveCardTo(zoneKey("discardPile"), "face")(cardId),
+          response
         ).do(s);
       } else {
         return sequence().do(s);

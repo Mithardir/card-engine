@@ -22,8 +22,28 @@ export type View = {
   players: PlayerState[];
   zones: Record<GameZoneType, ZoneState>;
   effects: Effect[];
+  responses: Responses;
   firstPlayer: PlayerId;
 };
+
+export interface Response<T> {
+  description: string;
+  condition: (e: T, view: View) => boolean;
+  action: (e: T) => Action;
+}
+
+export interface Responses {
+  receivedDamage: Array<Response<{ cardId: CardId; amount: number }>>;
+  destroyed: Array<Response<{ cardId: CardId; attackers: CardId[] }>>;
+  revealed: Array<Response<{ cardId: CardId }>>;
+  leavedPlay: Array<Response<{ cardId: CardId }>>;
+  enteredPlay: Array<Response<{ cardId: CardId; playerId: PlayerId }>>;
+  declaredAsDefender: Array<Response<{ attacker: CardId; defender: CardId }>>;
+  afterTravel: Array<Response<{ cardId: CardId }>>;
+  afterEnemyEngages: Array<Response<{ enemy: CardId; player: PlayerId }>>;
+  afterEnemyAttacks: Array<Response<{ attacker: CardId }>>;
+  whenEnemyAttacks: Array<Response<{ attacker: CardId }>>;
+}
 
 export type CardProps = Omit<PrintedProps, "abilities"> & {
   abilities: AbilityView[];
@@ -67,6 +87,18 @@ export function createView(state: State) {
   const view: View = {
     ...baseState,
     cards: baseState.cards.map(createCardView),
+    responses: {
+      afterEnemyAttacks: [],
+      afterEnemyEngages: [],
+      afterTravel: [],
+      declaredAsDefender: [],
+      destroyed: [],
+      enteredPlay: [],
+      leavedPlay: [],
+      receivedDamage: [],
+      revealed: [],
+      whenEnemyAttacks: [],
+    },
   };
 
   while (true) {

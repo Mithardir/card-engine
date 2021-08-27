@@ -1,31 +1,44 @@
 import { setAutoFreeze } from "immer";
 import { UI, createEngine, Engine } from "../engine/engine";
-import { CardId, createInitState, createCardState, CardDefinition } from "../engine/state";
+import {
+  CardId,
+  createInitState,
+  createCardState,
+  CardDefinition,
+} from "../engine/state";
 
-export const testUi: UI = {
-  chooseOne: async (title, items) => {
-    throw new Error();
-  },
-  chooseMultiple: () => {
-    throw new Error();
-  },
-  playerActions: () => {
-    throw new Error();
-  },
+export const testUi: (choices: any[]) => UI = (choices) => {
+  return {
+    chooseOne: async (title, items) => {
+      return items[choices.pop()].value;
+    },
+    chooseMultiple: () => {
+      throw new Error();
+    },
+    playerActions: () => {
+      throw new Error();
+    },
+  };
 };
 
 export function createCardProxy(cardId: CardId, engine: Engine) {
   return {
     id: cardId,
     get attack() {
-      return engine.state.view.cards.find((c) => c.id === cardId)!.props.attack!;
+      return engine.state.view.cards.find((c) => c.id === cardId)!.props
+        .attack!;
+    },
+
+    get progress() {
+      return engine.state.view.cards.find((c) => c.id === cardId)!.token
+        .progress!;
     },
   };
 }
 
-export function createTestEngine() {
+export function createTestEngine(choices: any[] = []) {
   setAutoFreeze(false);
-  const engine = createEngine(testUi, createInitState());
+  const engine = createEngine(testUi(choices), createInitState());
 
   let id = 1;
 
@@ -51,6 +64,27 @@ export function createTestEngine() {
         engine.state.players[0].zones.playerArea.cards.push(cardState.id);
       }
 
+      return createCardProxy(cardId, engine);
+    },
+    addEnemy: (card: CardDefinition) => {
+      const cardId = id++;
+      const cardState = createCardState(cardId, card, "face");
+      engine.state.cards.push(cardState);
+      engine.state.zones.stagingArea.cards.push(cardState.id);
+      return createCardProxy(cardId, engine);
+    },
+    addLocation: (card: CardDefinition) => {
+      const cardId = id++;
+      const cardState = createCardState(cardId, card, "face");
+      engine.state.cards.push(cardState);
+      engine.state.zones.activeLocation.cards.push(cardState.id);
+      return createCardProxy(cardId, engine);
+    },
+    addQuest: (card: CardDefinition) => {
+      const cardId = id++;
+      const cardState = createCardState(cardId, card, "face");
+      engine.state.cards.push(cardState);
+      engine.state.zones.quest.cards.push(cardState.id);
       return createCardProxy(cardId, engine);
     },
   };

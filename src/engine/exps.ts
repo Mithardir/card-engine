@@ -1,4 +1,11 @@
-import { and, isLocation, isInZone, CardFilter, isHero, matchesSphere } from "./filters";
+import {
+  and,
+  isLocation,
+  isInZone,
+  CardFilter,
+  isHero,
+  matchesSphere,
+} from "./filters";
 import { PlayerId, playerIds, CardId, Token } from "./state";
 import { Sphere } from "./types";
 import { filterCards, zoneKey } from "./utils";
@@ -29,6 +36,13 @@ export const totalAttack: Exp<number> = {
   },
 };
 
+export const attackers: Exp<CardId[]> = {
+  print: "attackers",
+  eval: (v) => {
+    return v.cards.filter((c) => c.mark.attacking).map((c) => c.id);
+  },
+};
+
 export const totalThread: Exp<number> = {
   print: "total thread",
   eval: (v) => {
@@ -40,19 +54,31 @@ export const totalThread: Exp<number> = {
 };
 
 export function diff(a: Exp<number>, b: Exp<number>): Exp<number> {
-  return { print: `${a.print} - ${b.print}`, eval: (v) => a.eval(v) - b.eval(v) };
+  return {
+    print: `${a.print} - ${b.print}`,
+    eval: (v) => a.eval(v) - b.eval(v),
+  };
 }
 
 export function isMore(a: Exp<number>, b: Exp<number>): Exp<boolean> {
-  return { print: `${a.print} > ${b.print}`, eval: (v) => a.eval(v) > b.eval(v) };
+  return {
+    print: `${a.print} > ${b.print}`,
+    eval: (v) => a.eval(v) > b.eval(v),
+  };
 }
 
 export function isSame(a: Exp<number>, b: Exp<number>): Exp<boolean> {
-  return { print: `${a.print} == ${b.print}`, eval: (v) => a.eval(v) === b.eval(v) };
+  return {
+    print: `${a.print} == ${b.print}`,
+    eval: (v) => a.eval(v) === b.eval(v),
+  };
 }
 
 export function isLess(a: Exp<number>, b: Exp<number>): Exp<boolean> {
-  return { print: `${a.print} < ${b.print}`, eval: (v) => a.eval(v) < b.eval(v) };
+  return {
+    print: `${a.print} < ${b.print}`,
+    eval: (v) => a.eval(v) < b.eval(v),
+  };
 }
 
 export function lit<T extends number | boolean>(value: T): Exp<T> {
@@ -72,7 +98,10 @@ export const existsActiveLocation: Exp<boolean> = {
 export const canTravel: Exp<boolean> = {
   print: "can travel",
   eval: (v) => {
-    const locations = filterCards(and(isLocation, isInZone(zoneKey("stagingArea"))), v);
+    const locations = filterCards(
+      and(isLocation, isInZone(zoneKey("stagingArea"))),
+      v
+    );
     return v.zones.activeLocation.cards.length === 0 && locations.length > 0;
   },
 };
@@ -88,7 +117,8 @@ export function negate(value: Exp<boolean>): Exp<boolean> {
 
 export const nextPlayerId: Exp<PlayerId> = {
   print: "next player",
-  eval: (v) => playerIds[(playerIds.findIndex((i) => i === v.firstPlayer) + 1) % 4],
+  eval: (v) =>
+    playerIds[(playerIds.findIndex((i) => i === v.firstPlayer) + 1) % 4],
 };
 
 export const enemiesToEngage: Exp<boolean> = {
@@ -122,7 +152,10 @@ export function countOfCards(filter: CardFilter): Exp<number> {
   };
 }
 
-export function getProp(property: "attack" | "defense" | "hitPoints", cardId: CardId): Exp<number> {
+export function getProp(
+  property: "attack" | "defense" | "hitPoints",
+  cardId: CardId
+): Exp<number> {
   return {
     print: `${property} of card ${cardId}`,
     eval: (v) => {
@@ -151,7 +184,14 @@ export function countResources(sphere: Sphere, player: PlayerId): Exp<number> {
   return {
     print: `countResources(${sphere})`,
     eval: (v) => {
-      const heroes = filterCards(and(isHero, matchesSphere(sphere), isInZone(zoneKey("playerArea", player))), v);
+      const heroes = filterCards(
+        and(
+          isHero,
+          matchesSphere(sphere),
+          isInZone(zoneKey("playerArea", player))
+        ),
+        v
+      );
       return heroes.reduce((p, c) => p + c.token.resources || 0, 0);
     },
   };

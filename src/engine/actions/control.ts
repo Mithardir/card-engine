@@ -1,6 +1,7 @@
 import { Exp } from "../exps";
 import { State } from "../state";
 import { Action } from "./types";
+import { noChange } from "./utils";
 
 export function action(title: string, update: (state: State) => void): Action {
   return {
@@ -52,7 +53,9 @@ export function sequence(...actions: Action[]): Action {
                 })),
               }
             : undefined,
-          next: result.next ? sequence(result.next, ...actions.slice(1)) : sequence(...actions.slice(1)),
+          next: result.next
+            ? sequence(result.next, ...actions.slice(1))
+            : sequence(...actions.slice(1)),
         };
       }
     },
@@ -67,7 +70,9 @@ export function whileDo(exp: Exp<boolean>, action: Action): Action {
         const result = action.do(state);
 
         return {
-          next: result.next ? sequence(result.next, whileDo(exp, action)) : whileDo(exp, action),
+          next: result.next
+            ? sequence(result.next, whileDo(exp, action))
+            : whileDo(exp, action),
           choice: result.choice,
         };
       } else {
@@ -96,7 +101,9 @@ export function repeat(amount: number, action: Action): Action {
   return {
     print: `repeat(${amount}, ${action.print})`,
     do: (s) => {
-      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(s);
+      return sequence(...Array.from(new Array(amount)).map((_) => action)).do(
+        s
+      );
     },
   };
 }
@@ -106,6 +113,20 @@ export function pay(cost: Action, effect: Action): Action {
     print: `pay(${cost}, ${effect})`,
     do: (s) => {
       return sequence(cost, effect).do(s);
+    },
+  };
+}
+
+export function ifThen(exp: Exp<boolean>, action: Action): Action {
+  return {
+    print: `if (${exp.print}) then (${action.print})`,
+    do: (state) => {
+      const value = exp.eval(state.view);
+      if (value) {
+        return action.do(state);
+      } else {
+        return sequence().do(state);
+      }
     },
   };
 }

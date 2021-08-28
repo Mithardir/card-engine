@@ -67,6 +67,13 @@ export function isMore(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   };
 }
 
+export function isMoreOrEqual(a: Exp<number>, b: Exp<number>): Exp<boolean> {
+  return {
+    print: `${a.print} >= ${b.print}`,
+    eval: (v) => a.eval(v) >= b.eval(v),
+  };
+}
+
 export function isSame(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   return {
     print: `${a.print} == ${b.print}`,
@@ -78,6 +85,13 @@ export function isLess(a: Exp<number>, b: Exp<number>): Exp<boolean> {
   return {
     print: `${a.print} < ${b.print}`,
     eval: (v) => a.eval(v) < b.eval(v),
+  };
+}
+
+export function isLessOrEqual(a: Exp<number>, b: Exp<number>): Exp<boolean> {
+  return {
+    print: `${a.print} <= ${b.print}`,
+    eval: (v) => a.eval(v) <= b.eval(v),
   };
 }
 

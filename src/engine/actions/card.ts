@@ -4,6 +4,7 @@ import {
   diff,
   getProp,
   getTokens,
+  isMoreOrEqual,
   totalAttack,
 } from "../exps";
 import { CardId, Mark, PlayerId, Side } from "../state";
@@ -11,7 +12,7 @@ import { Token, ZoneKey } from "../types";
 import { zoneKey, getZone } from "../utils";
 import { Responses, Response, createView } from "../view";
 import { chooseOrder } from "./choices";
-import { repeat, sequence, action, bind } from "./control";
+import { repeat, sequence, action, bind, ifThen } from "./control";
 import {
   playerActions,
   declareDefender,
@@ -24,9 +25,9 @@ export function dealDamage(amount: number, attackers: CardId[]): CardAction {
   return (card) =>
     sequence(
       repeat(amount, addToken("damage")(card)),
-      bind(
-        diff(getProp("hitPoints", card), getTokens("damage", card)),
-        (lives) => (lives > 0 ? sequence() : destroy(attackers)(card))
+      ifThen(
+        isMoreOrEqual(getTokens("damage", card), getProp("hitPoints", card)),
+        destroy(attackers)(card)
       )
     );
 }

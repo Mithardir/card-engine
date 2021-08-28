@@ -1,52 +1,34 @@
-import { setAutoFreeze } from "immer";
 import { Action } from "../engine/actions/types";
-import { UI, createEngine, Engine } from "../engine/engine";
 import {
   CardId,
   createInitState,
   createCardState,
   CardDefinition,
+  State,
 } from "../engine/state";
 
-export const testUi: UI = {
-  chooseOne: async (title, items) => {
-    throw new Error();
-  },
-  chooseMultiple: () => {
-    throw new Error();
-  },
-  playerActions: () => {
-    throw new Error();
-  },
-};
-
-export function createCardProxy(cardId: CardId, engine: Engine) {
+export function createCardProxy(cardId: CardId, state: State) {
   return {
     id: cardId,
     get attack() {
-      return engine.state.view.cards.find((c) => c.id === cardId)!.props
-        .attack!;
+      return state.view.cards.find((c) => c.id === cardId)!.props.attack!;
     },
 
     get progress() {
-      return engine.state.view.cards.find((c) => c.id === cardId)!.token
-        .progress!;
+      return state.view.cards.find((c) => c.id === cardId)!.token.progress!;
     },
   };
 }
 
 export function createTestEngine() {
-  setAutoFreeze(false);
-  const engine = createEngine(testUi, createInitState());
-
+  const state = createInitState();
   let id = 1;
 
   const testEngine = {
-    ...engine,
     do: (action: Action, choices: string[] = []) => {
-      let result = action.do(engine.state);
+      let result = action.do(state);
       while (!result.choice && result.next) {
-        result = result.next.do(engine.state);
+        result = result.next.do(state);
       }
 
       if (result.choice && choices.length > 0) {
@@ -66,9 +48,9 @@ export function createTestEngine() {
     addHero: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
-      engine.state.cards.push(cardState);
-      if (engine.state.players.length === 0) {
-        engine.state.players.push({
+      state.cards.push(cardState);
+      if (state.players.length === 0) {
+        state.players.push({
           id: "A",
           thread: 0,
           zones: {
@@ -80,31 +62,31 @@ export function createTestEngine() {
           },
         });
 
-        engine.state.players[0].zones.playerArea.cards.push(cardState.id);
+        state.players[0].zones.playerArea.cards.push(cardState.id);
       }
 
-      return createCardProxy(cardId, engine);
+      return createCardProxy(cardId, state);
     },
     addEnemy: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
-      engine.state.cards.push(cardState);
-      engine.state.zones.stagingArea.cards.push(cardState.id);
-      return createCardProxy(cardId, engine);
+      state.cards.push(cardState);
+      state.zones.stagingArea.cards.push(cardState.id);
+      return createCardProxy(cardId, state);
     },
     addLocation: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
-      engine.state.cards.push(cardState);
-      engine.state.zones.activeLocation.cards.push(cardState.id);
-      return createCardProxy(cardId, engine);
+      state.cards.push(cardState);
+      state.zones.activeLocation.cards.push(cardState.id);
+      return createCardProxy(cardId, state);
     },
     addQuest: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
-      engine.state.cards.push(cardState);
-      engine.state.zones.quest.cards.push(cardState.id);
-      return createCardProxy(cardId, engine);
+      state.cards.push(cardState);
+      state.zones.quest.cards.push(cardState.id);
+      return createCardProxy(cardId, state);
     },
   };
 

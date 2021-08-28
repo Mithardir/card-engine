@@ -119,7 +119,7 @@ export function pay(cost: Action, effect: Action): Action {
 
 export function ifThen(exp: Exp<boolean>, action: Action): Action {
   return {
-    print: `if (${exp.print}) then (${action.print})`,
+    print: `ifThen(${exp.print}, ${action.print})`,
     do: (state) => {
       const value = exp.eval(state.view);
       if (value) {

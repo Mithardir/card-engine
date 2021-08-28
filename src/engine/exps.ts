@@ -110,7 +110,7 @@ export const existsActiveLocation: Exp<boolean> = {
 };
 
 export const canTravel: Exp<boolean> = {
-  print: "can travel",
+  print: "canTravel",
   eval: (v) => {
     const locations = filterCards(
       and(isLocation, isInZone(zoneKey("stagingArea"))),

@@ -1,4 +1,5 @@
 import { setAutoFreeze } from "immer";
+import { Action } from "../engine/actions/types";
 import { UI, createEngine, Engine } from "../engine/engine";
 import {
   CardId,
@@ -7,18 +8,16 @@ import {
   CardDefinition,
 } from "../engine/state";
 
-export const testUi: (choices: any[]) => UI = (choices) => {
-  return {
-    chooseOne: async (title, items) => {
-      return items[choices.pop()].value;
-    },
-    chooseMultiple: () => {
-      throw new Error();
-    },
-    playerActions: () => {
-      throw new Error();
-    },
-  };
+export const testUi: UI = {
+  chooseOne: async (title, items) => {
+    throw new Error();
+  },
+  chooseMultiple: () => {
+    throw new Error();
+  },
+  playerActions: () => {
+    throw new Error();
+  },
 };
 
 export function createCardProxy(cardId: CardId, engine: Engine) {
@@ -36,14 +35,34 @@ export function createCardProxy(cardId: CardId, engine: Engine) {
   };
 }
 
-export function createTestEngine(choices: any[] = []) {
+export function createTestEngine() {
   setAutoFreeze(false);
-  const engine = createEngine(testUi(choices), createInitState());
+  const engine = createEngine(testUi, createInitState());
 
   let id = 1;
 
   const testEngine = {
     ...engine,
+    do: (action: Action, choices: string[] = []) => {
+      let result = action.do(engine.state);
+      while (!result.choice && result.next) {
+        result = result.next.do(engine.state);
+      }
+
+      if (result.choice && choices.length > 0) {
+        const label = choices.pop();
+        const choice = result.choice.choices.find((c) => c.label === label);
+        if (choice) {
+          testEngine.do(choice.action, choices);
+        } else {
+          throw new Error(
+            result.choice.choices.map((c) => c.label).join(" || ")
+          );
+        }
+      }
+
+      return result;
+    },
     addHero: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");

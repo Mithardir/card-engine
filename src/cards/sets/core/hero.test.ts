@@ -19,11 +19,12 @@ it("Gimli's attack bonus", () => {
 });
 
 it("Lelogas placing progress", async () => {
-  const game = createTestEngine([0]);
+  const game = createTestEngine();
   const legolas = game.addHero(hero.legolas);
   const enemy = game.addEnemy(dolGuldurOrcs);
   const quest = game.addQuest(fliesAndSpiders);
-  await game.do(dealDamage(3, [legolas.id])(enemy.id));
+  game.do(dealDamage(3, [legolas.id])(enemy.id));
+  game.do(game.result!.choice!.choices[0].action!);
   expect(quest.progress).toEqual(2);
 });
 

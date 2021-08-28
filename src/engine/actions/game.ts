@@ -144,7 +144,7 @@ export const travelToLocation = moveCard(
 export function placeProgress(amount: number): Action {
   // TODO to active location
   return action(`place ${amount} progress`, (state) => {
-    const cardId = state.zones.quest.cards[0];    
+    const cardId = state.zones.quest.cards[0];
     const card = state.cards.find((c) => c.id === cardId);
     if (card) {
       card.token.progress += amount;

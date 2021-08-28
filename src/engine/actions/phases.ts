@@ -47,7 +47,7 @@ export const phaseResource = sequence(
 );
 
 export const phasePlanning = sequence(
-  beginPhase("resource"),
+  beginPhase("planning"),
   playerActions("End planning phase")
 );
 

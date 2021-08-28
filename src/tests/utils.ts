@@ -1,25 +1,11 @@
 import { setAutoFreeze } from "immer";
-import { UI, createEngine, Engine } from "../engine/engine";
+import { createEngine, Engine } from "../engine/engine";
 import {
   CardId,
   createInitState,
   createCardState,
   CardDefinition,
 } from "../engine/state";
-
-export const testUi: (choices: any[]) => UI = (choices) => {
-  return {
-    chooseOne: async (title, items) => {
-      return items[choices.pop()].value;
-    },
-    chooseMultiple: () => {
-      throw new Error();
-    },
-    playerActions: () => {
-      throw new Error();
-    },
-  };
-};
 
 export function createCardProxy(cardId: CardId, engine: Engine) {
   return {
@@ -36,14 +22,17 @@ export function createCardProxy(cardId: CardId, engine: Engine) {
   };
 }
 
-export function createTestEngine(choices: any[] = []) {
+export function createTestEngine() {
   setAutoFreeze(false);
-  const engine = createEngine(testUi(choices), createInitState());
+  const engine = createEngine(createInitState());
 
   let id = 1;
 
   const testEngine = {
     ...engine,
+    get result() {
+      return engine.result;
+    },
     addHero: (card: CardDefinition) => {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");

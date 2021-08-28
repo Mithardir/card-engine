@@ -13,7 +13,7 @@ import { Scenario, PlayerDeck } from "../setup";
 import { createCardState, playerIds } from "../state";
 import { zoneKey } from "../utils";
 import { generateResource, setSide, untap } from "./card";
-import { sequence, repeat, whileDo, action, bind } from "./control";
+import { sequence, repeat, whileDo, action, bind, ifThen } from "./control";
 import {
   eachCard,
   moveTopCard,
@@ -71,7 +71,7 @@ export const phaseQuest = sequence(
 
 export const phaseTravel = sequence(
   beginPhase("travel"),
-  bind(canTravel, (can) => (can ? chooseTravelLocation : sequence())),
+  ifThen(canTravel, chooseTravelLocation),
   playerActions("End travel phase")
 );
 

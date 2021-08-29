@@ -15,6 +15,7 @@ import {
 } from "./state";
 import { Action } from "./actions/types";
 import { toJS } from "mobx";
+import { ViewModifier } from "./actions/modifiers";
 
 export type View = {
   phase: Phase;
@@ -65,7 +66,7 @@ export type CardView = {
 export type AbilityView = {
   description: string;
   implicit: boolean;
-  activate: (view: View, self: CardId) => void;
+  activate: (view: View, self: CardId) => ViewModifier;
   applied: boolean;
 };
 
@@ -108,7 +109,8 @@ export function createView(state: State) {
         .filter((a) => !a.applied)
         .forEach((ability) => {
           allApplied = false;
-          ability.activate(view, card.id);
+          const modifier = ability.activate(view, card.id);
+          modifier.modify(view);
           ability.applied = true;
         });
     });

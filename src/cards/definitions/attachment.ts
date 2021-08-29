@@ -17,30 +17,35 @@ export function attaches(props: {
     description: props.description,
     implicit: false,
     activate: (view, self) => {
-      const card = view.cards.find((c) => c.id === self);
-      const owner = values(view.players).find((p) =>
-        p.zones.hand.cards.includes(self)
-      )?.id;
-      const cost = card?.props.cost;
-      const sphere = card?.props.sphere;
-      if (
-        card &&
-        owner &&
-        cost &&
-        sphere &&
-        values(view.players).some((p) => p.zones.hand.cards.includes(self))
-      ) {
-        const canPay = countResources(sphere, owner).eval(view) >= cost;
-        if (canPay) {
-          card.actions.push({
-            description: props.description,
-            effect: pay(
-              payResources(cost, sphere)(owner),
-              chooseCardAction("Attach to", props.filter, attachTo(self))
-            ),
-          });
-        }
-      }
+      return {
+        print: "X",
+        modify: (view) => {
+          const card = view.cards.find((c) => c.id === self);
+          const owner = values(view.players).find((p) =>
+            p.zones.hand.cards.includes(self)
+          )?.id;
+          const cost = card?.props.cost;
+          const sphere = card?.props.sphere;
+          if (
+            card &&
+            owner &&
+            cost &&
+            sphere &&
+            values(view.players).some((p) => p.zones.hand.cards.includes(self))
+          ) {
+            const canPay = countResources(sphere, owner).eval(view) >= cost;
+            if (canPay) {
+              card.actions.push({
+                description: props.description,
+                effect: pay(
+                  payResources(cost, sphere)(owner),
+                  chooseCardAction("Attach to", props.filter, attachTo(self))
+                ),
+              });
+            }
+          }
+        },
+      };
     },
   };
 }
@@ -99,22 +104,21 @@ export function findZoneOf(cardId: CardId, state: State): ZoneState {
   throw new Error("404");
 }
 
-export const attachTo: (attachment: CardId) => CardAction = (attachmentId) => (
-  targetId
-) =>
-  action("attach attachment", (state) => {
-    const attachment = state.cards.find((c) => c.id === attachmentId);
-    if (attachment) {
-      const targetZone = findZoneOf(targetId, state);
-      const sourceZone = findZoneOf(attachmentId, state);
-      sourceZone.cards = sourceZone.cards.filter((c) => c !== attachmentId);
-      targetZone.cards.push(attachmentId);
-      attachment.attachedTo = targetId;
-      return "full";
-    } else {
-      return "none";
-    }
-  });
+export const attachTo: (attachment: CardId) => CardAction =
+  (attachmentId) => (targetId) =>
+    action("attach attachment", (state) => {
+      const attachment = state.cards.find((c) => c.id === attachmentId);
+      if (attachment) {
+        const targetZone = findZoneOf(targetId, state);
+        const sourceZone = findZoneOf(attachmentId, state);
+        sourceZone.cards = sourceZone.cards.filter((c) => c !== attachmentId);
+        targetZone.cards.push(attachmentId);
+        attachment.attachedTo = targetId;
+        return "full";
+      } else {
+        return "none";
+      }
+    });
 
 export function attachment(
   props: AttachmentProps,

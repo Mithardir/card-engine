@@ -12,35 +12,40 @@ export const playAlly: Ability = {
   description: "Play ally",
   implicit: true,
   activate: (view, cardId) => {
-    const owner = values(view.players).find((p) =>
-      p.zones.hand.cards.includes(cardId)
-    );
-    const card = view.cards.find((c) => c.id === cardId);
-    if (
-      owner &&
-      card?.props.type === "ally" &&
-      card.props.cost &&
-      card.props.sphere
-    ) {
-      const canPay =
-        countResources(card.props.sphere, owner.id).eval(view) >=
-        card.props.cost;
-      if (canPay) {
-        const payAction = payResources(
-          card.props.cost,
+    return {
+      print: "X",
+      modify: (view) => {
+        const owner = values(view.players).find((p) =>
+          p.zones.hand.cards.includes(cardId)
+        );
+        const card = view.cards.find((c) => c.id === cardId);
+        if (
+          owner &&
+          card?.props.type === "ally" &&
+          card.props.cost &&
           card.props.sphere
-        )(owner.id);
-        const moveAction = moveCard(
-          zoneKey("hand", owner.id),
-          zoneKey("playerArea", owner.id),
-          "face"
-        )(cardId);
-        card.actions.push({
-          description: "Play ally",
-          effect: pay(payAction, moveAction),
-        });
-      }
-    }
+        ) {
+          const canPay =
+            countResources(card.props.sphere, owner.id).eval(view) >=
+            card.props.cost;
+          if (canPay) {
+            const payAction = payResources(
+              card.props.cost,
+              card.props.sphere
+            )(owner.id);
+            const moveAction = moveCard(
+              zoneKey("hand", owner.id),
+              zoneKey("playerArea", owner.id),
+              "face"
+            )(cardId);
+            card.actions.push({
+              description: "Play ally",
+              effect: pay(payAction, moveAction),
+            });
+          }
+        }
+      },
+    };
   },
 };
 

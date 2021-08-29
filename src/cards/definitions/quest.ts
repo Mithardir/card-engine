@@ -1,6 +1,7 @@
 import { Ability, emptyKeywords } from "../../engine/types";
 import { CardDefinition } from "../../engine/state";
 import { Action } from "../../engine/actions/types";
+import { modifyCard, setSetup } from "../../engine/actions/modifiers";
 
 export type QuestDefinition =
   | {
@@ -20,12 +21,7 @@ export function setup(props: { description: string; action: Action }): Ability {
   return {
     description: props.description,
     implicit: false,
-    activate: (view, self) => {
-      const card = view.cards.find((c) => c.id === self);
-      if (card) {
-        card.setup = props.action;
-      }
-    },
+    activate: (view, self) => modifyCard(self, setSetup(props.action)),
   };
 }
 

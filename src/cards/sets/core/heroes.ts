@@ -1,4 +1,11 @@
 import { placeProgress } from "../../../engine/actions/game";
+import {
+  addKeyword,
+  addResponse,
+  increment,
+  modifyCard,
+} from "../../../engine/actions/modifiers";
+import { getTokens } from "../../../engine/exps";
 import { hero } from "../../definitions/hero";
 
 export const gimli = hero(
@@ -15,10 +22,8 @@ export const gimli = hero(
   {
     description: "Gimli gets +1 [attack] for each damage token on him.",
     implicit: false,
-    activate: (v, s) => {
-      const card = v.cards.find((c) => c.id === s)!;
-      card.props.attack! += card.token.damage;
-    },
+    activate: (v, self) =>
+      modifyCard(self, increment("attack", getTokens("damage", self).eval(v))),
   }
 );
 
@@ -36,25 +41,21 @@ export const legolas = hero(
   {
     description: "Ranged",
     implicit: true,
-    activate: (v, s) => {
-      const card = v.cards.find((c) => c.id === s)!;
-      card.props.keywords.ranged = true;
-    },
+    activate: (v, self) => modifyCard(self, addKeyword("ranged")),
   },
   {
     description:
       "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
     implicit: false,
-    activate: (v, s) => {
-      v.responses.destroyed.push({
+    activate: (v, self) =>
+      addResponse((r) => r.destroyed, {
         description:
           "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
         condition: (e, v) =>
-          e.attackers.includes(s) &&
+          e.attackers.includes(self) &&
           v.cards.some((c) => c.id === e.cardId && c.props.type === "enemy"),
         action: () => placeProgress(2),
-      });
-    },
+      }),
   }
 );
 

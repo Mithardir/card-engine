@@ -17,31 +17,36 @@ export function action(props: {
     description: props.description,
     implicit: false,
     activate: (view, self) => {
-      const card = view.cards.find((c) => c.id === self);
-      const owner = values(view.players).find((p) =>
-        p.zones.hand.cards.includes(self)
-      );
-      if (card && owner && card.props.cost && card.props.sphere) {
-        const canPay =
-          countResources(card.props.sphere, owner.id).eval(view) >=
-          card.props.cost;
-        if (canPay) {
-          card.actions.push({
-            description: props.description,
-            effect: pay(
-              payResources(card.props.cost, card.props.sphere)(owner.id),
-              sequence(
-                props.effect,
-                moveCard(
-                  zoneKey("hand", owner.id),
-                  zoneKey("discardPile", owner.id),
-                  "face"
-                )(self)
-              )
-            ),
-          });
-        }
-      }
+      return {
+        print: "X",
+        modify: (view) => {
+          const card = view.cards.find((c) => c.id === self);
+          const owner = values(view.players).find((p) =>
+            p.zones.hand.cards.includes(self)
+          );
+          if (card && owner && card.props.cost && card.props.sphere) {
+            const canPay =
+              countResources(card.props.sphere, owner.id).eval(view) >=
+              card.props.cost;
+            if (canPay) {
+              card.actions.push({
+                description: props.description,
+                effect: pay(
+                  payResources(card.props.cost, card.props.sphere)(owner.id),
+                  sequence(
+                    props.effect,
+                    moveCard(
+                      zoneKey("hand", owner.id),
+                      zoneKey("discardPile", owner.id),
+                      "face"
+                    )(self)
+                  )
+                ),
+              });
+            }
+          }
+        },
+      };
     },
   };
 }

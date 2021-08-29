@@ -13,7 +13,7 @@ import {
   Tokens,
   ZoneState,
 } from "./state";
-import { Action } from "./actions/types";
+import { Action, CardAction } from "./actions/types";
 import { toJS } from "mobx";
 import { ViewModifier } from "./actions/modifiers";
 
@@ -58,7 +58,7 @@ export type CardView = {
   sideUp: Side;
   token: Tokens;
   mark: Marks;
-  actions: Array<{ description: string; effect: Action }>;
+  actions: CardAction[];
   setup?: Action;
   attachedTo?: CardId | undefined;
 };

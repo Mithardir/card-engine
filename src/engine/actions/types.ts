@@ -1,3 +1,4 @@
+import { Exp } from "../exps";
 import { CardId, PlayerId, State } from "../state";
 
 export type Action = {
@@ -23,7 +24,7 @@ export type ActionResult = {
 
 export type PlayerAction = (playerId: PlayerId) => Action;
 
-export type CardAction = (cardId: CardId) => Action;
+export type CardEffect = (cardId: CardId) => Action;
 
 export type StateTree = {
   state: State;
@@ -34,4 +35,10 @@ export type StateTree = {
       result: StateTree;
     }>;
   };
+};
+
+export type CardAction = {
+  description: string;
+  condition: Exp<boolean>;
+  effect: Action;
 };

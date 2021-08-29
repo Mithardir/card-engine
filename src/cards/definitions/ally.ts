@@ -1,53 +1,19 @@
 import { AllyProps, Ability, emptyKeywords } from "../../engine/types";
-import { CardDefinition } from "../../engine/state";
+import { CardDefinition, CardId } from "../../engine/state";
 import playerBack from "../../Images/back/card.jpg";
 import { payResources } from "../../engine/actions/player";
 import { moveCard } from "../../engine/actions/card";
 import { zoneKey } from "../../engine/utils";
-import { pay } from "../../engine/actions/control";
-import { countResources } from "../../engine/exps";
-import { values } from "lodash";
-
-export const playAlly: Ability = {
-  description: "Play ally",
-  implicit: true,
-  modifier: (cardId) => {
-    return {
-      print: "Play ally",
-      modify: (view) => {
-        const owner = values(view.players).find((p) =>
-          p.zones.hand.cards.includes(cardId)
-        );
-        const card = view.cards.find((c) => c.id === cardId);
-        if (
-          owner &&
-          card?.props.type === "ally" &&
-          card.props.cost &&
-          card.props.sphere
-        ) {
-          const canPay =
-            countResources(card.props.sphere, owner.id).eval(view) >=
-            card.props.cost;
-          if (canPay) {
-            const payAction = payResources(
-              card.props.cost,
-              card.props.sphere
-            )(owner.id);
-            const moveAction = moveCard(
-              zoneKey("hand", owner.id),
-              zoneKey("playerArea", owner.id),
-              "face"
-            )(cardId);
-            card.actions.push({
-              description: "Play ally",
-              effect: pay(payAction, moveAction),
-            });
-          }
-        }
-      },
-    };
-  },
-};
+import { bind, pay, sequence } from "../../engine/actions/control";
+import {
+  countResources,
+  getOwnerOf,
+  getProp,
+  getSphere,
+} from "../../engine/exps";
+import { CardAction } from "../../engine/actions/types";
+import { addAction, modifyCard } from "../../engine/actions/modifiers";
+import { getCard } from "../../engine/actions/utils";
 
 export function ally(
   props: AllyProps,
@@ -62,7 +28,7 @@ export function ally(
       image,
       type: "ally",
       keywords: emptyKeywords,
-      abilities: [...abilities, playAlly],
+      abilities: [...abilities, playAllyAbility],
     },
     back: {
       image: playerBack,
@@ -71,5 +37,56 @@ export function ally(
       keywords: emptyKeywords,
     },
     orientation: "portrait",
+  };
+}
+
+export const playAllyAbility: Ability = {
+  description: "Play ally",
+  implicit: true,
+  modifier: (self) => modifyCard(self, addAction(playAllyAction(self))),
+};
+
+export function playAllyAction(cardId: CardId): CardAction {
+  const payAction = bind(getProp("cost", cardId), (cost) =>
+    bind(getSphere(cardId), (sphere) =>
+      bind(getOwnerOf(cardId), (owner) =>
+        owner ? payResources(cost, sphere)(owner) : sequence()
+      )
+    )
+  );
+
+  const moveAction = bind(getOwnerOf(cardId), (owner) =>
+    owner
+      ? moveCard(
+          zoneKey("hand", owner),
+          zoneKey("playerArea", owner),
+          "face"
+        )(cardId)
+      : sequence()
+  );
+
+  return {
+    description: "Play ally",
+    condition: {
+      print: "Can play ally",
+      eval: (view) => {
+        const owner = getOwnerOf(cardId).eval(view);
+        const card = getCard(cardId, view);
+        if (
+          owner &&
+          card?.props.type === "ally" &&
+          card.props.cost &&
+          card.props.sphere
+        ) {
+          const canPay =
+            countResources(card.props.sphere, owner).eval(view) >=
+            card.props.cost;
+          return canPay;
+        }
+
+        return false;
+      },
+    },
+    effect: pay(payAction, moveAction),
   };
 }

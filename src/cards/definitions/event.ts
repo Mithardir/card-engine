@@ -6,7 +6,7 @@ import { pay, sequence } from "../../engine/actions/control";
 import { Action } from "../../engine/actions/types";
 import { zoneKey } from "../../engine/utils";
 import { draw, payResources } from "../../engine/actions/player";
-import { countResources } from "../../engine/exps";
+import { alwaysTrue, countResources } from "../../engine/exps";
 import { values } from "lodash";
 
 export function action(props: {
@@ -31,6 +31,7 @@ export function action(props: {
             if (canPay) {
               card.actions.push({
                 description: props.description,
+                condition: alwaysTrue,
                 effect: pay(
                   payResources(card.props.cost, card.props.sphere)(owner.id),
                   sequence(

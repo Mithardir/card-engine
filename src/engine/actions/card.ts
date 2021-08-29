@@ -19,10 +19,10 @@ import {
   declareAttackers,
   clearMarks,
 } from "./game";
-import { Action, CardAction } from "./types";
+import { Action, CardEffect } from "./types";
 import { find } from "lodash";
 
-export function dealDamage(amount: number, attackers: CardId[]): CardAction {
+export function dealDamage(amount: number, attackers: CardId[]): CardEffect {
   return (card) =>
     sequence(
       repeat(amount, addToken("damage")(card)),
@@ -33,7 +33,7 @@ export function dealDamage(amount: number, attackers: CardId[]): CardAction {
     );
 }
 
-export function resolveDefense(attacker: CardId): CardAction {
+export function resolveDefense(attacker: CardId): CardEffect {
   return (defender) =>
     bind(
       diff(getProp("attack", attacker), getProp("defense", defender)),
@@ -42,11 +42,11 @@ export function resolveDefense(attacker: CardId): CardAction {
     );
 }
 
-export function engagePlayer(player: PlayerId): CardAction {
+export function engagePlayer(player: PlayerId): CardEffect {
   return moveCard(zoneKey("stagingArea"), zoneKey("engaged", player), "face");
 }
 
-export function resolveEnemyAttack(playerId: PlayerId): CardAction {
+export function resolveEnemyAttack(playerId: PlayerId): CardEffect {
   return (attackerId) => {
     // TODO shadow effect
     return sequence(
@@ -56,7 +56,7 @@ export function resolveEnemyAttack(playerId: PlayerId): CardAction {
   };
 }
 
-export function resolvePlayerAttack(playerId: PlayerId): CardAction {
+export function resolvePlayerAttack(playerId: PlayerId): CardEffect {
   return (defenderId) => {
     return sequence(
       playerActions("Declare attackers"),
@@ -75,7 +75,7 @@ export function resolvePlayerAttack(playerId: PlayerId): CardAction {
   };
 }
 
-export function generateResource(amount: number): CardAction {
+export function generateResource(amount: number): CardEffect {
   return (id) => repeat(amount, addToken("resources")(id));
 }
 
@@ -95,7 +95,7 @@ export function tap(cardId: CardId): Action {
   });
 }
 
-export function setSide(side: Side): CardAction {
+export function setSide(side: Side): CardEffect {
   return (cardId) =>
     action(`setSide(${cardId})`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
@@ -117,7 +117,7 @@ export function untap(cardId: CardId): Action {
   });
 }
 
-export function mark(type: Mark): CardAction {
+export function mark(type: Mark): CardEffect {
   return (cardId) =>
     action(`mark(${type})`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
@@ -130,7 +130,7 @@ export function mark(type: Mark): CardAction {
     });
 }
 
-export function addToken(type: Token): CardAction {
+export function addToken(type: Token): CardEffect {
   return (cardId) =>
     action(`addToken(${type}, ${cardId})`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
@@ -143,7 +143,7 @@ export function addToken(type: Token): CardAction {
     });
 }
 
-export function removeToken(type: Token): CardAction {
+export function removeToken(type: Token): CardEffect {
   return (cardId) =>
     action(`remove ${type} token from card ${cardId}`, (state) => {
       const card = state.cards.find((c) => c.id === cardId);
@@ -156,7 +156,7 @@ export function removeToken(type: Token): CardAction {
     });
 }
 
-export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardAction {
+export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardEffect {
   return (cardId) =>
     action(
       `moveCard(${cardId}, ${from.print}, ${to.print}, "${side}")`,
@@ -176,7 +176,7 @@ export function moveCard(from: ZoneKey, to: ZoneKey, side: Side): CardAction {
     );
 }
 
-export function moveCardTo(to: ZoneKey, side: Side): CardAction {
+export function moveCardTo(to: ZoneKey, side: Side): CardEffect {
   return (cardId) =>
     action(`moveCardTo(${cardId}, ${to.print}, "${side}")`, (s) => {
       const fromZone = findZoneOf(cardId, s);
@@ -193,7 +193,7 @@ export function moveCardTo(to: ZoneKey, side: Side): CardAction {
     });
 }
 
-export const removeTokensAndMarks: CardAction = (cardId) =>
+export const removeTokensAndMarks: CardEffect = (cardId) =>
   action("removeTokensAndMarks", (s) => {
     const card = s.cards.find((c) => c.id === cardId)!;
     card.mark.attacked = false;
@@ -231,7 +231,7 @@ export function processResponses<T>(
   };
 }
 
-export const destroy: (attackers: CardId[]) => CardAction =
+export const destroy: (attackers: CardId[]) => CardEffect =
   (attackers) => (cardId) => {
     return {
       print: `destroy ${cardId}`,

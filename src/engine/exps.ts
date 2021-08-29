@@ -1,4 +1,4 @@
-import { values } from "lodash";
+import { map, values } from "lodash";
 import {
   and,
   isLocation,
@@ -168,13 +168,27 @@ export function countOfCards(filter: CardFilter): Exp<number> {
 }
 
 export function getProp(
-  property: "attack" | "defense" | "hitPoints",
+  property: "attack" | "defense" | "hitPoints" | "cost",
   cardId: CardId
 ): Exp<number> {
   return {
     print: `${property} of card ${cardId}`,
     eval: (v) => {
       return v.cards.find((c) => c.id === cardId)!.props[property]!;
+    },
+  };
+}
+
+export const alwaysTrue: Exp<boolean> = {
+  print: "alwaysTrue",
+  eval: () => true,
+};
+
+export function getSphere(cardId: CardId): Exp<Sphere> {
+  return {
+    print: `sphere of card ${cardId}`,
+    eval: (v) => {
+      return v.cards.find((c) => c.id === cardId)!.props.sphere!;
     },
   };
 }
@@ -208,6 +222,23 @@ export function countResources(sphere: Sphere, player: PlayerId): Exp<number> {
         v
       );
       return heroes.reduce((p, c) => p + c.token.resources || 0, 0);
+    },
+  };
+}
+
+export function getOwnerOf(id: CardId): Exp<PlayerId | undefined> {
+  return {
+    print: `ownerOf(${id})`,
+    eval: (v) => {
+      for (const player of map(v.players)) {
+        for (const zone of map(player.zones)) {
+          if (zone.cards.includes(id)) {
+            return player.id;
+          }
+        }
+      }
+
+      return undefined;
     },
   };
 }

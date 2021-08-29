@@ -3,10 +3,10 @@ import { CardDefinition, CardId, State, ZoneState } from "../../engine/state";
 import playerBack from "../../Images/back/card.jpg";
 import { CardFilter } from "../../engine/filters";
 import { chooseCardAction } from "../../engine/actions/choices";
-import { CardAction } from "../../engine/actions/types";
+import { CardEffect } from "../../engine/actions/types";
 import { action, pay } from "../../engine/actions/control";
 import { payResources } from "../../engine/actions/player";
-import { countResources } from "../../engine/exps";
+import { alwaysTrue, countResources } from "../../engine/exps";
 import { values } from "lodash";
 
 export function attaches(props: {
@@ -37,6 +37,7 @@ export function attaches(props: {
             if (canPay) {
               card.actions.push({
                 description: props.description,
+                condition: alwaysTrue,
                 effect: pay(
                   payResources(cost, sphere)(owner),
                   chooseCardAction("Attach to", props.filter, attachTo(self))
@@ -104,7 +105,7 @@ export function findZoneOf(cardId: CardId, state: State): ZoneState {
   throw new Error("404");
 }
 
-export const attachTo: (attachment: CardId) => CardAction =
+export const attachTo: (attachment: CardId) => CardEffect =
   (attachmentId) => (targetId) =>
     action("attach attachment", (state) => {
       const attachment = state.cards.find((c) => c.id === attachmentId);

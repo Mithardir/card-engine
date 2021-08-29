@@ -25,7 +25,7 @@ import { zoneKey, getZone, filterCards } from "../utils";
 import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
 import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
-import { Action, CardAction, PlayerAction } from "./types";
+import { Action, CardEffect, PlayerAction } from "./types";
 
 export const playerActions: (title: string) => Action = (title) => {
   return {
@@ -208,7 +208,7 @@ export function eachPlayer(factory: PlayerAction): Action {
   };
 }
 
-export function eachCard(filter: CardFilter, action: CardAction): Action {
+export function eachCard(filter: CardFilter, action: CardEffect): Action {
   return {
     print: `eachCard(${filter("X" as any).print}, ${action("X" as any).print})`,
     do: (state) => {

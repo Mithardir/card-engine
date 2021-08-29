@@ -24,7 +24,9 @@ export const CardShow = observer(
 
     const card =
       props.card || engine.state.view.cards.find((c) => c.id === props.cardId)!;
-    const actions = card.actions;
+    const actions = card.actions.filter((a) =>
+      a.condition.eval(engine.state.view)
+    );
 
     const scale = props.scale || 0.28;
     const width = 430 * scale;

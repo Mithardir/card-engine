@@ -1,7 +1,8 @@
-import { State } from "../state";
+import { CardId, State } from "../state";
 import { sequence } from "./control";
 import { Action, ActionResult } from "./types";
 import { sample, values } from "lodash";
+import { View, CardView } from "../view";
 
 export function checkEndCondition(state: State): "win" | "loose" | undefined {
   // TODO all checks
@@ -97,4 +98,8 @@ export function noChange(state: State): ActionResult {
     choice: undefined,
     next: undefined,
   };
+}
+
+export function getCard(id: CardId, view: View): CardView {
+  return view.cards.find((c) => c.id === id)!;
 }

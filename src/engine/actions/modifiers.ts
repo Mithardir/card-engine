@@ -2,7 +2,7 @@ import { Exp } from "../exps";
 import { CardId } from "../state";
 import { Keyword } from "../types";
 import { CardView, View, Response, Responses } from "../view";
-import { Action } from "./types";
+import { Action, CardAction } from "./types";
 
 export type ViewModifier = { print: string; modify: (view: View) => void };
 
@@ -81,6 +81,15 @@ export function addResponse<T>(
         condition: props.condition,
         action: props.action,
       });
+    },
+  };
+}
+
+export function addAction(action: CardAction): CardModifier {
+  return {
+    print: "add action",
+    modify: (c) => {
+      c.actions.push(action);
     },
   };
 }

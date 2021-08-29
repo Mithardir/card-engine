@@ -1,7 +1,7 @@
 import { CardFilter } from "../filters";
 import { filterCards } from "../utils";
 import { sequence } from "./control";
-import { Action, CardAction } from "./types";
+import { Action, CardEffect } from "./types";
 import { noChange } from "./utils";
 
 export function chooseMultiple(
@@ -92,7 +92,7 @@ export function chooseOrder<T>(
   };
 }
 
-export function chooseCardActionsOrder(title: string, filter: CardFilter, factory: CardAction): Action {
+export function chooseCardActionsOrder(title: string, filter: CardFilter, factory: CardEffect): Action {
   return {
     print: `chooseCardActionsOrder(${filter("X" as any).print}, ${factory("X" as any).print})`,
     do: (s) => {
@@ -107,7 +107,7 @@ export function chooseCardActionsOrder(title: string, filter: CardFilter, factor
   };
 }
 
-export function chooseCardAction(title: string, filter: CardFilter, factory: CardAction): Action {
+export function chooseCardAction(title: string, filter: CardFilter, factory: CardEffect): Action {
   return {
     print: `chooseCardAction(${factory("X" as any).print})`,
     do: (state) => {
@@ -126,7 +126,7 @@ export function chooseCardAction(title: string, filter: CardFilter, factory: Car
   };
 }
 
-export function chooseCardsActions(title: string, filter: CardFilter, factory: CardAction): Action {
+export function chooseCardsActions(title: string, filter: CardFilter, factory: CardEffect): Action {
   return {
     print: `chooseCardsActions(${factory("X" as any).print})`,
     do: (state) => {

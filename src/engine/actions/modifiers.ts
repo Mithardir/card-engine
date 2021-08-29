@@ -1,3 +1,4 @@
+import { Exp } from "../exps";
 import { CardId } from "../state";
 import { Keyword } from "../types";
 import { CardView, View, Response, Responses } from "../view";
@@ -15,6 +16,21 @@ export function modifyCard(id: CardId, modifier: CardModifier): ViewModifier {
       if (card) {
         modifier.modify(card);
       }
+    },
+  };
+}
+
+export function bind<T>(
+  exp: Exp<T>,
+  factory: (v: T) => ViewModifier
+): ViewModifier {
+  return {
+    // TODO x
+    print: factory("x" as any).print,
+    modify: (view) => {
+      const value = exp.eval(view);
+      const modifier = factory(value);
+      return modifier.modify(view);
     },
   };
 }

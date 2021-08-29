@@ -16,9 +16,9 @@ export function action(props: {
   return {
     description: props.description,
     implicit: false,
-    activate: (view, self) => {
+    modifier: (self) => {
       return {
-        print: "X",
+        print: props.description,
         modify: (view) => {
           const card = view.cards.find((c) => c.id === self);
           const owner = values(view.players).find((p) =>

@@ -2,6 +2,7 @@ import { placeProgress } from "../../../engine/actions/game";
 import {
   addKeyword,
   addResponse,
+  bind,
   increment,
   modifyCard,
 } from "../../../engine/actions/modifiers";
@@ -22,8 +23,10 @@ export const gimli = hero(
   {
     description: "Gimli gets +1 [attack] for each damage token on him.",
     implicit: false,
-    activate: (v, self) =>
-      modifyCard(self, increment("attack", getTokens("damage", self).eval(v))),
+    modifier: (self) =>
+      bind(getTokens("damage", self), (damage) =>
+        modifyCard(self, increment("attack", damage))
+      ),
   }
 );
 
@@ -41,13 +44,13 @@ export const legolas = hero(
   {
     description: "Ranged",
     implicit: true,
-    activate: (v, self) => modifyCard(self, addKeyword("ranged")),
+    modifier: (self) => modifyCard(self, addKeyword("ranged")),
   },
   {
     description:
       "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
     implicit: false,
-    activate: (v, self) =>
+    modifier: (self) =>
       addResponse((r) => r.destroyed, {
         description:
           "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",

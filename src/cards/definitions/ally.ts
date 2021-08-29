@@ -11,9 +11,9 @@ import { values } from "lodash";
 export const playAlly: Ability = {
   description: "Play ally",
   implicit: true,
-  activate: (view, cardId) => {
+  modifier: (cardId) => {
     return {
-      print: "X",
+      print: "Play ally",
       modify: (view) => {
         const owner = values(view.players).find((p) =>
           p.zones.hand.cards.includes(cardId)

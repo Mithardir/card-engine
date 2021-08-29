@@ -66,7 +66,7 @@ export type CardView = {
 export type AbilityView = {
   description: string;
   implicit: boolean;
-  activate: (view: View, self: CardId) => ViewModifier;
+  modifier: (self: CardId) => ViewModifier;
   applied: boolean;
 };
 
@@ -109,7 +109,7 @@ export function createView(state: State) {
         .filter((a) => !a.applied)
         .forEach((ability) => {
           allApplied = false;
-          const modifier = ability.activate(view, card.id);
+          const modifier = ability.modifier(card.id);
           modifier.modify(view);
           ability.applied = true;
         });

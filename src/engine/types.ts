@@ -1,6 +1,5 @@
 import { ViewModifier } from "./actions/modifiers";
 import { CardId, GameZoneType, PlayerId, PlayerZoneType } from "./state";
-import { View } from "./view";
 
 export type Trait =
   | "dwarf"
@@ -44,7 +43,7 @@ export type Keywords = {
 export type Ability = {
   description: string;
   implicit: boolean;
-  activate: (view: View, self: CardId) => ViewModifier;
+  modifier: (self: CardId) => ViewModifier;
 };
 
 export type CommonProps = {

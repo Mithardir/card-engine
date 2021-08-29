@@ -21,7 +21,7 @@ export function setup(props: { description: string; action: Action }): Ability {
   return {
     description: props.description,
     implicit: false,
-    activate: (view, self) => modifyCard(self, setSetup(props.action)),
+    modifier: (self) => modifyCard(self, setSetup(props.action)),
   };
 }
 

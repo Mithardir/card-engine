@@ -31,7 +31,7 @@ export const GameShow = observer((props: { engine: Engine }) => {
               scale={0.5}
               style={{
                 margin: 0,
-                border: undefined,
+                border: "initial",
                 marginTop: 0,
                 marginLeft: 0,
               }}

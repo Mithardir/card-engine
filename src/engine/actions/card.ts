@@ -231,42 +231,41 @@ export function processResponses<T>(
   };
 }
 
-export const destroy: (attackers: CardId[]) => CardAction = (attackers) => (
-  cardId
-) => {
-  return {
-    print: `destroy ${cardId}`,
-    do: (s) => {
-      const owner = find(
-        s.players,
-        (p) =>
-          p!.zones.hand.cards.includes(cardId) ||
-          p!.zones.playerArea.cards.includes(cardId)
-      );
-      const view = s.view;
-      const card = view.cards.find((c) => c.id === cardId);
+export const destroy: (attackers: CardId[]) => CardAction =
+  (attackers) => (cardId) => {
+    return {
+      print: `destroy ${cardId}`,
+      do: (s) => {
+        const owner = find(
+          s.players,
+          (p) =>
+            p!.zones.hand.cards.includes(cardId) ||
+            p!.zones.playerArea.cards.includes(cardId)
+        );
+        const view = s.view;
+        const card = view.cards.find((c) => c.id === cardId);
 
-      const response = processResponses(
-        (r) => r.destroyed,
-        { cardId, attackers },
-        "Choose response for destroying " + cardId
-      );
+        const response = processResponses(
+          (r) => r.destroyed,
+          { cardId, attackers },
+          "Choose response for destroying " + cardId
+        );
 
-      if (owner && card) {
-        return sequence(
-          removeTokensAndMarks(cardId),
-          moveCardTo(zoneKey("discardPile", owner.id), "face")(cardId),
-          response
-        ).do(s);
-      } else if (!owner && card) {
-        return sequence(
-          removeTokensAndMarks(cardId),
-          moveCardTo(zoneKey("discardPile"), "face")(cardId),
-          response
-        ).do(s);
-      } else {
-        return sequence().do(s);
-      }
-    },
+        if (owner && card) {
+          return sequence(
+            removeTokensAndMarks(cardId),
+            moveCardTo(zoneKey("discardPile", owner.id), "face")(cardId),
+            response
+          ).do(s);
+        } else if (!owner && card) {
+          return sequence(
+            removeTokensAndMarks(cardId),
+            moveCardTo(zoneKey("discardPile"), "face")(cardId),
+            response
+          ).do(s);
+        } else {
+          return sequence().do(s);
+        }
+      },
+    };
   };
-};

@@ -11,11 +11,11 @@ export type Engine = {
 export interface UI {
   chooseOne: <T>(
     title: string,
-    items: Array<{ label: string; value: T; image?: string }>
+    items: Array<{ label: string; value: T; image?: string | undefined }>
   ) => Promise<T>;
   chooseMultiple: <T>(
     title: string,
-    items: Array<{ label: string; value: T; image?: string }>
+    items: Array<{ label: string; value: T; image?: string | undefined }>
   ) => Promise<T[]>;
   playerActions: (title: string) => Promise<void>;
 }

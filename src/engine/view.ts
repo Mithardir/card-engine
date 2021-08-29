@@ -59,7 +59,7 @@ export type CardView = {
   mark: Marks;
   actions: Array<{ description: string; effect: Action }>;
   setup?: Action;
-  attachedTo?: CardId;
+  attachedTo?: CardId | undefined;
 };
 
 export type AbilityView = {

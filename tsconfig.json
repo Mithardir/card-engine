@@ -15,7 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true
   },
   "include": ["src"]
 }

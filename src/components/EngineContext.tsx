@@ -16,8 +16,14 @@ import { DialogsContextProps } from "./DialogsContext";
 
 const EngineContext = createContext<Engine>(undefined as any);
 
-export const EngineProvider = (props: React.PropsWithChildren<{ engine: Engine }>) => {
-  return <EngineContext.Provider value={props.engine}>{props.children}</EngineContext.Provider>;
+export const EngineProvider = (
+  props: React.PropsWithChildren<{ engine: Engine }>
+) => {
+  return (
+    <EngineContext.Provider value={props.engine}>
+      {props.children}
+    </EngineContext.Provider>
+  );
 };
 
 export const useEngine = () => useContext(EngineContext);
@@ -42,7 +48,7 @@ export const reactUI: (dialog: DialogsContextProps) => UI = (dialog) => {
               }}
             >
               {items.map((a, i) => (
-                <Grid key={i} item xs={!a.image ? 12 : undefined}>
+                <Grid key={i} item xs={!a.image ? 12 : "auto"}>
                   <ListItem
                     button
                     key={a.label}

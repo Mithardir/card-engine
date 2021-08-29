@@ -22,14 +22,16 @@ export const CardShow = observer(
   }) => {
     const engine = useEngine();
 
-    const card = props.card || engine.state.view.cards.find((c) => c.id === props.cardId)!;
+    const card =
+      props.card || engine.state.view.cards.find((c) => c.id === props.cardId)!;
     const actions = card.actions;
 
     const scale = props.scale || 0.28;
     const width = 430 * scale;
     const height = 600 * scale;
 
-    const flipDimensions = props.content === "image" && card.props.type === "quest";
+    const flipDimensions =
+      props.content === "image" && card.props.type === "quest";
     const isDetailCard = false; //c === game.detailCard;
 
     const margin = actions.length > 0 ? 1 : 3;
@@ -39,16 +41,20 @@ export const CardShow = observer(
     return (
       <div
         style={{
-          border: actions.length > 0 ? "2px solid yellow" : undefined,
+          border: actions.length > 0 ? "2px solid yellow" : "initial",
           margin,
           height: flipDimensions ? width : height,
           width: flipDimensions ? height : width,
           position: "relative",
           marginTop: margin,
           marginLeft: margin,
-          transform: isDetailCard ? "scale(2.5,2.5)" : card.tapped && props.showExhausted ? "rotate(45deg)" : undefined,
+          transform: isDetailCard
+            ? "scale(2.5,2.5)"
+            : card.tapped && props.showExhausted
+            ? "rotate(45deg)"
+            : "initial",
           transition: "transform 0.25s ease 0s",
-          zIndex: isDetailCard ? 5 : undefined,
+          zIndex: isDetailCard ? 5 : "initial",
           ...props.style,
         }}
         onMouseEnter={() => {
@@ -108,7 +114,12 @@ export const CardShow = observer(
                 backgroundColor: "white",
               }}
             >
-              <img src="http://hallofbeorn.com/Images/willpower-med.png" width={20} height={20} alt="" />
+              <img
+                src="http://hallofbeorn.com/Images/willpower-med.png"
+                width={20}
+                height={20}
+                alt=""
+              />
             </div>
           )}
           {card.mark.attacking && (
@@ -121,7 +132,12 @@ export const CardShow = observer(
                 backgroundColor: "white",
               }}
             >
-              <img src="http://hallofbeorn.com/Images/attack-small.png" width={20} height={20} alt="" />
+              <img
+                src="http://hallofbeorn.com/Images/attack-small.png"
+                width={20}
+                height={20}
+                alt=""
+              />
             </div>
           )}
           {card.mark.defending && (
@@ -134,7 +150,12 @@ export const CardShow = observer(
                 backgroundColor: "white",
               }}
             >
-              <img src="http://hallofbeorn.com/Images/defense-small.png" width={20} height={20} alt="" />
+              <img
+                src="http://hallofbeorn.com/Images/defense-small.png"
+                width={20}
+                height={20}
+                alt=""
+              />
             </div>
           )}
         </div>

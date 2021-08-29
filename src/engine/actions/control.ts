@@ -1,7 +1,6 @@
 import { Exp } from "../exps";
 import { State } from "../state";
 import { Action } from "./types";
-import { noChange } from "./utils";
 
 export function action(title: string, update: (state: State) => void): Action {
   return {

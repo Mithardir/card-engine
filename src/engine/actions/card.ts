@@ -20,7 +20,7 @@ import {
   clearMarks,
 } from "./game";
 import { Action, CardAction } from "./types";
-import { find, findKey } from "lodash";
+import { find } from "lodash";
 
 export function dealDamage(amount: number, attackers: CardId[]): CardAction {
   return (card) =>

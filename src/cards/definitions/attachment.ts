@@ -7,22 +7,37 @@ import { CardAction } from "../../engine/actions/types";
 import { action, pay } from "../../engine/actions/control";
 import { payResources } from "../../engine/actions/player";
 import { countResources } from "../../engine/exps";
+import { values } from "lodash";
 
-export function attaches(props: { description: string; filter: CardFilter }): Ability {
+export function attaches(props: {
+  description: string;
+  filter: CardFilter;
+}): Ability {
   return {
     description: props.description,
     implicit: false,
     activate: (view, self) => {
       const card = view.cards.find((c) => c.id === self);
-      const owner = view.players.find((p) => p.zones.hand.cards.includes(self))?.id;
+      const owner = values(view.players).find((p) =>
+        p.zones.hand.cards.includes(self)
+      )?.id;
       const cost = card?.props.cost;
       const sphere = card?.props.sphere;
-      if (card && owner && cost && sphere && view.players.some((p) => p.zones.hand.cards.includes(self))) {
+      if (
+        card &&
+        owner &&
+        cost &&
+        sphere &&
+        values(view.players).some((p) => p.zones.hand.cards.includes(self))
+      ) {
         const canPay = countResources(sphere, owner).eval(view) >= cost;
         if (canPay) {
           card.actions.push({
             description: props.description,
-            effect: pay(payResources(cost, sphere)(owner), chooseCardAction("Attach to", props.filter, attachTo(self))),
+            effect: pay(
+              payResources(cost, sphere)(owner),
+              chooseCardAction("Attach to", props.filter, attachTo(self))
+            ),
           });
         }
       }
@@ -59,7 +74,7 @@ export function findZoneOf(cardId: CardId, state: State): ZoneState {
     return state.zones.victoryDisplay;
   }
 
-  for (const player of state.players) {
+  for (const player of values(state.players)) {
     if (player.zones.discardPile.cards.includes(cardId)) {
       return player.zones.discardPile;
     }
@@ -84,7 +99,9 @@ export function findZoneOf(cardId: CardId, state: State): ZoneState {
   throw new Error("404");
 }
 
-export const attachTo: (attachment: CardId) => CardAction = (attachmentId) => (targetId) =>
+export const attachTo: (attachment: CardId) => CardAction = (attachmentId) => (
+  targetId
+) =>
   action("attach attachment", (state) => {
     const attachment = state.cards.find((c) => c.id === attachmentId);
     if (attachment) {
@@ -99,7 +116,10 @@ export const attachTo: (attachment: CardId) => CardAction = (attachmentId) => (t
     }
   });
 
-export function attachment(props: AttachmentProps, ...abilities: Ability[]): CardDefinition {
+export function attachment(
+  props: AttachmentProps,
+  ...abilities: Ability[]
+): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
     .split(" ")
     .join("-")}.jpg`;

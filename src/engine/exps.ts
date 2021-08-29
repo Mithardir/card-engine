@@ -1,3 +1,4 @@
+import { values } from "lodash";
 import {
   and,
   isLocation,
@@ -138,7 +139,7 @@ export const nextPlayerId: Exp<PlayerId> = {
 export const enemiesToEngage: Exp<boolean> = {
   print: "enemiesToEngage",
   eval: (v) => {
-    return v.players.some((p) =>
+    return values(v.players).some((p) =>
       v.cards.some(
         (c) =>
           c.props.type === "enemy" &&
@@ -153,7 +154,7 @@ export const enemiesToEngage: Exp<boolean> = {
 export const countOfPlayers: Exp<number> = {
   print: "count of players",
   eval: (v) => {
-    return v.players.length;
+    return values(v.players).length;
   },
 };
 

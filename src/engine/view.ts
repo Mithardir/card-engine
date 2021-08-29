@@ -19,7 +19,7 @@ import { toJS } from "mobx";
 export type View = {
   phase: Phase;
   cards: CardView[];
-  players: PlayerState[];
+  players: Partial<Record<PlayerId, PlayerState>>;
   zones: Record<GameZoneType, ZoneState>;
   effects: Effect[];
   responses: Responses;

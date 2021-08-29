@@ -1,15 +1,17 @@
 import { State } from "../state";
 import { sequence } from "./control";
 import { Action, ActionResult } from "./types";
-import { sample } from "lodash";
+import { sample, values } from "lodash";
 
 export function checkEndCondition(state: State): "win" | "loose" | undefined {
   // TODO all checks
-  if (state.players.some((p) => p.thread >= 50)) {
+  if (values(state.players).some((p) => p.thread >= 50)) {
     return "loose";
   }
 
-  if (state.players.some((p) => p.zones.playerArea.cards.length === 0)) {
+  if (
+    values(state.players).some((p) => p.zones.playerArea.cards.length === 0)
+  ) {
     return "loose";
   }
 
@@ -18,7 +20,10 @@ export function checkEndCondition(state: State): "win" | "loose" | undefined {
   }
 }
 
-export function playRandomlyUntilEnd(state: State, action: Action): "win" | "loose" {
+export function playRandomlyUntilEnd(
+  state: State,
+  action: Action
+): "win" | "loose" {
   let result: ActionResult;
   try {
     result = action.do(state);
@@ -41,7 +46,10 @@ export function playRandomlyUntilEnd(state: State, action: Action): "win" | "loo
   } else {
     const choosen = sample(result.choice.choices)!;
     //console.log(result.choice.title, choosen.label);
-    return playRandomlyUntilEnd(state, result.next ? sequence(choosen.action, result.next) : choosen.action);
+    return playRandomlyUntilEnd(
+      state,
+      result.next ? sequence(choosen.action, result.next) : choosen.action
+    );
   }
 }
 

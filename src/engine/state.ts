@@ -3,11 +3,11 @@ import { Flavor } from "../utils";
 import { PrintedProps } from "./types";
 import { createView, View } from "./view";
 
-export const playerIds = ["A", "B", "C", "D"];
+export const playerIds: PlayerId[] = ["A", "B", "C", "D"];
 
 export type CardId = Flavor<number, "Card">;
 
-export type PlayerId = Flavor<string, "Player">;
+export type PlayerId = "A" | "B" | "C" | "D";
 
 export type GameZoneType =
   | "discardPile"
@@ -18,7 +18,12 @@ export type GameZoneType =
   | "questDeck"
   | "victoryDisplay";
 
-export type PlayerZoneType = "hand" | "library" | "discardPile" | "playerArea" | "engaged";
+export type PlayerZoneType =
+  | "hand"
+  | "library"
+  | "discardPile"
+  | "playerArea"
+  | "engaged";
 
 export type ZoneType = GameZoneType | PlayerZoneType;
 
@@ -50,7 +55,7 @@ export interface CardState {
   sideUp: Side;
   tapped: boolean;
   token: Tokens;
-  mark: Marks;  
+  mark: Marks;
   attachedTo?: CardId;
 }
 
@@ -61,20 +66,32 @@ export interface ZoneState {
 
 export type Effect = { modifier: (view: View) => void; until?: "end_of_phase" };
 
-export type Phase = "setup" | "resource" | "planning" | "quest" | "travel" | "encounter" | "combat" | "refresh";
+export type Phase =
+  | "setup"
+  | "resource"
+  | "planning"
+  | "quest"
+  | "travel"
+  | "encounter"
+  | "combat"
+  | "refresh";
 
 export interface State {
   version: number;
   phase: Phase;
   firstPlayer: PlayerId;
   cards: CardState[];
-  players: PlayerState[];
+  players: Partial<Record<PlayerId, PlayerState>>;
   zones: Record<GameZoneType, ZoneState>;
   effects: Effect[];
   view: View;
 }
 
-export function createCardState(id: CardId, definition: CardDefinition, side: Side): CardState {
+export function createCardState(
+  id: CardId,
+  definition: CardDefinition,
+  side: Side
+): CardState {
   return {
     id,
     token: {
@@ -101,7 +118,7 @@ export function createInitState(): State {
     effects: [],
     phase: "setup",
     firstPlayer: "A",
-    players: [],
+    players: {},
     zones: {
       activeLocation: { cards: [], stack: false },
       discardPile: { cards: [], stack: true },

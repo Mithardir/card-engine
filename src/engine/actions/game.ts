@@ -1,3 +1,4 @@
+import { map } from "lodash";
 import { shuffleArray } from "../../utils";
 import { negate, getProp } from "../exps";
 import {
@@ -144,7 +145,7 @@ export const travelToLocation = moveCard(
 export function placeProgress(amount: number): Action {
   // TODO to active location
   return action(`place ${amount} progress`, (state) => {
-    const cardId = state.zones.quest.cards[0];    
+    const cardId = state.zones.quest.cards[0];
     const card = state.cards.find((c) => c.id === cardId);
     if (card) {
       card.token.progress += amount;
@@ -177,7 +178,7 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action {
       createCardState((index + heroes.length) * 5 + playerIndex + 1, l, "back")
     );
 
-    s.players.push({
+    s.players[playerId] = {
       id: playerId,
       thread: heroes
         .map((h) => h.definition.face.threatCost!)
@@ -189,7 +190,7 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action {
         discardPile: { cards: [], stack: true },
         engaged: { cards: [], stack: false },
       },
-    });
+    };
 
     s.cards.push(...heroes, ...library);
     return "full";
@@ -199,9 +200,9 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action {
 export function eachPlayer(factory: PlayerAction): Action {
   // TODO order
   return {
-    print: `eachPlayer(${factory("X").print})`,
+    print: `eachPlayer(${factory("X" as any).print})`,
     do: (s) => {
-      const action = sequence(...s.players.map((p) => factory(p.id)));
+      const action = sequence(...map(s.players, (p) => factory(p!.id)));
       return action.do(s);
     },
   };

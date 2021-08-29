@@ -108,7 +108,7 @@ export function withMaxEngagement(player: PlayerId): CardFilter {
   return (card) => ({
     print: "withMaxEngagement",
     eval: (v) => {
-      const threat = v.players.find((p) => p.id === player)!.thread;
+      const threat = v.players[player]!.thread;
       const cards = v.cards.filter(
         (c) =>
           c.props.type === "enemy" &&

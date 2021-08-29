@@ -35,6 +35,8 @@ export function createEngine(ui: UI, init: State) {
         while (!result.choice) {
           if (result.next) {
             result = result.next.do(state);
+          } else {
+            return;
           }
         }
 

@@ -10,6 +10,7 @@ import { playerActions } from "../engine/actions/game";
 import { beginScenario } from "../engine/actions/phases";
 import { observer } from "mobx-react-lite";
 import { Engine } from "../engine/engine";
+import { values } from "lodash";
 
 export const GameShow = observer((props: { engine: Engine }) => {
   const detail = React.useContext(DetailContext);
@@ -103,7 +104,7 @@ export const GameShow = observer((props: { engine: Engine }) => {
           <ZoneShow type="stagingArea" view={view} />
         </div>
         <div style={{ display: "flex" }}>
-          {view.players.map((p) => (
+          {values(view.players).map((p) => (
             <PlayerShow player={p} key={p.id} view={view} />
           ))}
         </div>

@@ -49,8 +49,8 @@ export function createTestEngine() {
       const cardId = id++;
       const cardState = createCardState(cardId, card, "face");
       state.cards.push(cardState);
-      if (state.players.length === 0) {
-        state.players.push({
+      if (!state.players["A"]) {
+        state.players["A"] = {
           id: "A",
           thread: 0,
           zones: {
@@ -60,9 +60,9 @@ export function createTestEngine() {
             discardPile: { cards: [], stack: true },
             engaged: { cards: [], stack: false },
           },
-        });
+        };
 
-        state.players[0].zones.playerArea.cards.push(cardState.id);
+        state.players["A"].zones.playerArea.cards.push(cardState.id);
       }
 
       return createCardProxy(cardId, state);

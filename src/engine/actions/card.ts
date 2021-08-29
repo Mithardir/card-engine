@@ -20,6 +20,7 @@ import {
   clearMarks,
 } from "./game";
 import { Action, CardAction } from "./types";
+import { find, findKey } from "lodash";
 
 export function dealDamage(amount: number, attackers: CardId[]): CardAction {
   return (card) =>
@@ -236,10 +237,11 @@ export const destroy: (attackers: CardId[]) => CardAction = (attackers) => (
   return {
     print: `destroy ${cardId}`,
     do: (s) => {
-      const owner = s.players.find(
+      const owner = find(
+        s.players,
         (p) =>
-          p.zones.hand.cards.includes(cardId) ||
-          p.zones.playerArea.cards.includes(cardId)
+          p!.zones.hand.cards.includes(cardId) ||
+          p!.zones.playerArea.cards.includes(cardId)
       );
       const view = s.view;
       const card = view.cards.find((c) => c.id === cardId);

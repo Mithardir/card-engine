@@ -1,5 +1,5 @@
 import { setAutoFreeze } from "immer";
-import { autorun, isComputed, isObservable } from "mobx";
+import { autorun } from "mobx";
 import prettier from "prettier";
 import { beginScenario, startGame } from "../engine/actions/phases";
 import { playRandomlyUntilEnd } from "../engine/actions/utils";

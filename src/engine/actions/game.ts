@@ -1,6 +1,6 @@
 import { map } from "lodash";
 import { shuffleArray } from "../../utils";
-import { negate, getProp } from "../exps";
+import { negate, getProp, getTopCard } from "../exps";
 import {
   and,
   isTapped,
@@ -22,7 +22,14 @@ import {
 } from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
-import { tap, resolveDefense, dealDamage, moveCard, mark } from "./card";
+import {
+  tap,
+  resolveDefense,
+  dealDamage,
+  moveCard,
+  mark,
+  processResponses,
+} from "./card";
 import { chooseOne, chooseCardAction, chooseMultiple } from "./choices";
 import { sequence, action, bind } from "./control";
 import { Action, CardEffect, PlayerAction } from "./types";
@@ -220,6 +227,17 @@ export function eachCard(filter: CardFilter, action: CardEffect): Action {
   };
 }
 
+export function revealTopCard(zoneKey: ZoneKey): Action {
+  return action(`revealTopCard(${zoneKey.print})`, (state) => {
+    const zone = getZone(zoneKey)(state);
+    if (zone.cards.length > 0) {
+      const cardId = zone.cards[zone.cards.length - 1];
+      const card = state.cards.find((c) => c.id === cardId)!;
+      card.sideUp = "face";
+    }
+  });
+}
+
 export function moveTopCard(from: ZoneKey, to: ZoneKey, side: Side): Action {
   return action(
     `moveTopCard(${from.print}, ${to.print}, "${side}")`,
@@ -280,3 +298,18 @@ export function beginPhase(type: Phase): Action {
     return "full";
   });
 }
+
+// TODO all to bind action
+export const revealEncounterCard = sequence(
+  revealTopCard(zoneKey("encounterDeck")),
+  bind(getTopCard(zoneKey("encounterDeck")), (cardId) =>
+    processResponses(
+      (s) => s.revealed,
+      {
+        cardId,
+      },
+      "Choose response for revealing card"
+    )
+  ),
+  moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")
+);

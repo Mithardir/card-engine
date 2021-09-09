@@ -1,3 +1,4 @@
+import { dealDamage } from "../../../engine/actions/card";
 import { placeProgress } from "../../../engine/actions/game";
 import {
   addKeyword,
@@ -72,14 +73,26 @@ export const thalin = hero(
     hitPoints: 4,
     traits: ["dwarf", "warrior"],
     sphere: "tactics",
+  },
+  {
+    description:
+      "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+    implicit: false,
+    modifier: (self) =>
+      addResponse((r) => r.revealed, {
+        description:
+          "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+        condition: (e, v) => {
+          // TODO check conditions in responses
+          const quest = v.phase === "quest";
+          const commited = v.cards.find((c) => c.id === self)!.mark.questing;
+          const enemy =
+            v.cards.find((c) => c.id === e.cardId)!.props.type === "enemy";
+          return quest && commited && enemy;
+        },
+        action: (e) => dealDamage(1, [])(e.cardId),
+      }),
   }
-  // response({
-  //   description:
-  //     "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-  //   event: revealed(),
-  //   condition: (e, v) => v.phase.type === "quest" && v.phase.comitted.includes(self) && isEnemy(e.cardId).eval(v),
-  //   action: (e) => dealDamage(1)(e.cardId),
-  // })
 );
 
 export const gloin = hero(

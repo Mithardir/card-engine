@@ -15,8 +15,6 @@ import {
 import { CardAction } from "../../engine/actions/types";
 import { addAction, modifyCard } from "../../engine/actions/modifiers";
 import { getCard } from "../../engine/actions/utils";
-import { pipe } from "fp-ts/function";
-import * as T from "fp-ts/Task";
 
 export function ally(
   props: AllyProps,

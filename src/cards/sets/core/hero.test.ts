@@ -1,8 +1,24 @@
 import {
   addToken,
   dealDamage,
+  mark,
+  processResponses,
   removeToken,
 } from "../../../engine/actions/card";
+import {
+  bind as bindAction,
+  repeat,
+  sequence,
+} from "../../../engine/actions/control";
+import {
+  beginPhase,
+  moveTopCard,
+  revealEncounterCard,
+  revealTopCard,
+} from "../../../engine/actions/game";
+import { bind } from "../../../engine/actions/modifiers";
+import { getTopCard } from "../../../engine/exps";
+import { zoneKey } from "../../../engine/utils";
 import { createTestEngine } from "../../../tests/utils";
 import { dolGuldurOrcs } from "./enemies";
 import * as hero from "./heroes";
@@ -27,6 +43,18 @@ it("Lelogas placing progress", async () => {
     "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
   ]);
   expect(quest.progress).toEqual(2);
+});
+
+it("Thalin damaging enemies", async () => {
+  const game = createTestEngine();
+  const thalin = game.addHero(hero.thalin);
+  game.do(beginPhase("quest"));
+  game.do(mark("questing")(thalin.id));
+  const enemy = game.addEncounterCard(dolGuldurOrcs);
+  game.do(revealEncounterCard, [
+    "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+  ]);
+  expect(enemy.damage).toEqual(1);
 });
 
 // it("Glorfindel's action", async () => {
@@ -97,17 +125,3 @@ it("Lelogas placing progress", async () => {
 // //   await game.endTurn();
 // //   expect(eowyn.playerActions.filter(a => a.canDo).length).toEqual(1);
 // // });
-
-// it("Thalin damaging enemies", async () => {
-//   const game = new GameEngine({ choices: [0] });
-//   const thalin = game.addHero(hero.thalin);
-//   await game.execute(startPhase("quest"));
-//   game.update((s) => {
-//     if (s.phase.type === "quest") {
-//       s.phase.comitted.push(thalin.id);
-//     }
-//   });
-//   const enemy = game.addEncounterCard(dolGuldurOrcs);
-//   await game.execute(revealEncounterCards(1));
-//   expect(enemy.get.damage).toEqual(1);
-// });

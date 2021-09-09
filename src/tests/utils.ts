@@ -14,6 +14,10 @@ export function createCardProxy(cardId: CardId, state: State) {
       return state.view.cards.find((c) => c.id === cardId)!.props.attack!;
     },
 
+    get damage() {
+      return state.view.cards.find((c) => c.id === cardId)!.token.damage!;
+    },
+
     get progress() {
       return state.view.cards.find((c) => c.id === cardId)!.token.progress!;
     },
@@ -72,6 +76,13 @@ export function createTestEngine() {
       const cardState = createCardState(cardId, card, "face");
       state.cards.push(cardState);
       state.zones.stagingArea.cards.push(cardState.id);
+      return createCardProxy(cardId, state);
+    },
+    addEncounterCard: (card: CardDefinition) => {
+      const cardId = id++;
+      const cardState = createCardState(cardId, card, "back");
+      state.cards.push(cardState);
+      state.zones.encounterDeck.cards.push(cardState.id);
       return createCardProxy(cardId, state);
     },
     addLocation: (card: CardDefinition) => {

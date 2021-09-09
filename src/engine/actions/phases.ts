@@ -27,6 +27,7 @@ import {
   clearMarks,
   chooseTravelLocation,
   beginPhase,
+  revealEncounterCard,
 } from "./game";
 import {
   draw,
@@ -55,12 +56,7 @@ export const phaseQuest = sequence(
   beginPhase("quest"),
   eachPlayer(commitCharactersToQuest),
   playerActions("Staging"),
-  bind(countOfPlayers, (count) =>
-    repeat(
-      count,
-      moveTopCard(zoneKey("encounterDeck"), zoneKey("stagingArea"), "face")
-    )
-  ),
+  bind(countOfPlayers, (count) => repeat(count, revealEncounterCard)),
   playerActions("Quest resolution"),
   bind(diff(totalWillpower, totalThread), (power) =>
     power > 0 ? placeProgress(power) : eachPlayer(incrementThreat(-power))

@@ -8,8 +8,8 @@ import {
   matchesSphere,
 } from "./filters";
 import { PlayerId, playerIds, CardId, Token } from "./state";
-import { Sphere } from "./types";
-import { filterCards, zoneKey } from "./utils";
+import { Sphere, ZoneKey } from "./types";
+import { filterCards, getZone, zoneKey } from "./utils";
 import { CardView, View } from "./view";
 
 export type Exp<T> = {
@@ -239,6 +239,22 @@ export function getOwnerOf(id: CardId): Exp<PlayerId | undefined> {
       }
 
       return undefined;
+    },
+  };
+}
+
+export function getTopCard(zoneKey: ZoneKey): Exp<CardId> {
+  return {
+    print: `getTopCard${zoneKey.print}`,
+    eval: (v) => {
+      const zone = getZone(zoneKey)(v);
+      if (zone.cards.length > 0) {
+        const cardId = zone.cards.pop()!;
+        const card = v.cards.find((c) => c.id === cardId)!;
+        return card.id;
+      } else {
+        throw new Error("no cards");
+      }
     },
   };
 }

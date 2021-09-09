@@ -14,13 +14,13 @@ it("Prints rule script", () => {
   console.log(prettier.format(action.print));
 });
 
-it("Random ai test", () => {
-  const state = createInitState();
+// it("Random ai test", () => {
+//   const state = createInitState();
 
-  autorun(() => {
-    console.log(state.phase);
-  });
+//   autorun(() => {
+//     console.log(state.phase);
+//   });
 
-  const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
-  console.log(result);
-});
+//   const result = playRandomlyUntilEnd(state, beginScenario(passageThroughMirkwood, coreTactics));
+//   console.log(result);
+// });

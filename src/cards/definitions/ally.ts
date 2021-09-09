@@ -7,6 +7,7 @@ import { zoneKey } from "../../engine/utils";
 import { bind, pay, sequence } from "../../engine/actions/control";
 import {
   countResources,
+  Exp,
   getOwnerOf,
   getProp,
   getSphere,
@@ -14,6 +15,8 @@ import {
 import { CardAction } from "../../engine/actions/types";
 import { addAction, modifyCard } from "../../engine/actions/modifiers";
 import { getCard } from "../../engine/actions/utils";
+import { pipe } from "fp-ts/function";
+import * as T from "fp-ts/Task";
 
 export function ally(
   props: AllyProps,
@@ -46,13 +49,49 @@ export const playAllyAbility: Ability = {
   modifier: (self) => modifyCard(self, addAction(playAllyAction(self))),
 };
 
+function assign<K extends string, A, B>(
+  k: K,
+  other: Exp<B>
+): (a: Exp<A>) => Exp<A & { [k in K]: B }> {
+  return (a) => {
+    return {
+      print: "x",
+      eval: (v) => {
+        const result = a.eval(v);
+        const merged = other.eval(v);
+        return { ...result, [k]: merged } as any;
+      },
+    };
+  };
+}
+
+const emptyExp: Exp<{}> = {
+  print: "empty",
+  eval: () => {
+    return {};
+  },
+};
+
+export function mergeExp2<A, B>(ab: (a: Exp<{}>) => A, bc: (b: A) => B): B {
+  return bc(ab(emptyExp));
+}
+
+export function mergeExp3<A, B, C>(
+  ab: (a: Exp<{}>) => A,
+  bc: (b: A) => B,
+  cd: (c: B) => C
+): C {
+  return cd(bc(ab(emptyExp)));
+}
+
 export function playAllyAction(cardId: CardId): CardAction {
-  const payAction = bind(getProp("cost", cardId), (cost) =>
-    bind(getSphere(cardId), (sphere) =>
-      bind(getOwnerOf(cardId), (owner) =>
-        owner ? payResources(cost, sphere)(owner) : sequence()
-      )
-    )
+  const payAction = bind(
+    mergeExp3(
+      assign("cost", getProp("cost", 0)),
+      assign("sphere", getSphere(0)),
+      assign("owner", getOwnerOf(0))
+    ),
+    (v) => (v.owner ? payResources(v.cost, v.sphere)(v.owner) : sequence())
   );
 
   const moveAction = bind(getOwnerOf(cardId), (owner) =>

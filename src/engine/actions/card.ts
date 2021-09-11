@@ -220,11 +220,13 @@ export function processResponses<T>(
       const list = selector(view.responses);
 
       return chooseOrder("Choose next response", [
-        ...list.map((l, i) => ({
-          label: l.description,
-          action: l.action(event),
-          id: i.toString(),
-        })),
+        ...list
+          .filter((l) => l.condition(event, view))
+          .map((l, i) => ({
+            label: l.description,
+            action: l.action(event),
+            id: i.toString(),
+          })),
         { label: "No response", action: sequence(), id: "none" },
       ]).do(s);
     },

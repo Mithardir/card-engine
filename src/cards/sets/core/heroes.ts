@@ -82,8 +82,7 @@ export const thalin = hero(
       addResponse((r) => r.revealed, {
         description:
           "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-        condition: (e, v) => {
-          // TODO check conditions in responses
+        condition: (e, v) => {          
           const quest = v.phase === "quest";
           const commited = v.cards.find((c) => c.id === self)!.mark.questing;
           const enemy =

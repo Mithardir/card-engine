@@ -219,7 +219,7 @@ export function processResponses<T>(
       const view = createView(s);
       const list = selector(view.responses);
 
-      return chooseOrder("Choose next response", [
+      return chooseOrder(choiceTitle, [
         ...list
           .filter((l) => l.condition(event, view))
           .map((l, i) => ({

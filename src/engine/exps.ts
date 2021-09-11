@@ -249,7 +249,7 @@ export function getTopCard(zoneKey: ZoneKey): Exp<CardId> {
     eval: (v) => {
       const zone = getZone(zoneKey)(v);
       if (zone.cards.length > 0) {
-        const cardId = zone.cards.pop()!;
+        const cardId = zone.cards[zone.cards.length - 1];
         const card = v.cards.find((c) => c.id === cardId)!;
         return card.id;
       } else {

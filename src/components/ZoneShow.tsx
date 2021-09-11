@@ -98,7 +98,11 @@ export const ZoneShow = (
         {zone.cards.length !== 0 && zone.stack && (
           <CardShow
             content="image"
-            card={props.view.cards.find((c) => c.id === zone.cards[0])!}
+            card={
+              props.view.cards.find(
+                (c) => c.id === zone.cards[zone.cards.length - 1]
+              )!
+            }
           />
         )}
       </div>

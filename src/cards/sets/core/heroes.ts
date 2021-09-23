@@ -1,14 +1,32 @@
+import { string } from "fp-ts";
 import { dealDamage } from "../../../engine/actions/card";
 import { placeProgress } from "../../../engine/actions/game";
 import {
   addKeyword,
   addResponse,
   bind,
+  bindCM,
+  CardModifier,
   increment,
   modifyCard,
+  ViewModifier,
 } from "../../../engine/actions/modifiers";
-import { getTokens } from "../../../engine/exps";
+import { Exp, getTokens, mapExp } from "../../../engine/exps";
+import { CardId } from "../../../engine/state";
+import { Ability } from "../../../engine/types";
 import { hero } from "../../definitions/hero";
+
+function selfModifier(props: {
+  description: string;
+  modifier: (self: CardId) => CardModifier;
+  modifier2: (self: CardId) => Exp<CardModifier>;
+}): Ability {
+  return {
+    description: props.description,
+    implicit: false,
+    modifier: (self) => modifyCard(self, props.modifier(self)),
+  };
+}
 
 export const gimli = hero(
   {
@@ -21,14 +39,17 @@ export const gimli = hero(
     traits: ["dwarf", "noble", "warrior"],
     sphere: "tactics",
   },
-  {
+  selfModifier({
     description: "Gimli gets +1 [attack] for each damage token on him.",
-    implicit: false,
     modifier: (self) =>
-      bind(getTokens("damage", self), (damage) =>
-        modifyCard(self, increment("attack", damage))
+      bindCM(getTokens("damage", self), (damage) =>
+        increment("attack", damage)
       ),
-  }
+    modifier2: (self) =>
+      mapExp(getTokens("damage", self), (damage) =>
+        increment("attack", damage)
+      ),
+  })
 );
 
 export const legolas = hero(
@@ -82,7 +103,7 @@ export const thalin = hero(
       addResponse((r) => r.revealed, {
         description:
           "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-        condition: (e, v) => {          
+        condition: (e, v) => {
           const quest = v.phase === "quest";
           const commited = v.cards.find((c) => c.id === self)!.mark.questing;
           const enemy =

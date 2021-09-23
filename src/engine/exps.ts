@@ -17,6 +17,15 @@ export type Exp<T> = {
   eval: (v: View) => T;
 };
 
+export function mapExp<TI, TO>(input: Exp<TI>, mapper: (i: TI) => TO): Exp<TO> {
+  return {
+    print: "",
+    eval: (v) => {
+      return mapper(input.eval(v));
+    },
+  };
+}
+
 export const totalWillpower: Exp<number> = {
   print: "total willpoer",
   eval: (v) => {

@@ -6,7 +6,10 @@ import { Action, CardAction } from "./types";
 
 export type ViewModifier = { print: string; modify: (view: View) => void };
 
-export type CardModifier = { print: string; modify: (card: CardView) => void };
+export type CardModifier = {
+  print: string;
+  modify: (card: CardView, view: View) => void;
+};
 
 export function modifyCard(id: CardId, modifier: CardModifier): ViewModifier {
   return {
@@ -14,7 +17,7 @@ export function modifyCard(id: CardId, modifier: CardModifier): ViewModifier {
     modify: (v) => {
       const card = v.cards.find((c) => c.id === id);
       if (card) {
-        modifier.modify(card);
+        modifier.modify(card, v);
       }
     },
   };
@@ -31,6 +34,21 @@ export function bind<T>(
       const value = exp.eval(view);
       const modifier = factory(value);
       return modifier.modify(view);
+    },
+  };
+}
+
+export function bindCM<T>(
+  exp: Exp<T>,
+  factory: (v: T) => CardModifier
+): CardModifier {
+  return {
+    // TODO x
+    print: factory("x" as any).print,
+    modify: (card, view) => {
+      const value = exp.eval(view);
+      const modifier = factory(value);
+      return modifier.modify(card, view);
     },
   };
 }

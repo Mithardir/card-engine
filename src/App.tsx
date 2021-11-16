@@ -5,6 +5,7 @@ import { DialogsContext } from "./components/DialogsContext";
 import { CssBaseline } from "@material-ui/core";
 import { reactUI, EngineProvider } from "./components/EngineContext";
 import { createEngine } from "./engine/engine";
+import { isObservable } from "mobx";
 
 export function App(props: { state?: State }) {
   const dialog = useContext(DialogsContext);

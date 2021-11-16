@@ -17,7 +17,9 @@
     "jsx": "react-jsx",
     "downlevelIteration": true,
     "strictNullChecks": true,
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true
   },
   "include": ["src"]
 }

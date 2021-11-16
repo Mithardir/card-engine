@@ -50,7 +50,7 @@ export const playerActions: (title: string) => Action = (title) => {
               .flatMap((a) => a)
               .map((ca) => ({
                 label: `${ca.card.props.name}: ${ca.action.description}`,
-                action: sequence(ca.action.effect, playerActions(title)),
+                action: ca.action.effect,
               }));
             return [...choices, { label: "Continue", action: sequence() }];
           },

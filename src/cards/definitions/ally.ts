@@ -85,9 +85,9 @@ export function mergeExp3<A, B, C>(
 export function playAllyAction(cardId: CardId): CardAction {
   const payAction = bind(
     mergeExp3(
-      assign("cost", getProp("cost", 0)),
-      assign("sphere", getSphere(0)),
-      assign("owner", getOwnerOf(0))
+      assign("cost", getProp("cost", cardId)),
+      assign("sphere", getSphere(cardId)),
+      assign("owner", getOwnerOf(cardId))
     ),
     (v) => (v.owner ? payResources(v.cost, v.sphere)(v.owner) : sequence())
   );

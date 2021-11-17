@@ -50,7 +50,7 @@ export class ObservableEngine implements Engine {
   }
 
   do2(action: Action) {
-    let result = runInAction(() => action.do(this.state));
+    let result = action.do(this.state);
     while (true) {
       while (!result.choice) {
         if (result.next) {
@@ -61,11 +61,13 @@ export class ObservableEngine implements Engine {
       }
 
       this.choice = result.choice;
-      this.next = result.next;
-
-      const text = result.next?.print;
-      if (text && !text.includes("whileDo(true")) {
-        debugger;
+      if (result.next) {
+        const text = result.next.print;
+        if (!text.includes("passFirstPlayerToken") && this.next) {
+          this.next = sequence(result.next, this.next);
+        } else {
+          this.next = result.next;
+        }
       }
 
       return;

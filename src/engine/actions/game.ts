@@ -22,6 +22,7 @@ import {
 } from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
+import { createView } from "../view";
 import {
   tap,
   resolveDefense,
@@ -48,6 +49,7 @@ export const playerActions: (title: string) => Action = (title) => {
             const choices = view.cards
               .map((card) => card.actions.map((action) => ({ card, action })))
               .flatMap((a) => a)
+              .filter((a) => a.action.condition.eval(view))
               .map((ca) => ({
                 label: `${ca.card.props.name}: ${ca.action.description}`,
                 action: ca.action.effect,

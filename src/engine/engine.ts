@@ -1,6 +1,6 @@
 import { State } from "./state";
 import { sequence } from "./actions/control";
-import { Action, ActionResult } from "./actions/types";
+import { Action } from "./actions/types";
 import { makeObservable, observable } from "mobx";
 
 export type Choice = {
@@ -16,7 +16,7 @@ export type Choice = {
 
 export type Engine = {
   state: State;
-  do: (action: Action) => ActionResult | undefined;
+  do: (action: Action) => void;
   choice: Choice | undefined;
   next: Action | undefined;
 };
@@ -71,7 +71,7 @@ export class ObservableEngine implements Engine {
         this.next = result.next;
       }
 
-      return result;
+      return;
     }
   }
 }

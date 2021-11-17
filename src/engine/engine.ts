@@ -2,6 +2,7 @@ import { State } from "./state";
 import { sequence } from "./actions/control";
 import { Action, ActionResult } from "./actions/types";
 import { makeObservable, observable, runInAction } from "mobx";
+import { boolean } from "fp-ts";
 
 export type Choice = {
   title: string;

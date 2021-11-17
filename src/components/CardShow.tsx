@@ -9,6 +9,9 @@ import progressImage from "../Images/tokens/progress.png";
 import { CardId } from "../engine/state";
 import { useEngine } from "./EngineContext";
 import { observer } from "mobx-react-lite";
+import { endsWith } from "lodash";
+import { sequence } from "../engine/actions/control";
+import { playerActions } from "../engine/actions/game";
 
 export const CardShow = observer(
   (props: {
@@ -24,6 +27,7 @@ export const CardShow = observer(
 
     const card =
       props.card || engine.state.view.cards.find((c) => c.id === props.cardId)!;
+
     const actions = card.actions.filter((a) =>
       a.condition.eval(engine.state.view)
     );
@@ -73,7 +77,11 @@ export const CardShow = observer(
             return;
           } else {
             if (actions.length === 1) {
-              await engine.do(actions[0].effect);
+              if (engine.choice) {
+                const title = engine.choice.title;
+                engine.choice = undefined;
+                engine.do2(sequence(actions[0].effect, playerActions(title)));
+              }
             } else {
               // TODO multiple actions
               // tslint:disable-next-line:no-console

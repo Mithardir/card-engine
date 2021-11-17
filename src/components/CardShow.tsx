@@ -2,14 +2,12 @@ import * as React from "react";
 import { CardView } from "../engine/view";
 import { CardText } from "./CardText";
 import { DetailContext } from "./DetailContext";
-
 import damageImage from "../Images/tokens/damage.png";
 import resourceImage from "../Images/tokens/resource.png";
 import progressImage from "../Images/tokens/progress.png";
 import { CardId } from "../engine/state";
 import { useEngine } from "./EngineContext";
 import { observer } from "mobx-react-lite";
-import { endsWith } from "lodash";
 import { sequence } from "../engine/actions/control";
 import { playerActions } from "../engine/actions/game";
 
@@ -80,7 +78,7 @@ export const CardShow = observer(
               if (engine.choice) {
                 const title = engine.choice.title;
                 engine.choice = undefined;
-                engine.do2(sequence(actions[0].effect, playerActions(title)));
+                engine.do(sequence(actions[0].effect, playerActions(title)));
               }
             } else {
               // TODO multiple actions

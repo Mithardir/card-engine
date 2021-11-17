@@ -20,11 +20,10 @@ import { ZoneShow } from "./ZoneShow";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
 import { sequence } from "../engine/actions/control";
 import { playerActions } from "../engine/actions/game";
-import { beginScenario, startGame } from "../engine/actions/phases";
+import { beginScenario } from "../engine/actions/phases";
 import { observer } from "mobx-react-lite";
 import { Engine } from "../engine/engine";
 import { values } from "lodash";
-import { isObservable } from "mobx";
 import { Action } from "../engine/actions/types";
 import { useState } from "react";
 
@@ -67,7 +66,7 @@ export const GameShow = observer((props: { engine: Engine }) => {
 
         <Button
           onClick={() => {
-            props.engine.do2(
+            props.engine.do(
               beginScenario(passageThroughMirkwood, coreTactics)
             );
           }}
@@ -131,7 +130,7 @@ export const GameShow = observer((props: { engine: Engine }) => {
               if (props.engine.next) {
                 const next = props.engine.next;
                 props.engine.next = undefined;
-                props.engine.do2(next);
+                props.engine.do(next);
               }
             }}
           >
@@ -146,7 +145,7 @@ export const GameShow = observer((props: { engine: Engine }) => {
             choices={props.engine.choice.choices}
             onChoices={(actions) => {
               props.engine.choice = undefined;
-              props.engine.do2(sequence(...actions));
+              props.engine.do(sequence(...actions));
             }}
           />
         )}
@@ -157,7 +156,7 @@ export const GameShow = observer((props: { engine: Engine }) => {
             choices={props.engine.choice.choices}
             onChoice={(action) => {
               props.engine.choice = undefined;
-              props.engine.do2(action);
+              props.engine.do(action);
             }}
           />
         )}

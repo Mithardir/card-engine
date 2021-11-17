@@ -22,7 +22,6 @@ import {
 } from "../state";
 import { ZoneKey } from "../types";
 import { zoneKey, getZone, filterCards } from "../utils";
-import { createView } from "../view";
 import {
   tap,
   resolveDefense,

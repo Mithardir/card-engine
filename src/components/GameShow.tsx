@@ -145,11 +145,11 @@ export const GameShow = observer((props: { engine: Engine }) => {
             onChoices={(actions) => {
               props.engine.choice = undefined;
               props.engine.do2(sequence(...actions));
-              // if (props.engine.next) {
-              //   props.engine.do2(sequence(...actions, props.engine.next));
-              // } else {
-              //   props.engine.do2(sequence(...actions));
-              // }
+              if (props.engine.next) {
+                props.engine.do2(sequence(...actions, props.engine.next));
+              } else {
+                props.engine.do2(sequence(...actions));
+              }
             }}
           />
         )}
@@ -161,11 +161,11 @@ export const GameShow = observer((props: { engine: Engine }) => {
             onChoice={(action) => {
               props.engine.choice = undefined;
               props.engine.do2(action);
-              // if (props.engine.next) {
-              //   props.engine.do2(sequence(action, props.engine.next));
-              // } else {
-              //   props.engine.do2(action);
-              // }
+              if (props.engine.next) {
+                props.engine.do2(sequence(action, props.engine.next));
+              } else {
+                props.engine.do2(action);
+              }
             }}
           />
         )}

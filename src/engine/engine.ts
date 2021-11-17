@@ -61,15 +61,11 @@ export class ObservableEngine implements Engine {
       }
 
       this.choice = result.choice;
+      this.next = result.next;
 
-      console.log(result.choice);
-
-      if (result.next) {
-        if (this.next) {          
-          this.next = sequence(result.next, this.next);
-        } else {
-          this.next = result.next;
-        }
+      const text = result.next?.print;
+      if (text && !text.includes("whileDo(true")) {
+        debugger;
       }
 
       return;

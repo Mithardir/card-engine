@@ -1,6 +1,6 @@
 import { State } from "./state";
 import { sequence } from "./actions/control";
-import { Action } from "./actions/types";
+import { Action, ActionResult } from "./actions/types";
 import { makeObservable, observable, runInAction } from "mobx";
 
 export type Choice = {
@@ -17,7 +17,7 @@ export type Choice = {
 export type Engine = {
   state: State;
   do: (action: Action) => Promise<void>;
-  do2: (action: Action) => void;
+  do2: (action: Action) => ActionResult | undefined;
   choice: Choice | undefined;
   next: Action | undefined;
 };
@@ -50,27 +50,29 @@ export class ObservableEngine implements Engine {
   }
 
   do2(action: Action) {
+    const next = this.next;
     let result = action.do(this.state);
     while (true) {
       while (!result.choice) {
         if (result.next) {
           result = result.next.do(this.state);
         } else {
+          if (next) {
+            this.next = undefined;
+            this.do2(next);
+          }
           return;
         }
       }
 
       this.choice = result.choice;
-      if (result.next) {
-        const text = result.next.print;
-        if (!text.includes("passFirstPlayerToken") && this.next) {
-          this.next = sequence(result.next, this.next);
-        } else {
-          this.next = result.next;
-        }
+      if (next) {
+        this.next = result.next ? sequence(result.next, next) : next;
+      } else {
+        this.next = result.next;
       }
 
-      return;
+      return result;
     }
   }
 

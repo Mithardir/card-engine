@@ -129,7 +129,9 @@ export const GameShow = observer((props: { engine: Engine }) => {
             onClick={() => {
               props.engine.choice = undefined;
               if (props.engine.next) {
-                props.engine.do2(props.engine.next);
+                const next = props.engine.next;
+                props.engine.next = undefined;
+                props.engine.do2(next);
               }
             }}
           >
@@ -145,11 +147,6 @@ export const GameShow = observer((props: { engine: Engine }) => {
             onChoices={(actions) => {
               props.engine.choice = undefined;
               props.engine.do2(sequence(...actions));
-              if (props.engine.next) {
-                props.engine.do2(sequence(...actions, props.engine.next));
-              } else {
-                props.engine.do2(sequence(...actions));
-              }
             }}
           />
         )}
@@ -161,11 +158,6 @@ export const GameShow = observer((props: { engine: Engine }) => {
             onChoice={(action) => {
               props.engine.choice = undefined;
               props.engine.do2(action);
-              if (props.engine.next) {
-                props.engine.do2(sequence(action, props.engine.next));
-              } else {
-                props.engine.do2(action);
-              }
             }}
           />
         )}

@@ -183,7 +183,13 @@ export function getProp(
   return {
     print: `${property} of card ${cardId}`,
     eval: (v) => {
-      return v.cards.find((c) => c.id === cardId)!.props[property]!;
+      const card = v.cards.find((c) => c.id === cardId);
+      if (card) {
+        return card.props[property]!;
+      } else {
+        debugger;
+        throw new Error(`card ${cardId} not found`);
+      }
     },
   };
 }

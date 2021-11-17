@@ -48,9 +48,10 @@ export const playerActions: (title: string) => Action = (title) => {
             const choices = view.cards
               .map((card) => card.actions.map((action) => ({ card, action })))
               .flatMap((a) => a)
+              .filter((a) => a.action.condition.eval(view))
               .map((ca) => ({
                 label: `${ca.card.props.name}: ${ca.action.description}`,
-                action: sequence(ca.action.effect, playerActions(title)),
+                action: ca.action.effect,
               }));
             return [...choices, { label: "Continue", action: sequence() }];
           },

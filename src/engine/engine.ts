@@ -1,11 +1,24 @@
 import { State } from "./state";
 import { sequence } from "./actions/control";
 import { Action } from "./actions/types";
-import { observable, runInAction } from "mobx";
+import { makeObservable, observable } from "mobx";
+
+export type Choice = {
+  title: string;
+  multiple: boolean;
+  dialog: boolean;
+  choices: Array<{
+    label: string;
+    image?: string | undefined;
+    action: Action;
+  }>;
+};
 
 export type Engine = {
   state: State;
-  do: (action: Action) => Promise<void>;
+  do: (action: Action) => void;
+  choice: Choice | undefined;
+  next: Action | undefined;
 };
 
 export interface UI {
@@ -20,60 +33,49 @@ export interface UI {
   playerActions: (title: string) => Promise<void>;
 }
 
-export function createEngine(ui: UI, init: State) {
-  let state = observable(init);
+export class ObservableEngine implements Engine {
+  @observable
+  state: State;
 
-  const engine: Engine = {
-    get state() {
-      return state;
-    },
+  @observable
+  choice: Choice | undefined = undefined;
 
-    do: async (action) => {
-      let result = runInAction(() => action.do(state));
+  @observable
+  next: Action | undefined = undefined;
 
-      while (true) {
-        while (!result.choice) {
-          if (result.next) {
-            result = result.next.do(state);
-          } else {
-            return;
+  constructor(init: State) {
+    makeObservable(this);
+    this.state = init;
+  }
+
+  do(action: Action) {
+    const next = this.next;
+    let result = action.do(this.state);
+    while (true) {
+      while (!result.choice) {
+        if (result.next) {
+          result = result.next.do(this.state);
+        } else {
+          if (next) {
+            this.next = undefined;
+            this.do(next);
           }
-        }
-
-        if (result.choice) {
-          if (result.choice.dialog) {
-            const choosen = result.choice.multiple
-              ? sequence(
-                  ...(await ui.chooseMultiple(
-                    result.choice.title,
-                    result.choice.choices.map((c) => ({
-                      label: c.label,
-                      value: c.action,
-                      image: c.image,
-                    }))
-                  ))
-                )
-              : await ui.chooseOne(
-                  result.choice.title,
-                  result.choice.choices.map((c) => ({
-                    ...c,
-                    value: c.action,
-                  }))
-                );
-
-            const next = result.next;
-            result = runInAction(() => choosen.do(state));
-            if (next) {
-              result.next = result.next ? sequence(result.next, next) : next;
-            }
-          } else {
-            await ui.playerActions(result.choice.title);
-            result.choice = undefined;
-          }
+          return;
         }
       }
-    },
-  };
 
-  return engine;
+      this.choice = result.choice;
+      if (next) {
+        this.next = result.next ? sequence(result.next, next) : next;
+      } else {
+        this.next = result.next;
+      }
+
+      return;
+    }
+  }
+}
+
+export function createEngine(init: State) {
+  return new ObservableEngine(init);
 }

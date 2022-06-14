@@ -3,12 +3,11 @@ import { placeProgress } from "../../../engine/actions/game";
 import {
   addKeyword,
   addResponse,
-  bindCM,
   CardModifier,
   increment,
   modifyCard,
 } from "../../../engine/actions/modifiers";
-import { Exp, getTokens, mapExp } from "../../../engine/exps";
+import { getTokens } from "../../../engine/exps";
 import { CardId } from "../../../engine/state";
 import { Ability } from "../../../engine/types";
 import { hero } from "../../definitions/hero";
@@ -16,7 +15,6 @@ import { hero } from "../../definitions/hero";
 function selfModifier(props: {
   description: string;
   modifier: (self: CardId) => CardModifier;
-  modifier2: (self: CardId) => Exp<CardModifier>;
 }): Ability {
   return {
     description: props.description,
@@ -38,14 +36,7 @@ export const gimli = hero(
   },
   selfModifier({
     description: "Gimli gets +1 [attack] for each damage token on him.",
-    modifier: (self) =>
-      bindCM(getTokens("damage", self), (damage) =>
-        increment("attack", damage)
-      ),
-    modifier2: (self) =>
-      mapExp(getTokens("damage", self), (damage) =>
-        increment("attack", damage)
-      ),
+    modifier: (self) => increment("attack", getTokens("damage", self)),
   })
 );
 

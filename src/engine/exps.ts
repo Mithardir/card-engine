@@ -17,14 +17,12 @@ export type Exp<T> = {
   eval: (v: View) => T;
 };
 
-export function mapExp<TI, TO>(input: Exp<TI>, mapper: (i: TI) => TO): Exp<TO> {
+export const value = <T>(value: T) => {
   return {
-    print: "",
-    eval: (v) => {
-      return mapper(input.eval(v));
-    },
+    print: `${value}`,
+    eval: () => value,
   };
-}
+};
 
 export const totalWillpower: Exp<number> = {
   print: "total willpoer",

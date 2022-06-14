@@ -53,13 +53,16 @@ export function bindCM<T>(
   };
 }
 
-export function increment(property: "attack", amount: number): CardModifier {
+export function increment(
+  property: "attack",
+  amount: Exp<number>
+): CardModifier {
   return {
-    print: `increment ${property} by ${amount}`,
-    modify: (c) => {
+    print: `increment ${property} by ${amount.print}`,
+    modify: (c, v) => {
       const value = c.props[property];
       if (value !== undefined) {
-        c.props[property] = value + amount;
+        c.props[property] = value + amount.eval(v);
       }
     },
   };

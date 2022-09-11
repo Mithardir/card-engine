@@ -1,17 +1,18 @@
-import { observer } from "mobx-react-lite";
 import * as React from "react";
-import { addToken } from "../engine/actions/card";
-import { CardView } from "../engine/view";
-import { useEngine } from "./EngineContext";
 import { PropertyView } from "./PropertyView";
+import { CardState, CardView } from "./test10";
 
-export const CardText = observer((props: { card: CardView }) => {
-  const c = props.card;
-
-  const engine = useEngine();
+export const CardText = (props: { state: CardState; view: CardView }) => {
+  const c = {
+    id: props.state.id,
+    tapped: false,
+    sideUp: "face",
+    token: props.state.token,
+    props: { ...props.view.props },
+  };
 
   return (
-    <table>
+    <table style={{ width: "100%" }}>
       <tbody>
         <tr>
           <td colSpan={4} style={{ textAlign: "center" }}>
@@ -23,7 +24,8 @@ export const CardText = observer((props: { card: CardView }) => {
             )}
             {c.props.type === "ally" && (
               <React.Fragment>
-                {c.props.name} [{c.id}] {c.props.unique && "(*)"} {c.tapped && "E"} ({c.props.cost})
+                {c.props.name} [{c.id}] {c.props.unique && "(*)"}{" "}
+                {c.tapped && "E"} ({c.props.cost})
               </React.Fragment>
             )}
             {c.props.type === "event" && (
@@ -61,8 +63,18 @@ export const CardText = observer((props: { card: CardView }) => {
         </tr>
         {(c.props.type === "location" || c.props.type === "quest") && (
           <React.Fragment>
-            <PropertyView card={c} property="threat" label="Threat" />
-            <PropertyView card={c} property="questPoints" label="Quest points" />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="threat"
+              label="Threat"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="questPoints"
+              label="Quest points"
+            />
             <tr>
               <td>Progress</td>
               <td>{c.token.progress}</td>
@@ -80,15 +92,41 @@ export const CardText = observer((props: { card: CardView }) => {
         )}
         {c.props.type === "enemy" && (
           <React.Fragment>
-            <PropertyView card={c} property="threat" label="Threat" />
-            <PropertyView card={c} property="attack" label="Attack" />
-            <PropertyView card={c} property="defense" label="Defense" />
-            <PropertyView card={c} property="hitPoints" label="Hitpoints" />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="threat"
+              label="Threat"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="attack"
+              label="Attack"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="defense"
+              label="Defense"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="hitPoints"
+              label="Hitpoints"
+            />
             <tr>
               <td>Damage</td>
               <td>{c.token.damage}</td>
               <td>
-                <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
+                <button
+                  onClick={() => {
+                    //engine.do(addToken("damage")(c.id));
+                  }}
+                >
+                  +
+                </button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>
@@ -100,15 +138,41 @@ export const CardText = observer((props: { card: CardView }) => {
         )}
         {(c.props.type === "ally" || c.props.type === "hero") && (
           <React.Fragment>
-            <PropertyView card={c} property="willpower" label="Willpower" />
-            <PropertyView card={c} property="attack" label="Attack" />
-            <PropertyView card={c} property="defense" label="Defense" />
-            <PropertyView card={c} property="hitPoints" label="Hitpoints" />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="willpower"
+              label="Willpower"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="attack"
+              label="Attack"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="defense"
+              label="Defense"
+            />
+            <PropertyView
+              view={props.view}
+              state={props.state}
+              property="hitPoints"
+              label="Hitpoints"
+            />
             <tr>
               <td>Damage</td>
               <td>{c.token.damage}</td>
               <td>
-                <button onClick={() => engine.do(addToken("damage")(c.id))}>+</button>
+                <button
+                  onClick={() => {
+                    //engine.do(addToken("damage")(c.id));
+                  }}
+                >
+                  +
+                </button>
               </td>
               <td>
                 {/* <button onClick={() => card.update(removeToken("damage"))}>
@@ -139,13 +203,13 @@ export const CardText = observer((props: { card: CardView }) => {
             </td>
           </tr>
         )}
-        {c.props.abilities
+        {/* {c.props.abilities
           .filter((a) => !a.implicit)
           .map((a, i) => (
             <tr key={i}>
               <td colSpan={4}>{a.description}</td>
             </tr>
-          ))}
+          ))} */}
         {/* <tr>
       <td>
         <button disabled={c.exhausted} onClick={() => c.exhaust()}>
@@ -164,4 +228,4 @@ export const CardText = observer((props: { card: CardView }) => {
       </tbody>
     </table>
   );
-});
+};

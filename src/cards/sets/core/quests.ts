@@ -1,24 +1,52 @@
-import { moveCard } from "../../../engine/actions/card";
-import { sequence } from "../../../engine/actions/control";
-import { shuffleZone } from "../../../engine/actions/game";
-import { Action } from "../../../engine/actions/types";
-import { zoneKey } from "../../../engine/utils";
-import { quest, setup } from "../../definitions/quest";
+import {
+  Action,
+  addToStagingArea,
+  CardId,
+  CardView,
+  gameZone,
+  sequence,
+  shuffleZone,
+  View,
+} from "../../../engine";
+import { quest } from "../../definitions/quest";
 
-function addToStagingArea(name: string): Action {
+export type ViewModifier = { print: string; modify: (view: View) => void };
+
+export type CardModifier = {
+  print: string;
+  modify: (card: CardView, view: View) => void;
+};
+
+export function modifyCard(id: CardId, modifier: CardModifier): ViewModifier {
   return {
-    print: `addToStagingArea(${name})`,
-    do: (s) => {
-      const card = s.cards.find((c) => c.definition.face.name === name);
+    print: `modifyCard(${id}, ${modifier.print})`,
+    modify: (v) => {
+      const card = v.cards[id];
       if (card) {
-        return moveCard(
-          zoneKey("encounterDeck"),
-          zoneKey("stagingArea"),
-          "face"
-        )(card.id).do(s);
+        modifier.modify(card, v);
       }
-      return sequence().do(s);
     },
+  };
+}
+
+export function addSetup(action: Action): CardModifier {
+  return {
+    print: `addSetup(${action.print})`,
+    modify: (c) => c.setup.push(action),
+  };
+}
+
+export type Ability = {
+  description: string;
+  implicit: boolean;
+  modifier: (self: CardId) => ViewModifier;
+};
+
+export function setup(props: { description: string; action: Action }): Ability {
+  return {
+    description: props.description,
+    implicit: false,
+    modifier: (self) => modifyCard(self, addSetup(props.action)),
   };
 }
 
@@ -37,7 +65,7 @@ export const fliesAndSpiders = quest(
     action: sequence(
       addToStagingArea("Forest Spider"),
       addToStagingArea("Old Forest Road"),
-      shuffleZone(zoneKey("encounterDeck"))
+      shuffleZone(gameZone("encounterDeck"))
     ),
   })
 );
@@ -56,12 +84,12 @@ export const achosenPath1 = quest({
   a: {
     name: "A Chosen Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3A.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3A.jpg",
   },
   b: {
     name: "Don't Leave the Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3B.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3B.jpg",
     questPoints: 0,
   },
 });
@@ -71,12 +99,12 @@ export const achosenPath2 = quest({
   a: {
     name: "A Chosen Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3A.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3A.jpg",
   },
   b: {
     name: "Beorn's Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3B.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3B.jpg",
     questPoints: 10,
   },
 });

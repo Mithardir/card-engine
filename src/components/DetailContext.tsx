@@ -1,9 +1,9 @@
 import * as React from "react";
-import { CardId } from "../engine/state";
+import { CardId } from "./test10";
 
 export const DetailContext = React.createContext<{
   cardId?: CardId | undefined;
-  setDetail: (id: CardId) => void;
+  setDetail: (id?: CardId) => void;
 }>({
   setDetail: (cardID) => {
     throw new Error("use DetailProvider");

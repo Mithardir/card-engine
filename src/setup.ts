@@ -4,13 +4,13 @@ import {
   horsebackArcher,
   veteranAxehand,
   gandalf,
-} from "../cards/sets/core/allies";
+} from "./cards/sets/core/allies";
 import {
   bladeOfGondolin,
   citadelPlate,
   dwarvenAxe,
   hornOfGondor,
-} from "../cards/sets/core/attachments";
+} from "./cards/sets/core/attachments";
 import {
   kingSpider,
   hummerhorns,
@@ -21,7 +21,7 @@ import {
   forestSpider,
   eastBightPatrol,
   blackForestBats,
-} from "../cards/sets/core/enemies";
+} from "./cards/sets/core/enemies";
 import {
   bladeMastery,
   feint,
@@ -30,8 +30,8 @@ import {
   standTogether,
   swiftStrike,
   thicketOfSpears,
-} from "../cards/sets/core/events";
-import { legolas, thalin, gimli } from "../cards/sets/core/heroes";
+} from "./cards/sets/core/events";
+import { legolas, thalin, gimli } from "./cards/sets/core/heroes";
 import {
   greatForestWeb,
   mountainsOfMirkwood,
@@ -39,20 +39,20 @@ import {
   enchantedStream,
   oldForestRoad,
   forestGate,
-} from "../cards/sets/core/locations";
+} from "./cards/sets/core/locations";
 import {
+  fliesAndSpiders,
+  aForkInTheRoad,
   achosenPath1,
   achosenPath2,
-  aForkInTheRoad,
-  fliesAndSpiders,
-} from "../cards/sets/core/quests";
+} from "./cards/sets/core/quests";
 import {
   eyesOfTheForest,
   caughtInAWeb,
   drivenByShadow,
   theNecromancersReach,
-} from "../cards/sets/core/treacheries";
-import { CardDefinition } from "./state";
+} from "./cards/sets/core/treacheries";
+import { CardDefinition } from "./engine";
 
 export interface Scenario {
   name: string;

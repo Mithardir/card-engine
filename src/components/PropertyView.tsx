@@ -1,15 +1,15 @@
 import * as React from "react";
-import { CardView } from "../engine/view";
-import { SetIntersection } from "utility-types";
+import { CardState, CardView } from "./test10";
+import { PrintedProps } from "./types";
 
 export const PropertyView = (props: {
-  card: CardView;
+  view: CardView;
+  state: CardState;
   label: string;
-  property: SetIntersection<keyof CardView["printed"], keyof CardView["props"]>;
+  property: keyof PrintedProps;
 }) => {
-  const c = props.card;
-  const printed = c.printed[props.property] as number;
-  const value = c.props[props.property] as number;
+  const printed = props.state.definition.face[props.property] as number;
+  const value = props.view.props[props.property] as number;
   const bonus = value - printed;
   return (
     <tr>

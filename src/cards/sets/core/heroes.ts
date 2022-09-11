@@ -1,27 +1,4 @@
-import { dealDamage } from "../../../engine/actions/card";
-import { placeProgress } from "../../../engine/actions/game";
-import {
-  addKeyword,
-  addResponse,
-  CardModifier,
-  increment,
-  modifyCard,
-} from "../../../engine/actions/modifiers";
-import { getTokens } from "../../../engine/exps";
-import { CardId } from "../../../engine/state";
-import { Ability } from "../../../engine/types";
 import { hero } from "../../definitions/hero";
-
-function selfModifier(props: {
-  description: string;
-  modifier: (self: CardId) => CardModifier;
-}): Ability {
-  return {
-    description: props.description,
-    implicit: false,
-    modifier: (self) => modifyCard(self, props.modifier(self)),
-  };
-}
 
 export const gimli = hero(
   {
@@ -33,11 +10,11 @@ export const gimli = hero(
     hitPoints: 5,
     traits: ["dwarf", "noble", "warrior"],
     sphere: "tactics",
-  },
-  selfModifier({
-    description: "Gimli gets +1 [attack] for each damage token on him.",
-    modifier: (self) => increment("attack", getTokens("damage", self)),
-  })
+  }
+  // selfModifier({
+  //   description: "Gimli gets +1 [attack] for each damage token on him.",
+  //   modifier: (self) => increment("attack", getTokens("damage", self)),
+  // })
 );
 
 export const legolas = hero(
@@ -50,26 +27,26 @@ export const legolas = hero(
     hitPoints: 4,
     traits: ["noble", "silvan", "warrior"],
     sphere: "tactics",
-  },
-  {
-    description: "Ranged",
-    implicit: true,
-    modifier: (self) => modifyCard(self, addKeyword("ranged")),
-  },
-  {
-    description:
-      "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-    implicit: false,
-    modifier: (self) =>
-      addResponse((r) => r.destroyed, {
-        description:
-          "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-        condition: (e, v) =>
-          e.attackers.includes(self) &&
-          v.cards.some((c) => c.id === e.cardId && c.props.type === "enemy"),
-        action: () => placeProgress(2),
-      }),
   }
+  // {
+  //   description: "Ranged",
+  //   implicit: true,
+  //   modifier: (self) => modifyCard(self, addKeyword("ranged")),
+  // },
+  // {
+  //   description:
+  //     "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
+  //   implicit: false,
+  //   modifier: (self) =>
+  //     addResponse((r) => r.destroyed, {
+  //       description:
+  //         "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
+  //       condition: (e, v) =>
+  //         e.attackers.includes(self) &&
+  //         v.cards.some((c) => c.id === e.cardId && c.props.type === "enemy"),
+  //       action: () => placeProgress(2),
+  //     }),
+  // }
 );
 
 export const thalin = hero(
@@ -82,25 +59,25 @@ export const thalin = hero(
     hitPoints: 4,
     traits: ["dwarf", "warrior"],
     sphere: "tactics",
-  },
-  {
-    description:
-      "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-    implicit: false,
-    modifier: (self) =>
-      addResponse((r) => r.revealed, {
-        description:
-          "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-        condition: (e, v) => {
-          const quest = v.phase === "quest";
-          const commited = v.cards.find((c) => c.id === self)!.mark.questing;
-          const enemy =
-            v.cards.find((c) => c.id === e.cardId)!.props.type === "enemy";
-          return quest && commited && enemy;
-        },
-        action: (e) => dealDamage(1, [])(e.cardId),
-      }),
   }
+  // {
+  //   description:
+  //     "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+  //   implicit: false,
+  //   modifier: (self) =>
+  //     addResponse((r) => r.revealed, {
+  //       description:
+  //         "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+  //       condition: (e, v) => {
+  //         const quest = v.phase === "quest";
+  //         const commited = v.cards.find((c) => c.id === self)!.mark.questing;
+  //         const enemy =
+  //           v.cards.find((c) => c.id === e.cardId)!.props.type === "enemy";
+  //         return quest && commited && enemy;
+  //       },
+  //       action: (e) => dealDamage(1, [])(e.cardId),
+  //     }),
+  // }
 );
 
 export const gloin = hero(

@@ -1,64 +1,26 @@
-import { Divider, Paper } from "@material-ui/core";
+import { Divider, Paper } from "@mui/material";
+import { PlayerId, State, View, ZoneState } from "./test10";
 import { values } from "lodash";
-import * as React from "react";
-import {
-  GameZoneType,
-  PlayerId,
-  PlayerZoneType,
-  ZoneState,
-} from "../engine/state";
-import { CardView, View } from "../engine/view";
+import { GameZoneType, PlayerZoneType } from "./types";
+import { CardBox } from "./CardBox";
 import { CardShow } from "./CardShow";
-import { useEngine } from "./EngineContext";
-
-export const CardBox = (props: { card: CardView; attachments: CardView[] }) => {
-  const cards = [...props.attachments, props.card];
-
-  return (
-    <div
-      style={{
-        justifyContent: "center",
-        //display: "grid",
-        //gridTemplateRows: "repeat(auto-fit,  25px)",
-        // https://stackoverflow.com/a/53038326
-        //height: 168 + 27 * (cards.length - 1)
-      }}
-    >
-      {cards.map((c, i) => (
-        <div key={c.id} style={{ marginTop: i !== 0 ? "-114%" : 0 }}>
-          <CardShow
-            showExhausted={true}
-            showTokens={true}
-            content="image"
-            key={c.id}
-            card={c}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
 
 export const ZoneShow = (
   props:
-    | { view: View; type: PlayerZoneType; owner: PlayerId }
-    | { view: View; type: GameZoneType; owner?: never }
+    | { state: State; view: View; type: PlayerZoneType; owner: PlayerId }
+    | { state: State; view: View; type: GameZoneType; owner?: never }
 ) => {
   const zone: ZoneState = props.owner
-    ? values(props.view.players).find((p) => p.id === props.owner)?.zones[
+    ? values(props.state.players).find((p) => p.id === props.owner)?.zones[
         props.type
       ]
-    : (props.view.zones as any)[props.type];
-
-  const engine = useEngine();
+    : (props.state.zones as any)[props.type];
 
   if (!zone) {
     return <>Zone not found</>;
   }
 
-  const zoneCards = zone.cards.map(
-    (card) => engine.state.cards.find((cd) => card === cd.id)!
-  );
+  const zoneCards = zone.cards.map((id) => props.state.cards[id]!);
 
   return (
     <Paper
@@ -70,7 +32,7 @@ export const ZoneShow = (
       }}
     >
       <div style={{ margin: 2 }}>
-        {props.type} ({zone.cards.length} cards)
+        {props.type} ({zone.cards.length})
       </div>
       <Divider />
       <div
@@ -88,21 +50,17 @@ export const ZoneShow = (
             .map((card) => (
               <CardBox
                 key={card.id}
-                card={props.view.cards.find((c) => c.id === card.id)!}
-                attachments={props.view.cards.filter(
-                  (c) => c.attachedTo === card.id
-                )}
+                state={props.state.cards[card.id]}
+                view={props.view.cards[card.id]}
               />
             ))}
 
         {zone.cards.length !== 0 && zone.stack && (
           <CardShow
             content="image"
-            card={
-              props.view.cards.find(
-                (c) => c.id === zone.cards[zone.cards.length - 1]
-              )!
-            }
+            state={props.state.cards[zone.cards[zone.cards.length - 1]]}
+            view={props.view.cards[zone.cards[zone.cards.length - 1]]}
+            showTokens
           />
         )}
       </div>

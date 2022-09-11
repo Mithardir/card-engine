@@ -1,35 +1,41 @@
-import { ViewModifier } from "./actions/modifiers";
-import { CardId, GameZoneType, PlayerId, PlayerZoneType } from "./state";
+import { Ability } from "./cards/sets/core/quests";
+import { PlayerId } from "./engine";
 
-export type Trait =
-  | "dwarf"
-  | "noble"
-  | "warrior"
-  | "gondor"
-  | "title"
-  | "noldor"
-  | "rohan"
-  | "dúnedain"
-  | "ranger"
-  | "creature"
-  | "spider"
-  | "forest"
-  | "dolGuldur"
-  | "orc"
-  | "goblin"
-  | "mountain"
-  | "stronghold"
-  | "insect"
-  | "silvan"
-  | "beorning"
-  | "archer"
-  | "artifact"
-  | "weapon"
-  | "item"
-  | "armor"
-  | "istari";
+export type Phase =
+  | "setup"
+  | "resource"
+  | "planning"
+  | "quest"
+  | "travel"
+  | "encounter"
+  | "combat"
+  | "refresh";
 
-export type Sphere = "tactics" | "spirit" | "lore" | "leadership" | "neutral";
+export type GameZoneType =
+  | "discardPile"
+  | "stagingArea"
+  | "activeLocation"
+  | "encounterDeck"
+  | "questDeck"
+  | "victoryDisplay";
+
+export type PlayerZoneType =
+  | "hand"
+  | "library"
+  | "discardPile"
+  | "playerArea"
+  | "engaged";
+
+export type AbilityView = Ability & { applied: boolean };
+
+export type CommonProps = {
+  image: string;
+  traits: Trait[];
+  keywords: Keywords;
+  abilities?: Ability[];
+};
+
+export const playerIds: PlayerId[] = ["A", "B", "C", "D"];
 
 export type Keyword = keyof Keywords;
 
@@ -38,19 +44,6 @@ export const emptyKeywords: Keywords = { ranged: false, sentinel: false };
 export type Keywords = {
   ranged: boolean;
   sentinel: boolean;
-};
-
-export type Ability = {
-  description: string;
-  implicit: boolean;
-  modifier: (self: CardId) => ViewModifier;
-};
-
-export type CommonProps = {
-  image: string;
-  traits: Trait[];
-  keywords: Keywords;
-  abilities: Ability[];
 };
 
 export type HeroProps = {
@@ -130,24 +123,50 @@ export type PrintedProps = CommonProps &
     defense: number;
     hitPoints: number;
     sphere: Sphere;
-    type:
-      | "hero"
-      | "ally"
-      | "quest"
-      | "attachment"
-      | "enemy"
-      | "event"
-      | "treachery"
-      | "location"
-      | "quest";
+    type: CardType;
     engagement: number;
     threat: number;
     sequence: number;
     questPoints: number;
   }>;
 
-export type Token = "damage" | "resources" | "progress";
+export type CardType =
+  | "hero"
+  | "ally"
+  | "quest"
+  | "attachment"
+  | "enemy"
+  | "event"
+  | "treachery"
+  | "location"
+  | "quest";
 
-export type ZoneKey =
-  | { type: GameZoneType; player?: never; print: string }
-  | { type: PlayerZoneType; player: PlayerId; print: string };
+export type Trait =
+  | "dwarf"
+  | "noble"
+  | "warrior"
+  | "gondor"
+  | "title"
+  | "noldor"
+  | "rohan"
+  | "dúnedain"
+  | "ranger"
+  | "creature"
+  | "spider"
+  | "forest"
+  | "dolGuldur"
+  | "orc"
+  | "goblin"
+  | "mountain"
+  | "stronghold"
+  | "insect"
+  | "silvan"
+  | "beorning"
+  | "archer"
+  | "artifact"
+  | "weapon"
+  | "item"
+  | "armor"
+  | "istari";
+
+export type Sphere = "tactics" | "spirit" | "lore" | "leadership" | "neutral";

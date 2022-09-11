@@ -1,11 +1,13 @@
-import { EnemyProps, Ability, emptyKeywords } from "../../engine/types";
-import { CardDefinition } from "../../engine/state";
-import encounterBack from "../../Images/back/encounter.jpg";
+import encounterBack from "../../images/back/encounter.jpg";
+import { CardDefinition } from "../../engine";
+import { EnemyProps, emptyKeywords } from "../../types";
 
-export function enemy(props: EnemyProps, ...abilities: Ability[]): CardDefinition {
+export function enemy(props: EnemyProps): CardDefinition {
   const image =
     props.name !== "Dol Guldur Orcs"
-      ? `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name.split(" ").join("-")}.jpg`
+      ? `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
+          .split(" ")
+          .join("-")}.jpg`
       : "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/Dol-Guldur-Orcs-Enemy.jpg";
 
   return {
@@ -14,11 +16,9 @@ export function enemy(props: EnemyProps, ...abilities: Ability[]): CardDefinitio
       image,
       type: "enemy",
       keywords: emptyKeywords,
-      abilities,
     },
     back: {
       image: encounterBack,
-      abilities: [],
       traits: [],
       keywords: emptyKeywords,
     },

@@ -1,7 +1,6 @@
-import { Ability, emptyKeywords } from "../../engine/types";
-import { CardDefinition } from "../../engine/state";
-import { Action } from "../../engine/actions/types";
-import { modifyCard, setSetup } from "../../engine/actions/modifiers";
+import { CardDefinition } from "../../engine";
+import { emptyKeywords } from "../../types";
+import { Ability } from "../sets/core/quests";
 
 export type QuestDefinition =
   | {
@@ -16,14 +15,6 @@ export type QuestDefinition =
       a: { name?: never; image?: string };
       b: { name?: never; image?: string; questPoints: number };
     };
-
-export function setup(props: { description: string; action: Action }): Ability {
-  return {
-    description: props.description,
-    implicit: false,
-    modifier: (self) => modifyCard(self, setSetup(props.action)),
-  };
-}
 
 export function quest(
   def: QuestDefinition,
@@ -51,8 +42,8 @@ export function quest(
       sequence: def.sequence,
       type: "quest",
       keywords: emptyKeywords,
-      abilities,
       traits: [],
+      abilities,
     },
     back: {
       name: nameB,
@@ -60,7 +51,6 @@ export function quest(
       sequence: def.sequence,
       type: "quest",
       questPoints: def.b.questPoints,
-      abilities: [],
       traits: [],
       keywords: emptyKeywords,
     },

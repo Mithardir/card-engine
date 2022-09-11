@@ -1,8 +1,8 @@
-import { HeroProps, Ability, emptyKeywords } from "../../engine/types";
-import { CardDefinition } from "../../engine/state";
-import playerBack from "../../Images/back/card.jpg";
+import playerBack from "../../images/back/card.jpg";
+import { CardDefinition } from "../../engine";
+import { HeroProps, emptyKeywords } from "../../types";
 
-export function hero(props: HeroProps, ...abilities: Ability[]): CardDefinition {
+export function hero(props: HeroProps): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
     .split(" ")
     .join("-")}.jpg`;
@@ -14,11 +14,9 @@ export function hero(props: HeroProps, ...abilities: Ability[]): CardDefinition 
       type: "hero",
       unique: true,
       keywords: emptyKeywords,
-      abilities,
     },
     back: {
       image: playerBack,
-      abilities: [],
       traits: [],
       keywords: emptyKeywords,
     },

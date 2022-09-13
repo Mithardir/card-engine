@@ -23,189 +23,104 @@ export const mark = cardAction<Mark>("mark", (c, type) => {
   c.card.mark[type] = true;
 });
 
-export const commitToQuest = cardActionSequence(tap(), mark("questing"));
+export const moveCard = cardAction<{
+  from: Getter<ZoneState>;
+  to: Getter<ZoneState>;
+  side: Side;
+}>("moveCard", (c, args) => {
+  const card = c.card;
+  card.sideUp = args.side;
+  const zoneTo = args.to.get(c.state);
+  const zoneFrom = args.from.get(c.state);
+  if (zoneTo && zoneFrom) {
+    zoneFrom.cards = zoneFrom.cards.filter((c) => c !== card.id);
+    zoneTo.cards.push(c.card.id);
+  }
+});
 
-export function travelTo(cardId?: CardId): Action & CardAction {
-  return {
-    print: `travelTo(${cardId})`,
-    card: (id) => travelTo(id),
-    apply: (s) => {
-      if (cardId) {
-        moveCard(
-          gameZone("stagingArea"),
-          gameZone("activeLocation"),
-          "face",
-          cardId
-        ).apply(s);
-      }
-    },
-  };
-}
+export const travelTo = moveCard({
+  from: gameZone("stagingArea"),
+  to: gameZone("activeLocation"),
+  side: "face",
+});
 
-export function resolveEnemyAttack(
-  player: PlayerId,
-  attacker?: number
-): Action & CardAction {
-  return {
-    print: `resolveEnemyAttack(${player}, ${attacker})`,
-    card: (id) => resolveEnemyAttack(player, id),
-    apply: (s) => {
-      if (attacker) {
-        sequence(
-          mark("attacked").card(attacker),
-          playerActions("Declare defender"),
-          declareDefender(attacker, player)
-        ).apply(s);
-      }
-    },
-  };
-}
+export const resolveEnemyAttack = cardAction<PlayerId>(
+  "resolveEnemyAttack",
+  (c, player) => {
+    return sequence(
+      mark("attacked").card(c.card.id),
+      playerActions("Declare defender"),
+      declareDefender(c.card.id, player)
+    ).apply(c.state);
+  }
+);
 
-export function dealDamage(
-  damage: Getter<number>,
-  attackers: CardId[],
-  defender?: CardId
-): Action & CardAction {
-  return {
-    print: `dealDamage(${damage.print}, [${attackers.join(
-      ", "
-    )}], ${defender})`,
-    card: (id) => dealDamage(damage, attackers, id),
-    apply: (s) => {
-      if (defender) {
-        const amount = damage.get(s);
-        if (amount) {
-          s.cards[defender].token.damage += amount;
-        }
-      }
-    },
-  };
-}
+export const dealDamage = cardAction<{
+  damage: Getter<number>;
+  attackers: CardId[];
+}>("dealDamage", (c, args) => {
+  const amount = args.damage.get(c.state);
+  if (amount) {
+    c.card.token.damage += amount;
+  }
+});
 
-export function resolveDefense(
-  attacker: CardId,
-  defender?: CardId
-): Action & CardAction {
-  return {
-    print: `resolveDefense(${attacker}, ${defender})`,
-    card: (id) => resolveDefense(attacker, id),
-    apply: (s) => {
-      if (defender) {
-        const damage = minus(
-          getProp("attack", attacker),
-          getProp("defense", defender)
-        );
-        ifThenElse(
-          isMore(damage, value(0)),
-          dealDamage(damage, [attacker], defender),
-          sequence()
-        ).apply(s);
-      }
-    },
-  };
-}
+export const resolveDefense = cardAction<CardId>(
+  "resolveDefense",
+  (c, attacker) => {
+    const defender = c.card.id;
+    const damage = minus(
+      getProp("attack", attacker),
+      getProp("defense", defender)
+    );
+    ifThenElse(
+      isMore(damage, value(0)),
+      dealDamage({ damage, attackers: [attacker] }).card(defender),
+      sequence()
+    ).apply(c.state);
+  }
+);
 
 export function cardActionSequence(...actions: CardAction[]): CardAction {
   return {
-    print: `cardActionSequence(${actions.map((a) => a.print).join(", ")})`,
+    print: `sequence(${actions.map((a) => a.print).join(", ")})`,
     card: (id) => sequence(...actions.map((a) => a.card(id))),
   };
 }
 
-export function resolvePlayerAttack(
-  player: PlayerId,
-  enemy?: CardId
-): Action & CardAction {
-  return {
-    print: `resolvePlayerAttack(${player}, ${enemy})`,
-    card: (id) => resolvePlayerAttack(player, id),
-    apply: (s) => {
-      if (enemy) {
-        const damage = minus(totalAttack, getProp("defense", enemy));
-        sequence(
-          playerActions("Declare attackers"),
-          declareAttackers(enemy, player),
-          playerActions("Determine combat damage"),
-          ifThenElse(
-            isMore(damage, value(0)),
-            dealDamage(damage, [], enemy),
-            sequence()
-          ),
-          clearMarks("attacking"),
-          mark("attacked").card(enemy)
-        ).apply(s);
-      }
-    },
-  };
-}
+export const resolvePlayerAttack = cardAction<PlayerId>(
+  "resolvePlayerAttack",
+  (c, player) => {
+    const enemy = c.card.id;
+    const damage = minus(totalAttack, getProp("defense", enemy));
+    sequence(
+      playerActions("Declare attackers"),
+      declareAttackers(enemy, player),
+      playerActions("Determine combat damage"),
+      ifThenElse(
+        isMore(damage, value(0)),
+        dealDamage({ damage, attackers: [] }).card(enemy),
+        sequence()
+      ),
+      clearMarks("attacking"),
+      mark("attacked").card(enemy)
+    ).apply(c.state);
+  }
+);
 
-export function untap(cardId?: CardId): Action & CardAction {
-  return {
-    print: `untap(${cardId})`,
-    card: (id) => untap(id),
-    apply: (s) => {
-      if (cardId) {
-        const card = s.cards[cardId];
-        if (card) {
-          card.tapped = false;
-        }
-      }
-    },
-  };
-}
+export const untap = cardAction("untap", (c) => {
+  c.card.tapped = false;
+});
 
-export function generateResource(
-  amount: number,
-  cardId?: CardId
-): Action & CardAction {
-  return {
-    print: `generateResource(${amount}, ${cardId})`,
-    card: (id) => generateResource(amount, id),
-    apply: (s) => {
-      if (cardId) {
-        s.cards[cardId].token.resources += amount;
-      }
-    },
-  };
-}
+export const tap = cardAction("tap", (c) => {
+  c.card.tapped = true;
+});
 
-export function moveCard(
-  from: Getter<ZoneState>,
-  to: Getter<ZoneState>,
-  side: Side,
-  cardId?: CardId
-): Action & CardAction {
-  return {
-    print: `moveCard(${to.print}, ${side},${cardId})`,
-    card: (id) => moveCard(from, to, side, id),
-    apply: (s) => {
-      if (cardId) {
-        const card = s.cards[cardId];
-        if (card) {
-          card.sideUp = side;
-          const zoneTo = to.get(s);
-          const zoneFrom = from.get(s);
-          if (zoneTo && zoneFrom) {
-            zoneFrom.cards = zoneFrom.cards.filter((c) => c !== cardId);
-            zoneTo.cards.push(cardId);
-          }
-        }
-      }
-    },
-  };
-}
+export const generateResource = cardAction<number>(
+  "generateResource",
+  (c, amount) => {
+    c.card.token.resources += amount;
+  }
+);
 
-export function tap(cardId?: CardId): Action & CardAction {
-  return {
-    print: `tap(${cardId})`,
-    card: (id) => tap(id),
-    apply: (s) => {
-      if (cardId) {
-        const card = s.cards[cardId];
-        if (card) {
-          card.tapped = true;
-        }
-      }
-    },
-  };
-}
+export const commitToQuest = cardActionSequence(tap(), mark("questing"));

@@ -296,7 +296,7 @@ export function resolveQuest(): Action {
 export const chooseTravelLocation = chooseCardAction(
   "Choose location for travel",
   and(isLocation, isInZone(gameZone("stagingArea"))),
-  travelTo(),
+  travelTo,
   true
 );
 
@@ -330,9 +330,8 @@ export function declareDefender(attacker: CardId, player: PlayerId): Action {
           ...cards.map((defender) => ({
             image: defender.props.image,
             title: defender.props.name || "",
-            action: sequence(
-              tap(defender.id),
-              resolveDefense(attacker, defender.id)
+            action: cardActionSequence(tap(), resolveDefense(attacker)).card(
+              defender.id
             ),
           })),
           {
@@ -340,7 +339,10 @@ export function declareDefender(attacker: CardId, player: PlayerId): Action {
             action: chooseCardAction(
               "Choose hero for undefended attack",
               and(isHero, isInZone(playerZone("playerArea", player))),
-              dealDamage(getProp("attack", attacker), [attacker]),
+              dealDamage({
+                damage: getProp("attack", attacker),
+                attackers: [attacker],
+              }),
               false
             ),
           },
@@ -371,12 +373,13 @@ export function addToStagingArea(name: string): Action {
     apply: (s) => {
       const card = values(s.cards).find((c) => c.definition.face.name === name);
       if (card) {
-        moveCard(
-          gameZone("encounterDeck"),
-          gameZone("stagingArea"),
-          "face",
-          card.id
-        ).apply(s);
+        moveCard({
+          from: gameZone("encounterDeck"),
+          to: gameZone("stagingArea"),
+          side: "face",
+        })
+          .card(card.id)
+          .apply(s);
       }
     },
   };

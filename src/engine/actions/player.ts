@@ -74,11 +74,11 @@ export function engagementCheck(player?: PlayerId): Action & PlayerAction {
         chooseCardAction(
           "Choose enemy to engage",
           and(withMaxEngagement(player), isInZone(gameZone("stagingArea"))),
-          moveCard(
-            gameZone("stagingArea"),
-            playerZone("engaged", player),
-            "face"
-          ),
+          moveCard({
+            from: gameZone("stagingArea"),
+            to: playerZone("engaged", player),
+            side: "face",
+          }),
           false
         ).apply(s);
       }
@@ -121,11 +121,11 @@ export function optionalEngagement(player?: PlayerId): Action & PlayerAction {
         chooseCardAction(
           "Choose enemy to optionally engage",
           and(isEnemy, isInZone(gameZone("stagingArea"))),
-          moveCard(
-            gameZone("stagingArea"),
-            playerZone("engaged", player),
-            "face"
-          ),
+          moveCard({
+            from: gameZone("stagingArea"),
+            to: playerZone("engaged", player),
+            side: "face",
+          }),
           true
         ).apply(s);
       }
@@ -160,7 +160,7 @@ export function resolvePlayerAttacks(player?: PlayerId): Action & PlayerAction {
           chooseOne("Choose enemy attacker", [
             ...enemies.map((c) => ({
               action: sequence(
-                resolvePlayerAttack(player, c.id),
+                resolvePlayerAttack(player).card(c.id),
                 resolvePlayerAttacks(player)
               ),
               title: c.props.name || "",

@@ -1,7 +1,6 @@
 import { Divider, Paper } from "@mui/material";
-import { PlayerState, State, View } from "./test10";
+import { PlayerState, State, View } from "../types/state";
 import { ZoneShow } from "./ZoneShow";
-
 
 export const PlayerShow = (props: {
   player: PlayerState;
@@ -18,28 +17,33 @@ export const PlayerShow = (props: {
         type="engaged"
         owner={props.player.id}
         state={props.state}
-        view={props.view} />
+        view={props.view}
+      />
       <ZoneShow
         type="playerArea"
         owner={props.player.id}
         state={props.state}
-        view={props.view} />
+        view={props.view}
+      />
       <div style={{ display: "flex" }}>
         <ZoneShow
           type="hand"
           owner={props.player.id}
           state={props.state}
-          view={props.view} />
+          view={props.view}
+        />
         <ZoneShow
           type="library"
           owner={props.player.id}
           state={props.state}
-          view={props.view} />
+          view={props.view}
+        />
         <ZoneShow
           type="discardPile"
           owner={props.player.id}
           state={props.state}
-          view={props.view} />
+          view={props.view}
+        />
       </div>
     </Paper>
   );

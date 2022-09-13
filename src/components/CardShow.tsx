@@ -4,7 +4,7 @@ import resourceImage from "../images/tokens/resource.png";
 import progressImage from "../images/tokens/progress.png";
 import { DetailContext } from "./DetailContext";
 import { CardText } from "./CardText";
-import { CardState, CardView } from "../engine";
+import { CardState, CardView } from "../types/state";
 
 export const CardShow = (props: {
   state?: CardState;

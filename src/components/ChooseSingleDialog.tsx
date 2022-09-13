@@ -6,7 +6,7 @@ import {
   List,
   ListItem,
 } from "@mui/material";
-import { Action } from "./test10";
+import { Action } from "../engine/types";
 
 export const ChooseSingleDialog = (props: {
   title: string;

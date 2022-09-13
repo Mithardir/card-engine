@@ -1,6 +1,6 @@
 import * as React from "react";
+import { CardState, CardView } from "../types/state";
 import { PropertyView } from "./PropertyView";
-import { CardState, CardView } from "./test10";
 
 export const CardText = (props: { state: CardState; view: CardView }) => {
   const c = {

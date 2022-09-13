@@ -1,7 +1,7 @@
 import { Divider, Paper } from "@mui/material";
-import { PlayerId, State, View, ZoneState } from "./test10";
 import { values } from "lodash";
-import { GameZoneType, PlayerZoneType } from "./types";
+import { PlayerZoneType, GameZoneType } from "../types/basic";
+import { State, View, PlayerId, ZoneState } from "../types/state";
 import { CardBox } from "./CardBox";
 import { CardShow } from "./CardShow";
 

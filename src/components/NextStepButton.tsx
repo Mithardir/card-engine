@@ -1,8 +1,7 @@
 import { Fab, Icon } from "@mui/material";
 import produce from "immer";
-import { State } from "./test10";
+import { State } from "../types/state";
 import { advanceToChoiceState } from "./GameView";
-
 
 export const NextStepButton = (props: {
   state: State;

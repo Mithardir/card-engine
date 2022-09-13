@@ -1,13 +1,7 @@
-import {
-  Action,
-  addToStagingArea,
-  CardId,
-  CardView,
-  gameZone,
-  sequence,
-  shuffleZone,
-  View,
-} from "../../../engine";
+import { sequence, addToStagingArea, shuffleZone } from "../../../engine/actions/global";
+import { gameZone } from "../../../engine/getters";
+import { Action } from "../../../engine/types";
+import { View, CardView, CardId } from "../../../types/state";
 import { quest } from "../../definitions/quest";
 
 export type ViewModifier = { print: string; modify: (view: View) => void };

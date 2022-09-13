@@ -1,11 +1,7 @@
-import {
-  CardState,
-  CardView
-} from "../engine";
+import { CardState, CardView } from "../types/state";
 import { CardShow } from "./CardShow";
 
-
-export const CardBox = (props: { state: CardState; view: CardView; }) => {
+export const CardBox = (props: { state: CardState; view: CardView }) => {
   return (
     <div
       style={{
@@ -22,7 +18,8 @@ export const CardBox = (props: { state: CardState; view: CardView; }) => {
           showTokens={true}
           content="image"
           state={props.state}
-          view={props.view} />
+          view={props.view}
+        />
       </div>
     </div>
   );

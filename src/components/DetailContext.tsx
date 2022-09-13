@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CardId } from "./test10";
+import { CardId } from "../types/state";
 
 export const DetailContext = React.createContext<{
   cardId?: CardId | undefined;

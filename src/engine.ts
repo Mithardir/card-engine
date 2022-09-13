@@ -1,126 +1,25 @@
-import { CardProps } from "@mui/material";
 import { keys, last, mapValues, range, reverse, values } from "lodash";
-import { Scenario, PlayerDeck } from "./setup";
+import { commitToQuest, mark } from "./engine/cardActions";
 import {
-  AbilityView,
-  GameZoneType,
-  Phase,
+  Action,
+  Getter,
+  PlayerAction,
+  Predicate,
+  CardAction,
+} from "./engine/types";
+import { Scenario, PlayerDeck } from "./setup";
+import { PlayerZoneType, Phase, GameZoneType, Mark, Side } from "./types/basic";
+import {
+  CardDefinition,
+  CardId,
+  CardState,
+  CardView,
+  PlayerId,
   playerIds,
-  PlayerZoneType,
-  PrintedProps,
-} from "./types";
-
-export type PlayerState = {
-  id: PlayerId;
-  zones: Record<PlayerZoneType, ZoneState>;
-  thread: number;
-};
-
-export interface ZoneState {
-  stack: boolean;
-  cards: CardId[];
-}
-
-export interface Flavoring<FlavorT> {
-  _type?: FlavorT;
-}
-
-export type Flavor<T, FlavorT> = T & Flavoring<FlavorT>;
-
-export type CardId = Flavor<number, "Card">;
-
-export type Side = "face" | "back";
-
-export type Token = "damage" | "progress" | "resources";
-
-export type Mark = "questing" | "attacking" | "defending" | "attacked";
-
-export type Tokens = Record<Token, number>;
-
-export type Marks = Record<Mark, boolean>;
-
-export type CardDefinition = {
-  face: PrintedProps;
-  back: PrintedProps;
-  orientation: "landscape" | "portrait";
-};
-
-export type CardState = {
-  id: CardId;
-  definition: CardDefinition;
-  sideUp: Side;
-  tapped: boolean;
-  token: Tokens;
-  mark: Marks;
-  attachedTo?: CardId | undefined;
-};
-
-export type State = {
-  phase: Phase;
-  players: Partial<Record<PlayerId, PlayerState>>;
-  zones: Record<GameZoneType, ZoneState>;
-  cards: Record<CardId, CardState>;
-  effects: Effect[];
-  choice?: {
-    title: string;
-    dialog: boolean;
-    multi: boolean;
-    options: Array<{ title: string; action: Action }>;
-  };
-  next: Action[];
-  responses: {};
-};
-
-export type Response<T> = {
-  description: string;
-  create: (e: T) => Action;
-};
-
-export function incAResponse(
-  description: string,
-  create: (e: IncAEvent) => Action
-): Response<IncAEvent> {
-  return {
-    description,
-    create,
-  };
-}
-
-export type CardView = {
-  id: CardId;
-  props: PrintedProps;
-  abilities: AbilityView[];
-  setup: Action[];
-};
-
-export type View = {
-  cards: Record<CardId, CardView>;
-};
-
-export type Effect = {
-  description: string;
-  apply: (view: View) => View;
-};
-
-export type Action = {
-  print: string;
-  apply: (state: State) => void;
-};
-
-export type Getter<T> = {
-  print: string;
-  get: (state: State) => T | undefined;
-};
-
-export type IncAEvent = {
-  type: "incA";
-  amount: number;
-};
-
-export type IncBEvent = {
-  type: "incB";
-  amount: number;
-};
+  State,
+  View,
+  ZoneState,
+} from "./types/state";
 
 export function createCardView(state: CardState): CardView {
   const printed = state.definition[state.sideUp];
@@ -228,15 +127,10 @@ export function beginPhase(type: Phase): Action {
   };
 }
 
-export type PlayerAction = {
-  print: string;
-  action: (playerId: PlayerId) => Action;
-};
-
 export function draw(amount: number): PlayerAction {
   return {
     print: `draw(${amount})`,
-    action: (id) => playerDraw(id, amount),
+    player: (id) => playerDraw(id, amount),
   };
 }
 
@@ -246,7 +140,7 @@ export function incrementThreat(
 ): PlayerAction & Action {
   return {
     print: `incrementThreat(${amount.print}, ${playerId})`,
-    action: (id) => incrementThreat(amount, id),
+    player: (id) => incrementThreat(amount, id),
     apply: (s) => {
       if (playerId) {
         const player = s.players[playerId];
@@ -258,8 +152,6 @@ export function incrementThreat(
     },
   };
 }
-
-export type PlayerId = "A" | "B" | "C" | "D";
 
 export function playerDraw(playerId: PlayerId, amount: number): Action {
   return {
@@ -287,7 +179,7 @@ export function eachPlayer(playerAction: PlayerAction): Action {
     print: `eachPlayer(${playerAction.print})`,
     apply: (s) => {
       const action = sequence(
-        ...Object.keys(s.players).map((p) => playerAction.action(p as any))
+        ...Object.keys(s.players).map((p) => playerAction.player(p as any))
       );
       return action.apply(s);
     },
@@ -303,7 +195,7 @@ export function eachCard(
     apply: (s) => {
       const cards = filterCards(filter).get(s);
       if (cards) {
-        const action = sequence(...cards.map((p) => cardAction.action(p.id)));
+        const action = sequence(...cards.map((p) => cardAction.card(p.id)));
         return action.apply(s);
       }
     },
@@ -326,18 +218,6 @@ export const phasePlanning = sequence(
   beginPhase("planning"),
   playerActions("End planning phase")
 );
-
-export type CardFilter = { print: string };
-
-export type CardAction = {
-  print: string;
-  action: (cardId: CardId) => Action;
-};
-
-export type Predicate<T> = {
-  print: string;
-  eval: (item: T, state: State) => boolean;
-};
 
 export function filterCards(
   predicate: Predicate<CardView>
@@ -378,7 +258,7 @@ export function chooseCardAction(
       if (cards) {
         const options = cards.map((card) => ({
           title: card.props.name || "",
-          action: factory.action(card.id),
+          action: factory.card(card.id),
           image: card.props.image,
         }));
 
@@ -407,7 +287,7 @@ export function chooseCardsActions(
       if (cards) {
         const options = cards.map((card) => ({
           title: card.props.name || "",
-          action: factory.action(card.id),
+          action: factory.card(card.id),
           image: card.props.image,
         }));
 
@@ -473,7 +353,7 @@ export function isInZone(zone: Getter<ZoneState>): Predicate<CardView> {
 
 export const commitCharactersToQuest: PlayerAction = {
   print: `commitCharactersToQuest`,
-  action: (player) =>
+  player: (player) =>
     chooseCardsActions(
       "Commit characters to quest",
       and(isCharacter, isReady, isInZone(playerZone("playerArea", player))),
@@ -659,7 +539,7 @@ export const phaseQuest = sequence(
 export function travelTo(cardId?: CardId): Action & CardAction {
   return {
     print: `travelTo(${cardId})`,
-    action: (id) => travelTo(id),
+    card: (id) => travelTo(id),
     apply: (s) => {
       if (cardId) {
         moveCard(
@@ -744,7 +624,7 @@ export function withMaxEngagement(player: PlayerId): Predicate<CardView> {
 export function engagementCheck(player?: PlayerId): Action & PlayerAction {
   return {
     print: `engagementCheck(${player})`,
-    action: (id) => engagementCheck(id),
+    player: (id) => engagementCheck(id),
     apply: (s) => {
       if (player) {
         chooseCardAction(
@@ -776,11 +656,11 @@ export function resolveEnemyAttack(
 ): Action & CardAction {
   return {
     print: `resolveEnemyAttack(${player}, ${attacker})`,
-    action: (id) => resolveEnemyAttack(player, id),
+    card: (id) => resolveEnemyAttack(player, id),
     apply: (s) => {
       if (attacker) {
         sequence(
-          mark("attacked", attacker),
+          mark("attacked").card(attacker),
           playerActions("Declare defender"),
           declareDefender(attacker, player)
         ).apply(s);
@@ -830,7 +710,7 @@ export function dealDamage(
     print: `dealDamage(${damage.print}, [${attackers.join(
       ", "
     )}], ${defender})`,
-    action: (id) => dealDamage(damage, attackers, id),
+    card: (id) => dealDamage(damage, attackers, id),
     apply: (s) => {
       if (defender) {
         const amount = damage.get(s);
@@ -848,7 +728,7 @@ export function resolveDefense(
 ): Action & CardAction {
   return {
     print: `resolveDefense(${attacker}, ${defender})`,
-    action: (id) => resolveDefense(attacker, id),
+    card: (id) => resolveDefense(attacker, id),
     apply: (s) => {
       if (defender) {
         const damage = minus(
@@ -903,7 +783,7 @@ export function declareDefender(attacker: CardId, player: PlayerId): Action {
 export function resolveEnemyAttacks(player?: PlayerId): Action & PlayerAction {
   return {
     print: `resolveEnemyAttacks(${player})`,
-    action: (id) => resolveEnemyAttacks(id),
+    player: (id) => resolveEnemyAttacks(id),
     apply: (s) => {
       if (player) {
         const attackers = and(
@@ -929,7 +809,7 @@ export function resolveEnemyAttacks(player?: PlayerId): Action & PlayerAction {
 export function cardActionSequence(...actions: CardAction[]): CardAction {
   return {
     print: `cardActionSequence(${actions.map((a) => a.print).join(", ")})`,
-    action: (id) => sequence(...actions.map((a) => a.action(id))),
+    card: (id) => sequence(...actions.map((a) => a.card(id))),
   };
 }
 
@@ -952,7 +832,7 @@ export function resolvePlayerAttack(
 ): Action & CardAction {
   return {
     print: `resolvePlayerAttack(${player}, ${enemy})`,
-    action: (id) => resolvePlayerAttack(player, id),
+    card: (id) => resolvePlayerAttack(player, id),
     apply: (s) => {
       if (enemy) {
         const damage = minus(totalAttack, getProp("defense", enemy));
@@ -966,7 +846,7 @@ export function resolvePlayerAttack(
             sequence()
           ),
           clearMarks("attacking"),
-          mark("attacked", enemy)
+          mark("attacked").card(enemy)
         ).apply(s);
       }
     },
@@ -976,7 +856,7 @@ export function resolvePlayerAttack(
 export function resolvePlayerAttacks(player?: PlayerId): Action & PlayerAction {
   return {
     print: `resolvePlayerAttacks(${player})`,
-    action: (id) => resolvePlayerAttacks(id),
+    player: (id) => resolvePlayerAttacks(id),
     apply: (s) => {
       if (player) {
         const enemies = filterCards(
@@ -1027,7 +907,7 @@ export const phaseCombat = sequence(
 export function untap(cardId?: CardId): Action & CardAction {
   return {
     print: `untap(${cardId})`,
-    action: (id) => untap(id),
+    card: (id) => untap(id),
     apply: (s) => {
       if (cardId) {
         const card = s.cards[cardId];
@@ -1042,7 +922,7 @@ export function untap(cardId?: CardId): Action & CardAction {
 export function optionalEngagement(player?: PlayerId): Action & PlayerAction {
   return {
     print: `optionalEngagement(${player})`,
-    action: (id) => optionalEngagement(id),
+    player: (id) => optionalEngagement(id),
     apply: (s) => {
       if (player) {
         chooseCardAction(
@@ -1066,7 +946,7 @@ export function generateResource(
 ): Action & CardAction {
   return {
     print: `generateResource(${amount}, ${cardId})`,
-    action: (id) => generateResource(amount, id),
+    card: (id) => generateResource(amount, id),
     apply: (s) => {
       if (cardId) {
         s.cards[cardId].token.resources += amount;
@@ -1190,7 +1070,7 @@ export function moveCard(
 ): Action & CardAction {
   return {
     print: `moveCard(${to.print}, ${side},${cardId})`,
-    action: (id) => moveCard(from, to, side, id),
+    card: (id) => moveCard(from, to, side, id),
     apply: (s) => {
       if (cardId) {
         const card = s.cards[cardId];
@@ -1288,7 +1168,7 @@ export function beginScenario(
 
 export const shuffleLibrary: PlayerAction = {
   print: "shuffleLibrary",
-  action: (player) => shuffleZone(playerZone("library", player)),
+  player: (player) => shuffleZone(playerZone("library", player)),
 };
 
 export function shuffleZone(getter: Getter<ZoneState>): Action {
@@ -1340,7 +1220,7 @@ export function shuffleArray<T>(a: T[], order?: number[]) {
 export function tap(cardId?: CardId): Action & CardAction {
   return {
     print: `tap(${cardId})`,
-    action: (id) => tap(id),
+    card: (id) => tap(id),
     apply: (s) => {
       if (cardId) {
         const card = s.cards[cardId];
@@ -1351,23 +1231,3 @@ export function tap(cardId?: CardId): Action & CardAction {
     },
   };
 }
-
-export function mark(type: Mark, cardId?: CardId): Action & CardAction {
-  return {
-    print: `mark(${type}, ${cardId})`,
-    action: (id) => mark(type, id),
-    apply: (s) => {
-      if (cardId) {
-        const card = s.cards[cardId];
-        if (card) {
-          card.mark[type] = true;
-        }
-      }
-    },
-  };
-}
-
-export const commitToQuest: CardAction = {
-  print: `commitToQuest`,
-  action: (cardId) => sequence(tap(cardId), mark("questing", cardId)),
-};

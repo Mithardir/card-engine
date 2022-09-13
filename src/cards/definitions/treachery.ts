@@ -1,6 +1,7 @@
 import encounterBack from "../../images/back/encounter.jpg";
-import { CardDefinition } from "../../engine";
-import { TreacheryProps, emptyKeywords } from "../../types";
+import { CardDefinition } from "../../types/state";
+import { emptyKeywords } from "../../types/basic";
+import { TreacheryProps } from "../../types/cards";
 
 export function treachery(props: TreacheryProps): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name

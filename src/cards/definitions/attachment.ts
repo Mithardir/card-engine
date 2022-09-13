@@ -1,6 +1,7 @@
 import playerBack from "../../images/back/card.jpg";
-import { CardDefinition } from "../../engine";
-import { AttachmentProps, emptyKeywords } from "../../types";
+import { CardDefinition } from "../../types/state";
+import { emptyKeywords } from "../../types/basic";
+import { AttachmentProps } from "../../types/cards";
 
 export function attachment(props: AttachmentProps): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name

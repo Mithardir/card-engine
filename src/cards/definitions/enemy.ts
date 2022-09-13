@@ -1,6 +1,7 @@
 import encounterBack from "../../images/back/encounter.jpg";
-import { CardDefinition } from "../../engine";
-import { EnemyProps, emptyKeywords } from "../../types";
+import { CardDefinition } from "../../types/state";
+import { emptyKeywords } from "../../types/basic";
+import { EnemyProps } from "../../types/cards";
 
 export function enemy(props: EnemyProps): CardDefinition {
   const image =

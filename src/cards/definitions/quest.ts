@@ -1,5 +1,5 @@
-import { CardDefinition } from "../../engine";
-import { emptyKeywords } from "../../types";
+import { CardDefinition } from "../../types/state";
+import { emptyKeywords } from "../../types/basic";
 import { Ability } from "../sets/core/quests";
 
 export type QuestDefinition =

@@ -330,7 +330,7 @@ export function declareDefender(attacker: CardId, player: PlayerId): Action {
           ...cards.map((defender) => ({
             image: defender.props.image,
             title: defender.props.name || "",
-            action: cardActionSequence(tap(), resolveDefense(attacker)).card(
+            action: cardActionSequence([tap(), resolveDefense(attacker)]).card(
               defender.id
             ),
           })),
@@ -361,7 +361,7 @@ export function declareAttackers(enemy: CardId, player: PlayerId): Action {
       chooseCardsActions(
         "Declare attackers",
         and(isReady, isCharacter, isInZone(playerZone("playerArea", player))),
-        cardActionSequence(mark("attacking"), tap())
+        cardActionSequence([mark("attacking"), tap()])
       ).apply(state);
     },
   };

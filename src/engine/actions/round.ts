@@ -44,7 +44,7 @@ import { createCardState } from "../engine";
 export const phaseResource = sequence(
   beginPhase("resource"),
   eachPlayer(draw(1)),
-  eachCard(isHero, generateResource(1)),
+  eachCard(isHero, generateResource(value(1))),
   playerActions("End resource phase")
 );
 

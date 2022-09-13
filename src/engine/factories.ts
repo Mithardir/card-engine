@@ -1,9 +1,16 @@
 import { CardState, State, PlayerState } from "../types/state";
-import { CardAction, PlayerAction } from "./types";
+import { Action, CardAction, Getter, PlayerAction } from "./types";
 
 export function cardAction<T = void>(
   name: string,
-  apply: (context: { card: CardState; state: State }, args: T) => void
+  apply: (
+    context: {
+      card: CardState;
+      run: (action: Action) => void;
+      get: <T>(getter: Getter<T>) => T | undefined;
+    },
+    args: T
+  ) => void
 ): (args: T) => CardAction {
   return (args) => ({
     print: `${name}(${JSON.stringify(args)})`,
@@ -13,7 +20,16 @@ export function cardAction<T = void>(
         apply: (state) => {
           const card = state.cards[id];
           if (card) {
-            apply({ state, card }, args);
+            apply(
+              {
+                card,
+                run: (action) => {
+                  action.apply(state);
+                },
+                get: <T>(getter: Getter<T>) => getter.get(state),
+              },
+              args
+            );
           }
         },
       };
@@ -23,7 +39,14 @@ export function cardAction<T = void>(
 
 export function playerAction<T = void>(
   name: string,
-  apply: (context: { player: PlayerState; state: State }, args: T) => void
+  apply: (
+    context: {
+      player: PlayerState;
+      run: (action: Action) => void;
+      get: <T>(getter: Getter<T>) => T | undefined;
+    },
+    args: T
+  ) => void
 ): (args: T) => PlayerAction {
   return (args) => ({
     print: `${name}(${JSON.stringify(args)})`,
@@ -33,7 +56,16 @@ export function playerAction<T = void>(
         apply: (state) => {
           const player = state.players[id];
           if (player) {
-            apply({ state, player }, args);
+            apply(
+              {
+                player,
+                run: (action) => {
+                  action.apply(state);
+                },
+                get: <T>(getter: Getter<T>) => getter.get(state),
+              },
+              args
+            );
           }
         },
       };

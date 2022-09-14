@@ -55,7 +55,7 @@ export const phasePlanning = sequence(
 
 export const phaseQuest = sequence(
   beginPhase("quest"),
-  eachPlayer(commitCharactersToQuest),
+  eachPlayer(commitCharactersToQuest()),
   playerActions("Staging"),
   repeat(countOfPlayers, revealEncounterCard),
   playerActions("Quest resolution"),

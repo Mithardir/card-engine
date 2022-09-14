@@ -11,9 +11,10 @@ import {
   someCards,
   filterCards,
 } from "../filters";
-import { playerZone, gameZone } from "../getters";
+import { playerZone, gameZone, topCard } from "../getters";
 import { PlayerAction, Getter, Action } from "../types";
 import {
+  cardActionSequence,
   commitToQuest,
   flip,
   moveCard,
@@ -32,64 +33,54 @@ import {
 
 export const draw = playerAction<number>("draw", (c, amount) => {
   for (let index = 0; index < amount; index++) {
-    const player = c.player;
-    const cardId = player.zones.library.cards.pop();
-    if (cardId) {
-      player.zones.hand.cards.push(cardId);
-      c.run(flip("face").card(cardId));
-    }
+    c.run(
+      moveCard({
+        from: playerZone("library", c.player.id),
+        to: playerZone("hand", c.player.id),
+        side: "face",
+      }).card(topCard(playerZone("library", c.player.id)))
+    );
   }
 });
 
-export function incrementThreat(
-  amount: Getter<number>,
-  playerId?: PlayerId
-): PlayerAction & Action {
-  return {
-    print: `incrementThreat(${amount.print}, ${playerId})`,
-    player: (id) => incrementThreat(amount, id),
-    apply: (s) => {
-      if (playerId) {
-        const player = s.players[playerId];
-        const inc = amount.get(s);
-        if (player && inc) {
-          player.thread += inc;
-        }
-      }
-    },
-  };
-}
+export const incrementThreat = playerAction<Getter<number>>(
+  "incrementThreat",
+  (c, amount) => {
+    c.player.thread += c.get(amount);
+  }
+);
 
-export const commitCharactersToQuest: PlayerAction = {
-  print: `commitCharactersToQuest`,
-  player: (player) =>
-    chooseCardsActions(
-      "Commit characters to quest",
-      and(isCharacter, isReady, isInZone(playerZone("playerArea", player))),
-      commitToQuest
-    ),
-};
+export const commitCharactersToQuest = playerAction(
+  "commitCharactersToQuest",
+  (c) => {
+    c.run(
+      chooseCardsActions(
+        "Commit characters to quest",
+        and(
+          isCharacter,
+          isReady,
+          isInZone(playerZone("playerArea", c.player.id))
+        ),
+        commitToQuest
+      )
+    );
+  }
+);
 
-export function engagementCheck(player?: PlayerId): Action & PlayerAction {
-  return {
-    print: `engagementCheck(${player})`,
-    player: (id) => engagementCheck(id),
-    apply: (s) => {
-      if (player) {
-        chooseCardAction(
-          "Choose enemy to engage",
-          and(withMaxEngagement(player), isInZone(gameZone("stagingArea"))),
-          moveCard({
-            from: gameZone("stagingArea"),
-            to: playerZone("engaged", player),
-            side: "face",
-          }),
-          false
-        ).apply(s);
-      }
-    },
-  };
-}
+export const engagementCheck = playerAction("engagementCheck", (c) => {
+  c.run(
+    chooseCardAction(
+      "Choose enemy to engage",
+      and(withMaxEngagement(c.player.id), isInZone(gameZone("stagingArea"))),
+      moveCard({
+        from: gameZone("stagingArea"),
+        to: playerZone("engaged", c.player.id),
+        side: "face",
+      }),
+      false
+    )
+  );
+});
 
 export function resolveEnemyAttacks(player?: PlayerId): Action & PlayerAction {
   return {

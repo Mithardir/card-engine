@@ -6,7 +6,7 @@ export function action<T = void>(
   apply: (
     context: {
       run: (action: Action) => void;
-      get: <T>(getter: Getter<T>) => T | undefined;
+      get: <T>(getter: Getter<T>) => T;
     },
     args: T
   ) => void
@@ -33,7 +33,7 @@ export function cardAction<T = void>(
     context: {
       card: CardState;
       run: (action: Action) => void;
-      get: <T>(getter: Getter<T>) => T | undefined;
+      get: <T>(getter: Getter<T>) => T;
     },
     args: T
   ) => void
@@ -80,7 +80,7 @@ export function playerAction<T = void>(
     context: {
       player: PlayerState;
       run: (action: Action) => void;
-      get: <T>(getter: Getter<T>) => T | undefined;
+      get: <T>(getter: Getter<T>) => T;
     },
     args: T
   ) => void

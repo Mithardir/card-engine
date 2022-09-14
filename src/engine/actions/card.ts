@@ -1,5 +1,5 @@
 import { Mark, Side, Token } from "../../types/basic";
-import { cardAction } from "../factories";
+import { cardAction } from "./factories";
 import { CardId, PlayerId, ZoneState } from "../../types/state";
 import {
   gameZone,
@@ -52,6 +52,10 @@ export const untap = cardAction("untap", (c) => {
 
 export const tap = cardAction("tap", (c) => {
   c.card.tapped = true;
+});
+
+export const flip = cardAction<Side>("flip", (c, side) => {
+  c.card.sideUp = side;
 });
 
 export const moveCard = cardAction<{

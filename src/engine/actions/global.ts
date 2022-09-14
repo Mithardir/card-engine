@@ -97,27 +97,6 @@ export function beginPhase(type: Phase): Action {
   };
 }
 
-export function playerDraw(playerId: PlayerId, amount: number): Action {
-  return {
-    print: `playerDraw(${playerId}, ${amount})`,
-    apply: (s) => {
-      const player = s.players[playerId];
-      if (player) {
-        for (let index = 0; index < amount; index++) {
-          const cardId = player.zones.library.cards.pop();
-          if (cardId) {
-            player.zones.hand.cards.push(cardId);
-            const card = s.cards[cardId];
-            if (card) {
-              card.sideUp = "face";
-            }
-          }
-        }
-      }
-    },
-  };
-}
-
 export function eachPlayer(playerAction: PlayerAction): Action {
   return {
     print: `eachPlayer(${playerAction.print})`,

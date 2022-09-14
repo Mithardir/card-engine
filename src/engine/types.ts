@@ -25,7 +25,7 @@ export type CardFilter = { print: string };
 
 export type CardAction = {
   print: string;
-  card: (cardId: CardId) => Action;
+  card: (cardId: CardId | Getter<CardId>) => Action;
 };
 
 export type Predicate<T> = {

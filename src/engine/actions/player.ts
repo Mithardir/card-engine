@@ -15,12 +15,13 @@ import { playerZone, gameZone } from "../getters";
 import { PlayerAction, Getter, Action } from "../types";
 import {
   commitToQuest,
+  flip,
   moveCard,
   resolveEnemyAttack,
   resolvePlayerAttack,
 } from "./card";
+import { playerAction } from "./factories";
 import {
-  playerDraw,
   chooseCardsActions,
   chooseCardAction,
   whileDo,
@@ -29,12 +30,16 @@ import {
   sequence,
 } from "./global";
 
-export function draw(amount: number): PlayerAction {
-  return {
-    print: `draw(${amount})`,
-    player: (id) => playerDraw(id, amount),
-  };
-}
+export const draw = playerAction<number>("draw", (c, amount) => {
+  for (let index = 0; index < amount; index++) {
+    const player = c.player;
+    const cardId = player.zones.library.cards.pop();
+    if (cardId) {
+      player.zones.hand.cards.push(cardId);
+      c.run(flip("face").card(cardId));
+    }
+  }
+});
 
 export function incrementThreat(
   amount: Getter<number>,

@@ -1,5 +1,31 @@
-import { CardState, State, PlayerState } from "../types/state";
-import { Action, CardAction, Getter, PlayerAction } from "./types";
+import { CardState, State, PlayerState } from "../../types/state";
+import { Action, CardAction, Getter, PlayerAction } from "../types";
+
+export function action<T = void>(
+  name: string,
+  apply: (
+    context: {
+      run: (action: Action) => void;
+      get: <T>(getter: Getter<T>) => T | undefined;
+    },
+    args: T
+  ) => void
+): (args: T) => Action {
+  return (args) => ({
+    print: `${name}(${JSON.stringify(args)})`,
+    apply: (state) => {
+      apply(
+        {
+          run: (action) => {
+            action.apply(state);
+          },
+          get: <T>(getter: Getter<T>) => getter.get(state),
+        },
+        args
+      );
+    },
+  });
+}
 
 export function cardAction<T = void>(
   name: string,
@@ -18,7 +44,11 @@ export function cardAction<T = void>(
       return {
         print: `${name}(${JSON.stringify({ ...args, card: id })})`,
         apply: (state) => {
-          const card = state.cards[id];
+          const card =
+            typeof id === "number"
+              ? state.cards[id]
+              : state.cards[id.get(state)!];
+
           if (card) {
             apply(
               {

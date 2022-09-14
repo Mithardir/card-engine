@@ -12,7 +12,7 @@ export type Action = {
 
 export type Getter<T> = {
   print: string;
-  get: (state: State) => T | undefined;
+  get: (state: State) => T;
 };
 
 export type PlayerAction = {
@@ -25,7 +25,7 @@ export type CardFilter = { print: string };
 
 export type CardAction = {
   print: string;
-  card: (cardId: CardId | Getter<CardId>) => Action;
+  card: (cardId: CardId | Getter<CardId | undefined>) => Action;
 };
 
 export type Predicate<T> = {

@@ -65,9 +65,7 @@ export function minus(a: Getter<number>, b: Getter<number>): Getter<number> {
     get: (s) => {
       const va = a.get(s);
       const vb = b.get(s);
-      if (va !== undefined && vb !== undefined) {
-        return va - vb;
-      }
+      return va - vb;
     },
   };
 }
@@ -78,9 +76,7 @@ export function isMore(a: Getter<number>, b: Getter<number>): Getter<boolean> {
     get: (s) => {
       const va = a.get(s);
       const vb = b.get(s);
-      if (va !== undefined && vb !== undefined) {
-        return va > vb;
-      }
+      return va > vb;
     },
   };
 }
@@ -122,10 +118,8 @@ export function getProp(
   return {
     print: `getProp(${property}, ${cardId})`,
     get: (s) => {
-      const card = toView(s).cards[cardId];
-      if (card) {
-        return card.props[property];
-      }
+      const card = toView(s).cards[cardId]!;
+      return card.props[property] || 0;
     },
   };
 }
@@ -140,15 +134,12 @@ export function cardView(cardId: CardId): Getter<CardView> {
   };
 }
 
-export function topCard(getter: Getter<ZoneState>): Getter<CardState> {
+export function topCard(getter: Getter<ZoneState>): Getter<CardId | undefined> {
   return {
     print: `topCard(${getter.print})`,
     get: (s) => {
-      const zone = getter.get(s);
-      if (zone) {
-        const id = last(zone.cards);
-        return id ? s.cards[id] : undefined;
-      }
+      const zone = getter.get(s)!;
+      return last(zone.cards);
     },
   };
 }
@@ -169,7 +160,7 @@ export function playerZone(
   return {
     print: `playerZone(${type}, ${player})`,
     get: (s) => {
-      return s.players[player]?.zones[type];
+      return s.players[player]!.zones[type];
     },
   };
 }

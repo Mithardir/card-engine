@@ -38,6 +38,7 @@ import {
   mark,
   moveCard,
   tap,
+  flip,
 } from "./card";
 import { incrementThreat } from "./player";
 
@@ -224,7 +225,7 @@ export function moveTopCard(
 }
 
 export const revealEncounterCard = sequence(
-  flipCard(topCard(gameZone("encounterDeck")), "face"),
+  flip("face").card(topCard(gameZone("encounterDeck"))),
   moveTopCard(gameZone("encounterDeck"), gameZone("stagingArea"), "face")
 );
 

@@ -11,7 +11,7 @@ import {
   gameZone,
   topCard,
 } from "../getters";
-import { generateResource, untap } from "./card";
+import { flip, generateResource, untap } from "./card";
 import {
   beginPhase,
   eachCard,
@@ -120,9 +120,9 @@ export function beginScenario(
     shuffleZone(gameZone("encounterDeck")),
     eachPlayer(shuffleLibrary),
     eachPlayer(draw(6)),
-    flipCard(topCard(gameZone("questDeck")), "face"),
+    flip("face").card(topCard(gameZone("questDeck"))),
     setupActions,
-    flipCard(topCard(gameZone("questDeck")), "back"),
+    flip("back").card(topCard(gameZone("questDeck"))),
     startGame
   );
 }

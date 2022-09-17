@@ -118,7 +118,7 @@ export function beginScenario(
     setupScenario(scenario),
     ...decks.map((d, i) => addPlayer(playerIds[i], d)),
     shuffleZone(gameZone("encounterDeck")),
-    eachPlayer(shuffleLibrary),
+    eachPlayer(shuffleLibrary()),
     eachPlayer(draw(6)),
     flip("face").card(topCard(gameZone("questDeck"))),
     setupActions,

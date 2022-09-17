@@ -163,12 +163,23 @@ export const GameView = (props: {}) => {
 };
 
 export function advanceToChoiceState(state: State) {
-  if (state.choice) {
-    return state;
-  }
+  while (true) {
+    if (state.next.length === 0) {
+      return;
+    }
 
-  nextStep(state);
-  while (!state.choice && state.next.length > 0) {
+    if (state.choice) {
+      if (state.choice.options.length > 1) {
+        return state;
+      }
+
+      if (state.choice.options.length === 1) {
+        console.log("Auto choosing: ", state.choice.options[0].title);
+        state.next = [state.choice.options[0].action, ...state.next];
+        state.choice = undefined;
+      }
+    }
+
     nextStep(state);
   }
 }

@@ -9,6 +9,15 @@ export const NextStepButton = (props: {
 }) => {
   const state = props.state;
   if (state.choice && !state.choice.dialog) {
+    if (state.choice.options.length === 0) {
+      const newState = produce(state, (draft) => {
+        draft.choice = undefined;
+        advanceToChoiceState(draft);
+      });
+
+      props.setState(newState);
+    }
+
     return (
       <Fab
         color="primary"

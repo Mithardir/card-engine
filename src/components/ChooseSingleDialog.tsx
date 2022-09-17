@@ -16,6 +16,12 @@ export const ChooseSingleDialog = (props: {
   const scale = 0.4;
   const width = 430 * scale;
   const height = 600 * scale;
+
+  if (props.choices.length === 1) {
+    props.onChoice(props.choices[0].action);
+    return <></>;
+  }
+
   return (
     <Dialog open={true} maxWidth="md">
       <DialogTitle>{props.title}</DialogTitle>

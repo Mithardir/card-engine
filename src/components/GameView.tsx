@@ -154,14 +154,16 @@ export function advanceToChoiceState(state: State) {
 
     if (state.choice) {
       return state;
+
       // if (state.choice.options.length > 1) {
       //   return state;
       // }
 
       // if (state.choice.options.length === 1) {
       //   console.log("Auto choosing: ", state.choice.options[0].title);
-      //   state.next = [state.choice.options[0].action, ...state.next];
+      //   const action = state.choice.options[0].action;
       //   state.choice = undefined;
+      //   action.apply(state);
       // }
     }
 

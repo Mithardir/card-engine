@@ -82,93 +82,85 @@ export const engagementCheck = playerAction("engagementCheck", (c) => {
   );
 });
 
-export function resolveEnemyAttacks(player?: PlayerId): Action & PlayerAction {
-  return {
-    print: `resolveEnemyAttacks(${player})`,
-    player: (id) => resolveEnemyAttacks(id),
-    apply: (s) => {
-      if (player) {
-        const attackers = and(
+export const resolveEnemyAttacks = playerAction("resolveEnemyAttacks", (c) => {
+  const attackers = and(
+    isEnemy,
+    not(hasMark("attacked")),
+    isInZone(playerZone("engaged", c.player.id))
+  );
+
+  c.run(
+    whileDo(
+      someCards(attackers),
+      chooseCardAction(
+        "Choose enemy attacker",
+        attackers,
+        resolveEnemyAttack(c.player.id),
+        false
+      )
+    )
+  );
+});
+
+export const optionalEngagement = playerAction("optionalEngagement", (c) => {
+  c.run(
+    chooseCardAction(
+      "Choose enemy to optionally engage",
+      and(isEnemy, isInZone(gameZone("stagingArea"))),
+      moveCard({
+        from: gameZone("stagingArea"),
+        to: playerZone("engaged", c.player.id),
+        side: "face",
+      }),
+      true
+    )
+  );
+});
+
+export const shuffleLibrary = playerAction("shuffleLibrary", (c) => {
+  c.run(shuffleZone(playerZone("library", c.player.id)));
+});
+
+export const resolvePlayerAttacks = playerAction(
+  "resolvePlayerAttacks",
+  (context) => {
+    const enemies = context.get(
+      filterCards(
+        and(
           isEnemy,
           not(hasMark("attacked")),
-          isInZone(playerZone("engaged", player))
-        );
+          isInZone(playerZone("engaged", context.player.id))
+        )
+      )
+    );
 
-        whileDo(
-          someCards(attackers),
-          chooseCardAction(
-            "Choose enemy attacker",
-            attackers,
-            resolveEnemyAttack(player),
-            false
-          )
-        ).apply(s);
-      }
-    },
-  };
-}
+    const attackers = context.get(
+      filterCards(
+        and(
+          isReady,
+          isCharacter,
+          isInZone(playerZone("playerArea", context.player.id))
+        )
+      )
+    );
 
-export function optionalEngagement(player?: PlayerId): Action & PlayerAction {
-  return {
-    print: `optionalEngagement(${player})`,
-    player: (id) => optionalEngagement(id),
-    apply: (s) => {
-      if (player) {
-        chooseCardAction(
-          "Choose enemy to optionally engage",
-          and(isEnemy, isInZone(gameZone("stagingArea"))),
-          moveCard({
-            from: gameZone("stagingArea"),
-            to: playerZone("engaged", player),
-            side: "face",
-          }),
-          true
-        ).apply(s);
-      }
-    },
-  };
-}
-
-export const shuffleLibrary: PlayerAction = {
-  print: "shuffleLibrary",
-  player: (player) => shuffleZone(playerZone("library", player)),
-};
-
-export function resolvePlayerAttacks(player?: PlayerId): Action & PlayerAction {
-  return {
-    print: `resolvePlayerAttacks(${player})`,
-    player: (id) => resolvePlayerAttacks(id),
-    apply: (s) => {
-      if (player) {
-        const enemies = filterCards(
-          and(
-            isEnemy,
-            not(hasMark("attacked")),
-            isInZone(playerZone("engaged", player))
-          )
-        ).get(s);
-
-        const attackers = filterCards(
-          and(isReady, isCharacter, isInZone(playerZone("playerArea", player)))
-        ).get(s);
-
-        if (enemies && attackers && attackers.length > 0) {
-          chooseOne("Choose enemy attacker", [
-            ...enemies.map((c) => ({
-              action: sequence(
-                resolvePlayerAttack(player).card(c.id),
-                resolvePlayerAttacks(player)
-              ),
-              title: c.props.name || "",
-              image: c.props.image,
-            })),
-            {
-              action: sequence(),
-              title: "Stop attacking",
-            },
-          ]).apply(s);
-        }
-      }
-    },
-  };
-}
+    if (enemies && attackers && attackers.length > 0) {
+      context.run(
+        chooseOne("Choose enemy attacker", [
+          ...enemies.map((c) => ({
+            action: sequence(
+              resolvePlayerAttack(context.player.id).card(c.id),
+              resolvePlayerAttacks().player(context.player.id)
+            ),
+            title: c.props.name || "",
+            image: c.props.image,
+          })),
+          {
+            action: sequence(),
+            title: "Stop attacking",
+          },
+        ])
+      );
+    }
+  }
+);

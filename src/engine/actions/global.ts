@@ -48,7 +48,7 @@ export function playerActions(nextTitle: string): Action {
             .filter((a) => a.canRun.get(state, state))
             .map((a) => ({
               title: a.title,
-              action: a.action,
+              action: sequence(a.action, playerActions(nextTitle)),
               cardId: c.id,
             }))
         ),

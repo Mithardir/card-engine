@@ -1,5 +1,5 @@
 import { values } from "lodash";
-import { GameZoneType, Mark, PlayerZoneType } from "../types/basic";
+import { GameZoneType, Mark, PlayerZoneType, Sphere } from "../types/basic";
 import { CardView, ZoneState, PlayerId } from "../types/state";
 import { toView } from "./engine";
 import { Predicate, Getter } from "./types";
@@ -57,6 +57,14 @@ export const isTapped: Predicate<CardView> = {
   print: "isTapped",
   eval: (card, state) => state.cards[card.id].tapped,
 };
+
+export function hasResource(sphere: Sphere): Predicate<CardView> {
+  return {
+    print: "isTapped",
+    eval: (card, state) =>
+      card.props.sphere === sphere && state.cards[card.id].token.resources > 0,
+  };
+}
 
 export const isReady: Predicate<CardView> = {
   print: "isReady",

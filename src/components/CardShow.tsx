@@ -8,7 +8,7 @@ import { CardState, CardView } from "../types/state";
 import { StateContext } from "./StateContext";
 import { advanceToChoiceState } from "./GameView";
 import produce from "immer";
-import { playerActions } from "../engine/actions/global";
+import { playerActions, sequence } from "../engine/actions/global";
 
 export const CardShow = (props: {
   state?: CardState;
@@ -74,8 +74,11 @@ export const CardShow = (props: {
               if (state.choice) {
                 const nextTitle = state.choice?.title;
                 draft.choice = undefined;
-                actions[0].action.apply(draft);
-                draft.next = [playerActions(nextTitle), ...draft.next];
+                const action = sequence(
+                  actions[0].action,
+                  playerActions(nextTitle)
+                );
+                action.apply(draft);
                 advanceToChoiceState(draft);
               }
             });

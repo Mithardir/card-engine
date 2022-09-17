@@ -1,8 +1,14 @@
 import { keys, sum, sumBy, values } from "lodash";
-import { moveCard } from "../../engine/actions/basic";
-import { cardAction } from "../../engine/actions/factories";
+import { moveCard, removeToken } from "../../engine/actions/basic";
+import { cardAction, playerAction } from "../../engine/actions/factories";
+import {
+  chooseCardAction,
+  repeat,
+  sequence,
+} from "../../engine/actions/global";
 import { toView } from "../../engine/engine";
-import { zoneTypeOf, playerZone } from "../../engine/getters";
+import { and, hasResource, isHero, isInZone } from "../../engine/filters";
+import { zoneTypeOf, playerZone, value } from "../../engine/getters";
 import { Action, Getter } from "../../engine/types";
 import playerBack from "../../images/back/card.jpg";
 import {
@@ -14,7 +20,7 @@ import {
 import { AllyProps } from "../../types/cards";
 import { CardDefinition, CardId, PlayerId, State } from "../../types/state";
 import { CardModifier, ViewModifier } from "../sets/core/quests";
-import { and, Property } from "./test";
+import { and as and2, Property } from "./test";
 
 export function ownerOf(card: CardId): Getter<PlayerId | undefined> {
   return {
@@ -64,6 +70,29 @@ export function canPayResources(
   };
 }
 
+export const payResources = playerAction<[number, Sphere]>(
+  "payResources",
+  (c, args) => {
+    const sphere = args[1];
+    const amount = args[0];
+    c.run(
+      repeat(
+        value(amount),
+        chooseCardAction(
+          "Choose hero to pay 1 resource",
+          and(
+            isHero,
+            isInZone(playerZone("playerArea", c.player.id)),
+            hasResource(sphere)
+          ),
+          removeToken({ amount: 1, token: "resources" }),
+          false
+        )
+      )
+    );
+  }
+);
+
 export function isPhase(type: Phase): Property<State, boolean> {
   return {
     print: `isPhase(${type})`,
@@ -93,11 +122,16 @@ export function ally(props: AllyProps): CardDefinition {
               if (zone === "hand") {
                 card.actions.push({
                   title: `Play ${card.props.name}`,
-                  canRun: and(
+                  canRun: and2(
                     isPhase("planning"),
                     canPayResources(owner, card.props.cost, card.props.sphere)
                   ),
-                  action: playAlly().card(card.id),
+                  action: sequence(
+                    payResources([card.props.cost, card.props.sphere]).player(
+                      owner
+                    ),
+                    playAlly().card(card.id)
+                  ),
                 });
               }
             }

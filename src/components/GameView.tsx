@@ -76,7 +76,11 @@ export const GameView = (props: {}) => {
           </Paper>
         )}
 
-        {JSON.stringify(state.next[0]?.print, null, 1)}
+        {state.next.map((a) => (
+          <ul>
+            <li>{a.print}</li>
+          </ul>
+        ))}
 
         {state.choice && state.choice.dialog && !state.choice.multi && (
           <>

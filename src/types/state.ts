@@ -71,4 +71,5 @@ export type CardView = {
   props: PrintedProps;
   abilities: AbilityView[];
   setup: Action[];
+  actions: Array<{ title: string; action: Action }>;
 };

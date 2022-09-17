@@ -1,4 +1,4 @@
-import { keys, values, last } from "lodash";
+import { keys, values, last, toPairs } from "lodash";
 import { GameZoneType, PlayerZoneType } from "../types/basic";
 import {
   CardId,
@@ -120,6 +120,33 @@ export function getProp(
     get: (s) => {
       const card = toView(s).cards[cardId]!;
       return card.props[property] || 0;
+    },
+  };
+}
+
+export function getZoneType(
+  card: CardId
+): Getter<PlayerZoneType | GameZoneType> {
+  return {
+    print: `getZoneType(${card})`,
+    get: (s) => {
+      for (const zone of toPairs(s.zones)) {
+        const exist = zone[1].cards.some((c) => c === card);
+        if (exist) {
+          return zone[0] as any;
+        }
+      }
+
+      for (const player of values(s.players)) {
+        for (const zone of toPairs(player.zones)) {
+          const exist = zone[1].cards.some((c) => c === card);
+          if (exist) {
+            return zone[0] as any;
+          }
+        }
+      }
+
+      throw new Error("card not found");
     },
   };
 }

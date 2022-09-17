@@ -30,27 +30,26 @@ import {
   getProp,
 } from "../getters";
 import { Action, Getter, PlayerAction, Predicate, CardAction } from "../types";
-import {
-  travelTo,
-  resolveDefense,
-  dealDamage,
-  cardActionSequence,
-  mark,
-  moveCard,
-  tap,
-  flip,
-} from "./card";
+import { flip, mark, moveCard, tap, travelTo } from "./basic";
+import { resolveDefense, dealDamage, cardActionSequence } from "./card";
 import { incrementThreat } from "./player";
 
 export function playerActions(nextTitle: string): Action {
   return {
     print: `playerActions("${nextTitle}")`,
     apply: (state) => {
+      const view = toView(state);
       state.choice = {
         title: nextTitle,
         dialog: false,
         multi: false,
-        options: [],
+        options: values(view.cards).flatMap((c) =>
+          c.actions.map((a) => ({
+            title: a.title,
+            action: a.action,
+            cardId: c.id,
+          }))
+        ),
       };
     },
   };

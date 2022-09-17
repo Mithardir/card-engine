@@ -5,6 +5,10 @@ import progressImage from "../images/tokens/progress.png";
 import { DetailContext } from "./DetailContext";
 import { CardText } from "./CardText";
 import { CardState, CardView } from "../types/state";
+import { StateContext } from "./StateContext";
+import { advanceToChoiceState } from "./GameView";
+import produce from "immer";
+import { playerActions } from "../engine/actions/global";
 
 export const CardShow = (props: {
   state?: CardState;
@@ -15,16 +19,13 @@ export const CardShow = (props: {
   scale?: number;
   style?: React.CSSProperties;
 }) => {
+  const { state, setState } = useContext(StateContext);
+
   if (!props.state || !props.view) {
     return <>empty</>;
   }
 
-  // const card =
-  //   props.view || engine.state.view.cards.find((c) => c.id === props.cardId)!;
-  // const actions = card.actions.filter((a) =>
-  //   a.condition.eval(engine.state.view)
-  // );
-  const actions: any[] = [];
+  const actions = props.view.actions;
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;
@@ -69,11 +70,18 @@ export const CardShow = (props: {
           return;
         } else {
           if (actions.length === 1) {
-            // if (engine.choice) {
-            //   const title = engine.choice.title;
-            //   engine.choice = undefined;
-            //   engine.do(sequence(actions[0].effect, playerActions(title)));
-            // }
+            const newState = produce(state, (draft) => {
+              draft.choice = undefined;
+              actions[0].action.apply(draft);
+              advanceToChoiceState(draft);
+              draft.next = [
+                playerActions(state.choice?.title || ""),
+                ...draft.next,
+              ];
+              advanceToChoiceState(draft);
+            });
+
+            setState(newState);
           } else {
             // TODO multiple actions
             // tslint:disable-next-line:no-console

@@ -14,32 +14,12 @@ import { sequence } from "../engine/actions/global";
 import { beginScenario } from "../engine/actions/round";
 import { toView, nextStep } from "../engine/engine";
 import { State } from "../types/state";
-
-const initState: State = {
-  phase: "setup",
-  effects: [],
-  players: {},
-  cards: [],
-  zones: {
-    activeLocation: { cards: [], stack: false },
-    discardPile: { cards: [], stack: true },
-    encounterDeck: { cards: [], stack: true },
-    questDeck: { cards: [], stack: true },
-    stagingArea: { cards: [], stack: false },
-    victoryDisplay: { cards: [], stack: true },
-  },
-  next: [beginScenario(passageThroughMirkwood, coreTactics)],
-  responses: {},
-};
-
-console.log(initState.next[0].print);
-
-advanceToChoiceState(initState);
+import { StateContext } from "./StateContext";
 
 export const GameView = (props: {}) => {
-  const [state, setState] = useState<State>(initState);
-  const view = useMemo(() => toView(state), [state]);
   const detail = useContext(DetailContext);
+  const { state, setState } = useContext(StateContext);
+  const view = useMemo(() => toView(state), [state]);
 
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
@@ -169,15 +149,16 @@ export function advanceToChoiceState(state: State) {
     }
 
     if (state.choice) {
-      if (state.choice.options.length > 1) {
-        return state;
-      }
+      return state;
+      // if (state.choice.options.length > 1) {
+      //   return state;
+      // }
 
-      if (state.choice.options.length === 1) {
-        console.log("Auto choosing: ", state.choice.options[0].title);
-        state.next = [state.choice.options[0].action, ...state.next];
-        state.choice = undefined;
-      }
+      // if (state.choice.options.length === 1) {
+      //   console.log("Auto choosing: ", state.choice.options[0].title);
+      //   state.next = [state.choice.options[0].action, ...state.next];
+      //   state.choice = undefined;
+      // }
     }
 
     nextStep(state);

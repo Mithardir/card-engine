@@ -11,7 +11,7 @@ import {
   gameZone,
   topCard,
 } from "../getters";
-import { flip, generateResource, untap } from "./card";
+import { generateResource } from "./card";
 import {
   beginPhase,
   eachCard,
@@ -40,6 +40,7 @@ import {
   shuffleLibrary,
 } from "./player";
 import { createCardState } from "../engine";
+import { flip, untap } from "./basic";
 
 export const phaseResource = sequence(
   beginPhase("resource"),

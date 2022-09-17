@@ -1,5 +1,5 @@
 import { values } from "lodash";
-import { Mark } from "../types/basic";
+import { GameZoneType, Mark, PlayerZoneType } from "../types/basic";
 import { CardView, ZoneState, PlayerId } from "../types/state";
 import { toView } from "./engine";
 import { Predicate, Getter } from "./types";

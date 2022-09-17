@@ -17,6 +17,7 @@ export function createCardView(state: CardState): CardView {
     props: printed,
     setup: [],
     abilities: printed.abilities?.map((a) => ({ ...a, applied: false })) || [],
+    actions: [],
   };
 }
 
@@ -33,7 +34,7 @@ export function toView(state: State): View {
         .forEach((ability) => {
           allApplied = false;
           const modifier = ability.modifier(card.id);
-          modifier.modify(view);
+          modifier.modify(view, state);
           ability.applied = true;
         });
     });

@@ -40,14 +40,14 @@ export function addSetup(action: Action): CardModifier {
 export type Ability = {
   description: string;
   implicit: boolean;
-  modifier: (self: CardId) => ViewModifier;
+  modify: (card: CardView, state: State) => void;
 };
 
 export function setup(props: { description: string; action: Action }): Ability {
   return {
     description: props.description,
     implicit: false,
-    modifier: (self) => modifyCard(self, addSetup(props.action)),
+    modify: (card) => card.setup.push(props.action),
   };
 }
 

@@ -124,11 +124,11 @@ export function getProp(
   };
 }
 
-export function getZoneType(
+export function zoneTypeOf(
   card: CardId
 ): Getter<PlayerZoneType | GameZoneType> {
   return {
-    print: `getZoneType(${card})`,
+    print: `zoneTypeOf(${card})`,
     get: (s) => {
       for (const zone of toPairs(s.zones)) {
         const exist = zone[1].cards.some((c) => c === card);

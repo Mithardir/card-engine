@@ -33,8 +33,7 @@ export function toView(state: State): View {
         .filter((a) => !a.applied)
         .forEach((ability) => {
           allApplied = false;
-          const modifier = ability.modifier(card.id);
-          modifier.modify(view, state);
+          ability.modify(card, state);
           ability.applied = true;
         });
     });

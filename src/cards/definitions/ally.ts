@@ -1,12 +1,20 @@
-import { keys, values } from "lodash";
+import { keys, sum, sumBy, values } from "lodash";
 import { moveCard } from "../../engine/actions/basic";
 import { cardAction } from "../../engine/actions/factories";
-import { getZoneType, playerZone } from "../../engine/getters";
-import { Getter } from "../../engine/types";
+import { toView } from "../../engine/engine";
+import { zoneTypeOf, playerZone } from "../../engine/getters";
+import { Action, Getter } from "../../engine/types";
 import playerBack from "../../images/back/card.jpg";
-import { emptyKeywords, PlayerZoneType } from "../../types/basic";
+import {
+  emptyKeywords,
+  Phase,
+  PlayerZoneType,
+  Sphere,
+} from "../../types/basic";
 import { AllyProps } from "../../types/cards";
-import { CardDefinition, CardId, PlayerId } from "../../types/state";
+import { CardDefinition, CardId, PlayerId, State } from "../../types/state";
+import { CardModifier, ViewModifier } from "../sets/core/quests";
+import { and, Property } from "./test";
 
 export function ownerOf(card: CardId): Getter<PlayerId | undefined> {
   return {
@@ -36,6 +44,33 @@ export const playAlly = cardAction("playAlly", (c) => {
   }
 });
 
+export function canPayResources(
+  player: PlayerId,
+  amount: number,
+  sphere: Sphere
+): Property<State, boolean> {
+  return {
+    print: `canPayResources(${player}, ${amount}, ${sphere})`,
+    get: (state) => {
+      const view = toView(state);
+      const heroes = values(state.players[player]?.zones.playerArea.cards)
+        .map((c) => view.cards[c])
+        .filter((c) => c.props.type === "hero")
+        .map((c) => c.id);
+
+      const resources = sumBy(heroes, (id) => state.cards[id].token.resources);
+      return resources >= amount;
+    },
+  };
+}
+
+export function isPhase(type: Phase): Property<State, boolean> {
+  return {
+    print: `isPhase(${type})`,
+    get: (s) => s.phase === type,
+  };
+}
+
 export function ally(props: AllyProps): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
     .split(" ")
@@ -51,20 +86,21 @@ export function ally(props: AllyProps): CardDefinition {
         {
           description: "Play ally",
           implicit: true,
-          modifier: (self) => {
-            return {
-              print: "Play ally",
-              modify: (v, s) => {
-                const zone = getZoneType(self).get(s);
-                if (zone === "hand") {
-                  const card = v.cards[self];
-                  v.cards[self].actions.push({
-                    title: `Play ${card.props.name}`,
-                    action: playAlly().card(self),
-                  });
-                }
-              },
-            };
+          modify: (card, s) => {
+            const owner = ownerOf(card.id).get(s);
+            if (owner && card.props.cost && card.props.sphere) {
+              const zone = zoneTypeOf(card.id).get(s);
+              if (zone === "hand") {
+                card.actions.push({
+                  title: `Play ${card.props.name}`,
+                  canRun: and(
+                    isPhase("planning"),
+                    canPayResources(owner, card.props.cost, card.props.sphere)
+                  ),
+                  action: playAlly().card(card.id),
+                });
+              }
+            }
           },
         },
       ],

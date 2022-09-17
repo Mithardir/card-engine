@@ -25,7 +25,7 @@ export const CardShow = (props: {
     return <>empty</>;
   }
 
-  const actions = props.view.actions;
+  const actions = props.view.actions.filter((a) => a.canRun.get(state, state));
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;
@@ -71,14 +71,13 @@ export const CardShow = (props: {
         } else {
           if (actions.length === 1) {
             const newState = produce(state, (draft) => {
-              draft.choice = undefined;
-              actions[0].action.apply(draft);
-              advanceToChoiceState(draft);
-              draft.next = [
-                playerActions(state.choice?.title || ""),
-                ...draft.next,
-              ];
-              advanceToChoiceState(draft);
+              if (state.choice) {
+                const nextTitle = state.choice?.title;
+                draft.choice = undefined;
+                actions[0].action.apply(draft);
+                draft.next = [playerActions(nextTitle), ...draft.next];
+                advanceToChoiceState(draft);
+              }
             });
 
             setState(newState);

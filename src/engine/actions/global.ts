@@ -44,11 +44,13 @@ export function playerActions(nextTitle: string): Action {
         dialog: false,
         multi: false,
         options: values(view.cards).flatMap((c) =>
-          c.actions.map((a) => ({
-            title: a.title,
-            action: a.action,
-            cardId: c.id,
-          }))
+          c.actions
+            .filter((a) => a.canRun.get(state, state))
+            .map((a) => ({
+              title: a.title,
+              action: a.action,
+              cardId: c.id,
+            }))
         ),
       };
     },

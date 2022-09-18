@@ -16,6 +16,7 @@ export function canPayResources(
       const heroes = values(state.players[player]?.zones.playerArea.cards)
         .map((c) => view.cards[c])
         .filter((c) => c.props.type === "hero")
+        .filter((c) => sphere === "neutral" || c.props.sphere === sphere)
         .map((c) => c.id);
 
       const resources = sumBy(heroes, (id) => state.cards[id].token.resources);

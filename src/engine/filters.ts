@@ -87,7 +87,8 @@ export function hasResource(sphere: Sphere): Predicate<CardView> {
   return {
     print: "isTapped",
     eval: (card, state) =>
-      card.props.sphere === sphere && state.cards[card.id].token.resources > 0,
+      (sphere === "neutral" || card.props.sphere === sphere) &&
+      state.cards[card.id].token.resources > 0,
   };
 }
 

@@ -31,7 +31,8 @@ import {
 } from "../getters";
 import { Action, Getter, PlayerAction, Predicate, CardAction } from "../types";
 import { flip, mark, moveCard, tap, travelTo } from "./basic";
-import { resolveDefense, dealDamage, cardActionSequence } from "./card";
+import { resolveDefense, cardActionSequence } from "./card";
+import { dealDamage } from "./card/dealDamage";
 import { incrementThreat } from "./player";
 
 export function playerActions(nextTitle: string): Action {

@@ -1,6 +1,6 @@
 import { Mark, Token, Side } from "../../types/basic";
 import { ZoneState } from "../../types/state";
-import { gameZone } from "../getters";
+import { gameZone, zoneOf } from "../getters";
 import { Getter } from "../types";
 import { cardAction } from "./factories";
 
@@ -37,14 +37,14 @@ export const flip = cardAction<Side>("flip", (c, side) => {
 });
 
 export const moveCard = cardAction<{
-  from: Getter<ZoneState>;
+  from?: Getter<ZoneState>;
   to: Getter<ZoneState>;
   side: Side;
 }>("moveCard", (c, args) => {
   const card = c.card;
   card.sideUp = args.side;
   const zoneTo = c.get(args.to);
-  const zoneFrom = c.get(args.from);
+  const zoneFrom = args.from ? c.get(args.from) : c.get(zoneOf(c.card.id));
   const inZone = zoneFrom.cards.some((c) => c === card.id);
   if (zoneTo && zoneFrom && inZone) {
     zoneFrom.cards = zoneFrom.cards.filter((c) => c !== card.id);

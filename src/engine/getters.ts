@@ -1,5 +1,6 @@
 import { keys, values, last, toPairs } from "lodash";
 import { GameZoneType, PlayerZoneType } from "../types/basic";
+import { PrintedProps } from "../types/cards";
 import {
   CardId,
   CardView,
@@ -124,6 +125,16 @@ export function getProp(
   };
 }
 
+export function getProps(cardId: CardId): Getter<PrintedProps> {
+  return {
+    print: `getProps(${cardId})`,
+    get: (s) => {
+      const card = toView(s).cards[cardId]!;
+      return card.props;
+    },
+  };
+}
+
 export function zoneTypeOf(
   card: CardId
 ): Getter<PlayerZoneType | GameZoneType> {
@@ -142,6 +153,31 @@ export function zoneTypeOf(
           const exist = zone[1].cards.some((c) => c === card);
           if (exist) {
             return zone[0] as any;
+          }
+        }
+      }
+
+      throw new Error("card not found");
+    },
+  };
+}
+
+export function zoneOf(card: CardId): Getter<ZoneState> {
+  return {
+    print: `zoneTypeOf(${card})`,
+    get: (s) => {
+      for (const zone of toPairs(s.zones)) {
+        const exist = zone[1].cards.some((c) => c === card);
+        if (exist) {
+          return gameZone(zone[0] as any).get(s);
+        }
+      }
+
+      for (const player of values(s.players)) {
+        for (const zone of toPairs(player.zones)) {
+          const exist = zone[1].cards.some((c) => c === card);
+          if (exist) {
+            return playerZone(zone[0] as any, player.id).get(s);
           }
         }
       }

@@ -19,6 +19,7 @@ import {
   clearMarks,
 } from "./global";
 import { addToken, mark, tap } from "./basic";
+import { dealDamage } from "./card/dealDamage";
 
 export const cardActionSequence = cardAction<CardAction[]>(
   "sequence",
@@ -26,8 +27,6 @@ export const cardActionSequence = cardAction<CardAction[]>(
     c.run(sequence(...actions.map((a) => a.card(c.card.id))));
   }
 );
-
-
 
 export const resolveEnemyAttack = cardAction<PlayerId>(
   "resolveEnemyAttack",
@@ -41,16 +40,6 @@ export const resolveEnemyAttack = cardAction<PlayerId>(
     );
   }
 );
-
-export const dealDamage = cardAction<{
-  damage: Getter<number>;
-  attackers: CardId[];
-}>("dealDamage", (c, args) => {
-  const amount = c.get(args.damage);
-  if (amount) {
-    c.card.token.damage += amount;
-  }
-});
 
 export const resolveDefense = cardAction<CardId>(
   "resolveDefense",

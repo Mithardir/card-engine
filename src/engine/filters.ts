@@ -21,6 +21,20 @@ export const isHero: Predicate<CardView> = {
   eval: (card) => card.props.type === "hero",
 };
 
+export const isInPlay: Predicate<CardView> = {
+  print: "isInPlay",
+  eval: (card, state) => {
+    const inStaging = state.zones.stagingArea.cards.includes(card.id);
+    const inPlayerArea = values(state.players).some(
+      (p) =>
+        p.zones.engaged.cards.includes(card.id) ||
+        p.zones.playerArea.cards.includes(card.id)
+    );
+
+    return inStaging || inPlayerArea;
+  },
+};
+
 export function and<T>(...filters: Predicate<T>[]): Predicate<T> {
   return {
     print: `${filters.map((f) => f.print).join(" && ")}`,

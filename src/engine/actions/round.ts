@@ -2,7 +2,7 @@ import { Scenario, PlayerDeck } from "../setup";
 import { PlayerId, playerIds } from "../../types/state";
 import { Action } from "../types";
 import { reverse } from "lodash";
-import { isHero, isTapped } from "../filters";
+import { and, isHero, isInPlay, isTapped } from "../filters";
 import {
   countOfPlayers,
   canTravel,
@@ -45,7 +45,7 @@ import { flip, untap } from "./basic";
 export const phaseResource = sequence(
   beginPhase("resource"),
   eachPlayer(draw(1)),
-  eachCard(isHero, generateResource(value(1))),
+  eachCard(and(isHero, isInPlay), generateResource(value(1))),
   playerActions("End resource phase")
 );
 

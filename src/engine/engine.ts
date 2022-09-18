@@ -74,5 +74,6 @@ export function createCardState(
     sideUp: side,
     tapped: false,
     definition: definition,
+    attachments: [],
   };
 }

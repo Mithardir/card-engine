@@ -31,6 +31,7 @@ export const PlayerShow = (props: {
           owner={props.player.id}
           state={props.state}
           view={props.view}
+          showAttachments
         />
         <ZoneShow
           type="library"

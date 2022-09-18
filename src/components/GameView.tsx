@@ -56,14 +56,6 @@ export const GameView = (props: {}) => {
       ))} */}
         </Paper>
 
-        {/* <Button
-          onClick={() => {
-            props.engine.do(beginScenario(passageThroughMirkwood, coreTactics));
-          }}
-        >
-          Start game
-        </Button> */}
-
         {state.choice && (
           <Paper style={{ margin: 4 }}>
             <Typography>Choice: {state.choice.title}</Typography>
@@ -76,11 +68,13 @@ export const GameView = (props: {}) => {
           </Paper>
         )}
 
-        {state.next.map((a) => (
-          <ul>
-            <li>{a.print}</li>
-          </ul>
-        ))}
+        <div style={{ overflow: "auto", height: 250 }}>
+          {state.next.map((a) => (
+            <ul>
+              <li>{a.print}</li>
+            </ul>
+          ))}
+        </div>
 
         {state.choice && state.choice.dialog && !state.choice.multi && (
           <>

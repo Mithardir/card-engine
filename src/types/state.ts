@@ -65,7 +65,7 @@ export type CardState = {
   tapped: boolean;
   token: Tokens;
   mark: Marks;
-  attachedTo?: CardId | undefined;
+  attachments: CardId[];
 };
 
 export type CardView = {

@@ -7,8 +7,20 @@ import { CardShow } from "./CardShow";
 
 export const ZoneShow = (
   props:
-    | { state: State; view: View; type: PlayerZoneType; owner: PlayerId }
-    | { state: State; view: View; type: GameZoneType; owner?: never }
+    | {
+        state: State;
+        view: View;
+        type: PlayerZoneType;
+        owner: PlayerId;
+        showAttachments?: boolean;
+      }
+    | {
+        state: State;
+        view: View;
+        type: GameZoneType;
+        owner?: never;
+        showAttachments?: boolean;
+      }
 ) => {
   const zone: ZoneState = props.owner
     ? values(props.state.players).find((p) => p.id === props.owner)?.zones[
@@ -20,7 +32,7 @@ export const ZoneShow = (
     return <>Zone not found</>;
   }
 
-  const zoneCards = zone.cards.map((id) => props.state.cards[id]!);
+  const zoneCards = zone.cards.map((id) => props.view.cards[id]!);
 
   return (
     <Paper
@@ -41,17 +53,21 @@ export const ZoneShow = (
           flexDirection: "row",
           minWidth: 127,
           minHeight: 174,
+          alignItems: "flex-start",
         }}
       >
         {zone.cards.length !== 0 &&
           !zone.stack &&
           zoneCards
-            .filter((c) => !c.attachedTo)
+            .filter(
+              (c) => props.showAttachments || c.props.type !== "attachment"
+            )
             .map((card) => (
               <CardBox
                 key={card.id}
-                state={props.state.cards[card.id]}
-                view={props.view.cards[card.id]}
+                cardId={card.id}
+                state={props.state}
+                view={props.view}
               />
             ))}
 

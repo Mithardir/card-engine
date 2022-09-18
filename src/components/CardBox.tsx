@@ -1,26 +1,37 @@
-import { CardState, CardView } from "../types/state";
+import { CardId, CardState, CardView, State, View } from "../types/state";
 import { CardShow } from "./CardShow";
 
-export const CardBox = (props: { state: CardState; view: CardView }) => {
+export const CardBox = (props: {
+  cardId: CardId;
+  state: State;
+  view: View;
+}) => {
+  const cards = [...props.state.cards[props.cardId].attachments, props.cardId];
   return (
     <div
       style={{
         justifyContent: "center",
-        //display: "grid",
-        //gridTemplateRows: "repeat(auto-fit,  25px)",
-        // https://stackoverflow.com/a/53038326
-        //height: 168 + 27 * (cards.length - 1)
+        display: "flex",
+        flexDirection: "column-reverse",
       }}
     >
-      <div style={{ marginTop: 0 }}>
-        <CardShow
-          showExhausted={true}
-          showTokens={true}
-          content="image"
-          state={props.state}
-          view={props.view}
-        />
-      </div>
+      {cards.map((c, i) => (
+        <div
+          key={c}
+          style={{
+            marginTop: i !== cards.length - 1 ? "-80%" : 0,
+          }}
+        >
+          <CardShow
+            showExhausted={true}
+            showTokens={true}
+            content="image"
+            key={c}
+            state={props.state.cards[c]}
+            view={props.view.cards[c]}
+          />
+        </div>
+      ))}
     </div>
   );
 };

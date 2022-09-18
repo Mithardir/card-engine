@@ -1,6 +1,7 @@
 import * as React from "react";
 import { CardState, CardView } from "../types/state";
 import { PropertyView } from "./PropertyView";
+import { StateContext } from "./StateContext";
 
 export const CardText = (props: { state: CardState; view: CardView }) => {
   const c = {
@@ -9,7 +10,11 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
     sideUp: "face",
     token: props.state.token,
     props: { ...props.view.props },
+    attachments: props.state.attachments,
+    abilities: props.view.abilities,
   };
+
+  const { state } = React.useContext(StateContext);
 
   return (
     <table style={{ width: "100%" }}>
@@ -203,13 +208,13 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
             </td>
           </tr>
         )}
-        {/* {c.props.abilities
+        {c.abilities
           .filter((a) => !a.implicit)
           .map((a, i) => (
             <tr key={i}>
               <td colSpan={4}>{a.description}</td>
             </tr>
-          ))} */}
+          ))}
         {/* <tr>
       <td>
         <button disabled={c.exhausted} onClick={() => c.exhaust()}>
@@ -220,11 +225,16 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
         </button>
       </td>
     </tr> */}
-        {/* {c.attachments.length > 0 && (
-                    <tr>
-                      <td>Attachments: {c.attachments.map(a => a.name).join(",")}</td>
-                    </tr>
-                  )} */}
+        {c.attachments.length > 0 && (
+          <tr>
+            <td>
+              Attachments:{" "}
+              {c.attachments
+                .map((id) => state.cards[id].definition.face.name)
+                .join(",")}
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
   );

@@ -1,5 +1,6 @@
 import { isHero } from "../../../engine/filters";
-import { attaches, attachment } from "../../definitions/attachment";
+import { attachment } from "../../definitions/attachment";
+import { attaches } from "../../definitions/attaches";
 
 export const dwarvenAxe = attachment(
   {

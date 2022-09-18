@@ -25,7 +25,7 @@ export const CardShow = (props: {
     return <>empty</>;
   }
 
-  const actions = props.view.actions.filter((a) => a.canRun.get(state, state));
+  const actions = props.view.actions.filter((a) => a.canRun.eval(state, state));
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;

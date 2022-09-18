@@ -45,7 +45,7 @@ export function playerActions(nextTitle: string): Action {
         multi: false,
         options: values(view.cards).flatMap((c) =>
           c.actions
-            .filter((a) => a.canRun.get(state, state))
+            .filter((a) => a.canRun.eval(state, state))
             .map((a) => ({
               title: a.title,
               action: sequence(a.action, playerActions(nextTitle)),

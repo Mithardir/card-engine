@@ -1,6 +1,6 @@
 import { Property } from "../cards/definitions/test";
 import { Ability } from "../cards/sets/core/quests";
-import { Effect, Action, Getter } from "../engine/types";
+import { Effect, Action, Getter, Predicate } from "../engine/types";
 import {
   GameZoneType,
   Marks,
@@ -75,6 +75,6 @@ export type CardView = {
   actions: Array<{
     title: string;
     action: Action;
-    canRun: Property<State, boolean>;
+    canRun: Predicate<State>;
   }>;
 };

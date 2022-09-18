@@ -1,7 +1,8 @@
-import { values } from "lodash";
+import { toPairs, values } from "lodash";
 import { GameZoneType, Mark, PlayerZoneType, Sphere } from "../types/basic";
 import { CardView, ZoneState, PlayerId } from "../types/state";
 import { toView } from "./engine";
+import { ownerOf } from "./getters/ownerOf";
 import { Predicate, Getter } from "./types";
 
 export function filterCards(
@@ -34,6 +35,16 @@ export const isInPlay: Predicate<CardView> = {
     return inStaging || inPlayerArea;
   },
 };
+
+export function hasOwner(player: PlayerId): Predicate<CardView> {
+  return {
+    print: "isInPlay",
+    eval: (card, state) => {
+      const owner = ownerOf(card.id).get(state);
+      return player === owner;
+    },
+  };
+}
 
 export function and<T>(...filters: Predicate<T>[]): Predicate<T> {
   return {

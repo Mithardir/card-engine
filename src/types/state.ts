@@ -26,6 +26,7 @@ export type State = {
   };
   next: Action[];
   responses: {};
+  result?: "win" | "lost";
 };
 
 export type View = {

@@ -43,7 +43,7 @@ export function toView(state: State): View {
     }
   }
 
-  return view;
+  return { ...view };
 }
 
 export function nextStep(state: State): void {

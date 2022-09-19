@@ -33,6 +33,7 @@ import { Action, Getter, PlayerAction, Predicate, CardAction } from "../types";
 import { flip, mark, moveCard, tap, travelTo } from "./basic";
 import { resolveDefense, cardActionSequence } from "./card";
 import { dealDamage } from "./card/dealDamage";
+import { ActionResult } from "./factories";
 import { incrementThreat } from "./player";
 
 export function playerActions(nextTitle: string): Action {
@@ -139,11 +140,13 @@ export function chooseCardAction(
     apply: (state) => {
       const cards = filterCards(filter).get(state);
       if (cards) {
-        const options = cards.map((card) => ({
-          title: card.props.name || "",
-          action: factory.card(card.id),
-          image: card.props.image,
-        }));
+        const options = cards
+          .map((card) => ({
+            title: card.props.name || "",
+            action: factory.card(card.id),
+            image: card.props.image,
+          }))
+          .filter((o) => !o.action.result || o.action.result(state) !== "none");
 
         state.choice = {
           title,
@@ -155,7 +158,28 @@ export function chooseCardAction(
         };
       }
     },
+    result: (state) => {
+      const cards = filterCards(filter).get(state);
+      if (!cards || cards.length === 0) {
+        return "none";
+      }
+
+      const actions = cards.map((c) => factory.card(c.id));
+      return mergeOrResults(...actions.map((a) => a.result!(state)));
+    },
   };
+}
+
+export function mergeOrResults(...results: ActionResult[]): ActionResult {
+  if (results.some((r) => r === "full")) {
+    return "full";
+  }
+
+  if (results.every((r) => r === "none")) {
+    return "none";
+  }
+
+  return "partial";
 }
 
 export function chooseCardsActions(

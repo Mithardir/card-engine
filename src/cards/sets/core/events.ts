@@ -1,15 +1,24 @@
-import { event } from "../../definitions/event";
+import { heal } from "../../../engine/actions/card/heal";
+import { chooseCardAction } from "../../../engine/actions/global";
+import { and, isCharacter, isDamaged } from "../../../engine/filters";
+import { action, event } from "../../definitions/event";
 
 export const loreOfImladris = event(
   {
     name: "Lore of Imladris",
     cost: 2,
     sphere: "lore",
-  }
-  // action({
-  //   description: "Action: Choose a character. Heal all damage from that character.",
-  //   effect: chooseCardFor(isCharacter, heal("all")),
-  // })
+  },
+  action({
+    description:
+      "Action: Choose a character. Heal all damage from that character.",
+    effect: chooseCardAction(
+      "Choose character to heal",
+      isCharacter,
+      heal("all"),
+      false
+    ),
+  })
 );
 
 export const bladeMastery = event(

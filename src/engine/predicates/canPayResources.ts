@@ -1,6 +1,6 @@
 import { sumBy, values } from "lodash";
 import { toView } from "../engine";
-import { Predicate } from "../types";
+import { Action, Predicate } from "../types";
 import { Sphere } from "../../types/basic";
 import { PlayerId, State } from "../../types/state";
 
@@ -21,6 +21,24 @@ export function canPayResources(
 
       const resources = sumBy(heroes, (id) => state.cards[id].token.resources);
       return resources >= amount;
+    },
+  };
+}
+
+export function canDoPartiallyAction(action: Action): Predicate<State> {
+  return {
+    print: `canDoPartiallyAction(${action.print})`,
+    eval: (state) => {
+      return action.result ? action.result(state) !== "none" : false;
+    },
+  };
+}
+
+export function canDoFullyAction(action: Action): Predicate<State> {
+  return {
+    print: `canDoFullyAction(${action.print})`,
+    eval: (state) => {
+      return action.result ? action.result(state) === "full" : false;
     },
   };
 }

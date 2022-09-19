@@ -8,6 +8,7 @@ export type Effect = {
 export type Action = {
   print: string;
   apply: (state: State) => void;
+  result?: (state: State) => "none" | "partial" | "full";
 };
 
 export type Getter<T> = {

@@ -68,6 +68,13 @@ export const isCharacter: Predicate<CardView> = {
   },
 };
 
+export const isDamaged: Predicate<CardView> = {
+  print: "isDamaged",
+  eval: (card, state) => {
+    return state.cards[card.id].token.damage > 0;
+  },
+};
+
 export const isLocation: Predicate<CardView> = {
   print: "isLocation",
   eval: (card) => card.props.type === "location",

@@ -27,6 +27,8 @@ export function action<T = void>(
   });
 }
 
+export type ActionResult = "none" | "partial" | "full";
+
 export function cardAction<T = void>(
   name: string,
   apply: (
@@ -36,7 +38,8 @@ export function cardAction<T = void>(
       get: <T>(getter: Getter<T>) => T;
     },
     args: T
-  ) => void
+  ) => void,
+  result?: (card: CardState, s: State, args: T) => ActionResult
 ): (args: T) => CardAction {
   return (args) => ({
     print: `${name}(${JSON.stringify(args)})`,
@@ -58,6 +61,16 @@ export function cardAction<T = void>(
             );
           }
         },
+        result: result
+          ? (state) => {
+              const card = resolveCard(ref, state);
+              if (!card) {
+                return "none";
+              }
+
+              return result(card, state, args);
+            }
+          : undefined,
       };
     },
   });

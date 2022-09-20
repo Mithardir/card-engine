@@ -10,8 +10,12 @@ import { isPhase } from "../../engine/predicates/isPhase";
 import { ownerOf } from "../../engine/getters/ownerOf";
 import { payResources } from "../../engine/actions/player/payResources";
 import { playAlly } from "../../engine/actions/card/playAlly";
+import { Ability } from "../sets/core/quests";
 
-export function ally(props: AllyProps): CardDefinition {
+export function ally(
+  props: AllyProps,
+  ...abilities: Ability[]
+): CardDefinition {
   const image = `https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/${props.name
     .split(" ")
     .join("-")}.jpg`;
@@ -48,6 +52,7 @@ export function ally(props: AllyProps): CardDefinition {
             }
           },
         },
+        ...abilities,
       ],
     },
     back: {

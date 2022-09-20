@@ -1,9 +1,8 @@
 import { hero } from "../../definitions/hero";
 import { keyword } from "../../abilities/keyword";
-import { placeProgress, sequence } from "../../../engine/actions/global";
+import { placeProgress } from "../../../engine/actions/global";
 import { value } from "../../../engine/getters";
 import { response } from "../../abilities/response";
-import { isEnemy } from "../../../engine/filters";
 import { toView } from "../../../engine/engine";
 import { dealDamage } from "../../../engine/actions/card/dealDamage";
 
@@ -72,24 +71,6 @@ export const thalin = hero(
         event.card
       ),
   })
-  // {
-  //   description:
-  //     "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-  //   implicit: false,
-  //   modifier: (self) =>
-  //     addResponse((r) => r.revealed, {
-  //       description:
-  //         "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-  //       condition: (e, v) => {
-  //         const quest = v.phase === "quest";
-  //         const commited = v.cards.find((c) => c.id === self)!.mark.questing;
-  //         const enemy =
-  //           v.cards.find((c) => c.id === e.cardId)!.props.type === "enemy";
-  //         return quest && commited && enemy;
-  //       },
-  //       action: (e) => dealDamage(1, [])(e.cardId),
-  //     }),
-  // }
 );
 
 export const gloin = hero(

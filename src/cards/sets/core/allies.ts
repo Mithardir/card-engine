@@ -1,3 +1,4 @@
+import { keyword } from "../../abilities/keyword";
 import { ally } from "../../definitions/ally";
 
 export const veteranAxehand = ally({
@@ -23,8 +24,8 @@ export const gondorianSpearman = ally(
     hitPoints: 1,
     traits: ["gondor", "warrior"],
     sphere: "tactics",
-  }
-  // keyword("sentinel"),
+  },
+  keyword("sentinel")
   // response({
   //   description:
   //     "Response: After Gondorian Spearman is declared as a defender, deal 1 damage to the attacking enemy.",
@@ -78,8 +79,8 @@ export const horsebackArcher = ally(
     hitPoints: 2,
     traits: ["rohan", "archer"],
     sphere: "tactics",
-  }
-  // keyword("ranged")
+  },
+  keyword("ranged")
 );
 
 export const gandalf = ally(

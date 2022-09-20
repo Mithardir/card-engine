@@ -1,6 +1,13 @@
 import { dealDamage } from "../../../engine/actions/card/dealDamage";
-import { sequence } from "../../../engine/actions/global";
+import {
+  chooseAction,
+  chooseCardAction,
+  sequence,
+} from "../../../engine/actions/global";
+import { draw, incrementThreat } from "../../../engine/actions/player";
+import { isEnemy } from "../../../engine/filters";
 import { value } from "../../../engine/getters";
+import { ownerOf } from "../../../engine/getters/ownerOf";
 import { keyword } from "../../abilities/keyword";
 import { response } from "../../abilities/response";
 import { ally } from "../../definitions/ally";
@@ -100,29 +107,30 @@ export const gandalf = ally(
     hitPoints: 5,
     traits: ["istari"],
     sphere: "neutral",
-  }
-  // response((r) => r.enteredPlay, {
-  //   description:
-  //     "Response: After Gandalf enters play, (choose 1): draw 3 cards, deal 4 damage to 1 enemy in play, or reduce your threat by 5.",
-  //   condition: (e, self) => e.cardId === self.id,
-  //   action: (e) =>
-  //     chooseScript("Choose Gandalfs effect", [
-  //       {
-  //         label: "Draw 3 card",
-  //         value: draw(3, e.playerId),
-  //       },
-  //       {
-  //         label: "Deal 4 damage to 1 enemy in play",
-  //         value: chooseCardForEffect(
-  //           "Choose enemy",
-  //           (g) => g.enemies,
-  //           (id) => dealDamage(id, 4)
-  //         ),
-  //       },
-  //       {
-  //         label: "Reduce your threat by 5",
-  //         value: reduceThreat(5, e.playerId),
-  //       },
-  //     ]),
-  // })
+  },
+  response((s) => s.enteredPlay, {
+    description:
+      "Response: After Gandalf enters play, (choose 1): draw 3 cards, deal 4 damage to 1 enemy in play, or reduce your threat by 5.",
+    condition: (event, self) => event.card === self,
+    action: (event, self, state) =>
+      chooseAction("Choose Gandalfs effect", [
+        {
+          title: "Draw 3 card",
+          action: draw(3).player(ownerOf(self).get(state)!),
+        },
+        {
+          title: "Deal 4 damage to 1 enemy in play",
+          action: chooseCardAction(
+            "Choose enemy",
+            isEnemy,
+            dealDamage({ damage: value(4), attackers: value([self]) }),
+            false
+          ),
+        },
+        {
+          title: "Reduce your threat by 5",
+          action: incrementThreat(value(-5)).player(ownerOf(self).get(state)!),
+        },
+      ]),
+  })
 );

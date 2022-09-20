@@ -22,6 +22,7 @@ export function createCardView(state: CardState): CardView {
       enemyDestoryed: [],
       revealed: [],
       declaredDefender: [],
+      enteredPlay: [],
     },
   };
 }

@@ -9,7 +9,7 @@ import { canPayResources } from "../../engine/predicates/canPayResources";
 import { isPhase } from "../../engine/predicates/isPhase";
 import { ownerOf } from "../../engine/getters/ownerOf";
 import { payResources } from "../../engine/actions/player/payResources";
-import { playAlly } from "../../engine/actions/card/playAlly";
+import { putAllyInPlay } from "../../engine/actions/card/putAllyInPlay";
 import { Ability } from "../sets/core/quests";
 
 export function ally(
@@ -45,7 +45,7 @@ export function ally(
                     payResources([card.props.cost, card.props.sphere]).player(
                       owner
                     ),
-                    playAlly().card(card.id)
+                    putAllyInPlay().card(card.id)
                   ),
                 });
               }

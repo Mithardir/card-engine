@@ -7,19 +7,19 @@ export function response<T>(
   props: {
     description: string;
     condition: (event: T, self: CardId, state: State) => boolean;
-    action: (event: T, self: CardId) => Action;
+    action: (event: T, self: CardId, state: State) => Action;
   }
 ): Ability {
   return {
     description: props.description,
     implicit: false,
-    modify: (c) =>
+    modify: (c, s) =>
       selector(c.responses).push({
         description: props.description,
         condition: (e, s) => {
           return props.condition(e, c.id, s);
         },
-        action: (e) => props.action(e, c.id),
+        action: (e) => props.action(e, c.id, s),
       }),
   };
 }

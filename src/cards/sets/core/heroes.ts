@@ -1,32 +1,8 @@
 import { hero } from "../../definitions/hero";
 import { keyword } from "../../abilities/keyword";
-import { CardId, CardView, Response, State } from "../../../types/state";
-import { Ability } from "./quests";
-import { Action } from "../../../engine/types";
 import { placeProgress } from "../../../engine/actions/global";
 import { value } from "../../../engine/getters";
-
-export function response<T>(
-  selector: (responses: CardView["responses"]) => Response<T>[],
-  props: {
-    description: string;
-    condition: (event: T, self: CardId, state: State) => boolean;
-    action: (event: T, self: CardId) => Action;
-  }
-): Ability {
-  return {
-    description: props.description,
-    implicit: false,
-    modify: (c) =>
-      selector(c.responses).push({
-        description: props.description,
-        condition: (e, s) => {
-          return props.condition(e, c.id, s);
-        },
-        action: (e) => props.action(e, c.id),
-      }),
-  };
-}
+import { response } from "../../abilities/response";
 
 export const gimli = hero(
   {
@@ -38,11 +14,17 @@ export const gimli = hero(
     hitPoints: 5,
     traits: ["dwarf", "noble", "warrior"],
     sphere: "tactics",
+  },
+  {
+    description: "Gimli gets +1 [attack] for each damage token on him.",
+    implicit: false,
+    modify: (c, s) => {
+      const damage = s.cards[c.id].token.damage;
+      if (c.props.attack) {
+        c.props.attack += damage;
+      }
+    },
   }
-  // selfModifier({
-  //   description: "Gimli gets +1 [attack] for each damage token on him.",
-  //   modifier: (self) => increment("attack", getTokens("damage", self)),
-  // })
 );
 
 export const legolas = hero(

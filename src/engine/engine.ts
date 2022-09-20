@@ -20,6 +20,7 @@ export function createCardView(state: CardState): CardView {
     actions: [],
     responses: {
       enemyDestoryed: [],
+      revealed: [],
     },
   };
 }

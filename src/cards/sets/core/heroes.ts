@@ -1,8 +1,11 @@
 import { hero } from "../../definitions/hero";
 import { keyword } from "../../abilities/keyword";
-import { placeProgress } from "../../../engine/actions/global";
+import { placeProgress, sequence } from "../../../engine/actions/global";
 import { value } from "../../../engine/getters";
 import { response } from "../../abilities/response";
+import { isEnemy } from "../../../engine/filters";
+import { toView } from "../../../engine/engine";
+import { dealDamage } from "../../../engine/actions/card/dealDamage";
 
 export const gimli = hero(
   {
@@ -57,7 +60,18 @@ export const thalin = hero(
     hitPoints: 4,
     traits: ["dwarf", "warrior"],
     sphere: "tactics",
-  }
+  },
+  response((s) => s.revealed, {
+    description:
+      "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+    condition: (event, self, state) =>
+      state.cards[self].mark.questing &&
+      toView(state).cards[event.card].props.type === "enemy",
+    action: (event, self) =>
+      dealDamage({ damage: value(1), attackers: value([self]) }).card(
+        event.card
+      ),
+  })
   // {
   //   description:
   //     "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",

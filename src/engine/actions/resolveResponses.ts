@@ -1,18 +1,20 @@
-import { CardView, Response } from "../../types/state";
+import { CardView, Response, State } from "../../types/state";
 import { Action } from "../types";
 import { toView } from "../engine";
 import { values } from "lodash";
 import { chooseAction, sequence } from "./global";
+import { event } from "../../cards/definitions/event";
 
 export function resolveResponses<T>(
   title: string,
   selector: (responses: CardView["responses"]) => Response<T>[],
-  event: T
+  eventFactory: (state: State) => T
 ): Action {
   return {
     print: `resolveResponses("${title}")`,
     apply: (state) => {
       const view = toView(state);
+      const event = eventFactory(state);
       const responses = values(view.cards)
         .flatMap((c) => selector(c.responses))
         .filter((r) => r.condition(event, state));

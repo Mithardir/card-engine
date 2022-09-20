@@ -21,10 +21,10 @@ export const dealDamage = cardAction<{
           resolveResponses(
             "Choose reponse for destroying enemy",
             (s) => s.enemyDestoryed,
-            {
+            () => ({
               attackers: attackers,
               enemy: c.card.id,
-            }
+            })
           )
         );
       }

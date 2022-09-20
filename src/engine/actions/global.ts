@@ -35,6 +35,7 @@ import { resolveDefense, cardActionSequence } from "./card";
 import { dealDamage } from "./card/dealDamage";
 import { ActionResult } from "./factories";
 import { incrementThreat } from "./player";
+import { resolveResponses } from "./resolveResponses";
 
 export function playerActions(nextTitle: string): Action {
   return {
@@ -252,6 +253,13 @@ export function moveTopCard(
 
 export const revealEncounterCard = sequence(
   flip("face").card(topCard(gameZone("encounterDeck"))),
+  resolveResponses(
+    "Choose response for revealing card",
+    (r) => r.revealed,
+    (s) => ({
+      card: topCard(gameZone("encounterDeck")).get(s)!,
+    })
+  ),
   moveTopCard(gameZone("encounterDeck"), gameZone("stagingArea"), "face")
 );
 

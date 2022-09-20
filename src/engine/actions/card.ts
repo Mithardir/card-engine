@@ -8,6 +8,7 @@ import {
   isMore,
   value,
   totalAttack,
+  attackers,
 } from "../getters";
 import { Action, CardAction, Getter } from "../types";
 import {
@@ -53,7 +54,7 @@ export const resolveDefense = cardAction<CardId>(
     c.run(
       ifThenElse(
         isMore(damage, value(0)),
-        dealDamage({ damage, attackers: [attacker] }).card(defender),
+        dealDamage({ damage, attackers: value([attacker]) }).card(defender),
         sequence()
       )
     );
@@ -72,7 +73,7 @@ export const resolvePlayerAttack = cardAction<PlayerId>(
         playerActions("Determine combat damage"),
         ifThenElse(
           isMore(damage, value(0)),
-          dealDamage({ damage, attackers: [] }).card(enemy),
+          dealDamage({ damage, attackers }).card(enemy),
           sequence()
         ),
         clearMarks("attacking"),

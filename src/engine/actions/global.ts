@@ -347,7 +347,7 @@ export function declareDefender(attacker: CardId, player: PlayerId): Action {
               and(isHero, isInZone(playerZone("playerArea", player))),
               dealDamage({
                 damage: getProp("attack", attacker),
-                attackers: [attacker],
+                attackers: value([attacker]),
               }),
               false
             ),

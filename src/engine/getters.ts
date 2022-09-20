@@ -32,6 +32,15 @@ export const totalAttack: Getter<number> = {
   },
 };
 
+export const attackers: Getter<CardId[]> = {
+  print: "attackers",
+  get: (s) => {
+    return values(s.cards)
+      .filter((c) => c.mark.attacking)
+      .map((c) => c.id);
+  },
+};
+
 export const totalWillpower: Getter<number> = {
   print: "totalWillpower",
   get: (s) => {

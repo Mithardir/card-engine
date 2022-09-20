@@ -1,4 +1,4 @@
-import { mapValues, values } from "lodash";
+import { cloneDeep, mapValues, values } from "lodash";
 import { Getter } from "./types";
 import { Side } from "../types/basic";
 import {
@@ -11,13 +11,16 @@ import {
 } from "../types/state";
 
 export function createCardView(state: CardState): CardView {
-  const printed = state.definition[state.sideUp];
+  const printed = cloneDeep(state.definition[state.sideUp]);
   return {
     id: state.id,
     props: printed,
     setup: [],
     abilities: printed.abilities?.map((a) => ({ ...a, applied: false })) || [],
     actions: [],
+    responses: {
+      enemyDestoryed: [],
+    },
   };
 }
 

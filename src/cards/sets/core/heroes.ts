@@ -1,4 +1,32 @@
 import { hero } from "../../definitions/hero";
+import { keyword } from "../../abilities/keyword";
+import { CardId, CardView, Response, State } from "../../../types/state";
+import { Ability } from "./quests";
+import { Action } from "../../../engine/types";
+import { placeProgress } from "../../../engine/actions/global";
+import { value } from "../../../engine/getters";
+
+export function response<T>(
+  selector: (responses: CardView["responses"]) => Response<T>[],
+  props: {
+    description: string;
+    condition: (event: T, self: CardId, state: State) => boolean;
+    action: (event: T, self: CardId) => Action;
+  }
+): Ability {
+  return {
+    description: props.description,
+    implicit: false,
+    modify: (c) =>
+      selector(c.responses).push({
+        description: props.description,
+        condition: (e, s) => {
+          return props.condition(e, c.id, s);
+        },
+        action: (e) => props.action(e, c.id),
+      }),
+  };
+}
 
 export const gimli = hero(
   {
@@ -27,26 +55,14 @@ export const legolas = hero(
     hitPoints: 4,
     traits: ["noble", "silvan", "warrior"],
     sphere: "tactics",
-  }
-  // {
-  //   description: "Ranged",
-  //   implicit: true,
-  //   modifier: (self) => modifyCard(self, addKeyword("ranged")),
-  // },
-  // {
-  //   description:
-  //     "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-  //   implicit: false,
-  //   modifier: (self) =>
-  //     addResponse((r) => r.destroyed, {
-  //       description:
-  //         "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-  //       condition: (e, v) =>
-  //         e.attackers.includes(self) &&
-  //         v.cards.some((c) => c.id === e.cardId && c.props.type === "enemy"),
-  //       action: () => placeProgress(2),
-  //     }),
-  // }
+  },
+  keyword("ranged"),
+  response((c) => c.enemyDestoryed, {
+    description:
+      "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
+    condition: (event, self) => event.attackers.includes(self),
+    action: () => placeProgress(value(2)),
+  })
 );
 
 export const thalin = hero(

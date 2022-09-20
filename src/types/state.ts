@@ -78,4 +78,13 @@ export type CardView = {
     action: Action;
     canRun: Predicate<State>;
   }>;
+  responses: {
+    enemyDestoryed: Array<Response<{ attackers: CardId[]; enemy: CardId }>>;
+  };
+};
+
+export type Response<T> = {
+  description: string;
+  condition: (e: T, state: State) => boolean;
+  action: (e: T) => Action;
 };

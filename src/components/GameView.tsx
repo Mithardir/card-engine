@@ -2,7 +2,7 @@ import { Paper, Typography } from "@mui/material";
 import produce from "immer";
 import { useContext, useMemo, useState } from "react";
 import { coreTactics, passageThroughMirkwood } from "../engine/setup";
-import { values } from "lodash";
+import { random, values } from "lodash";
 import { DetailContext } from "./DetailContext";
 import { PlayerShow } from "./PlayerShow";
 import { ZoneShow } from "./ZoneShow";
@@ -162,5 +162,36 @@ export function advanceToChoiceState(state: State) {
     }
 
     nextStep(state);
+  }
+}
+
+export function chooseRandomly(state: State) {
+  while (true) {
+    if (state.next.length === 0) {
+      return;
+    }
+
+    advanceToChoiceState(state);
+
+    if (state.choice) {
+      if (state.choice.multi) {
+        const choosen = state.choice.options.filter((o) => Math.random() > 0.5);
+        // console.log(
+        //   state.choice.title,
+        //   "choosen",
+        //   choosen.map((c) => c.title).join(", ")
+        // );
+        sequence(...choosen.map((c) => c.action)).apply(state);
+      } else {
+        if (state.choice.options.length > 0) {
+          const index = random(0, state.choice.options.length - 1);
+          const choice = state.choice.options[index];
+          //console.log(state.choice.title, "choosen", choice.title);
+          choice.action.apply(state);
+        }
+      }
+    }
+
+    state.choice = undefined;
   }
 }

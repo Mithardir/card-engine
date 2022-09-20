@@ -47,6 +47,7 @@ export const resolveEnemyAttack = cardAction<PlayerId>(
         playerActions("Declare defender"),
         declareDefender(c.card.id, player),
         determineCombatDamage("defend").player(player),
+        clearMarks("attacking"),
         clearMarks("defending"),
         mark("attacked").card(c.card.id)
       )

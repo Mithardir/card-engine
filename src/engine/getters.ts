@@ -32,11 +32,35 @@ export const totalAttack: Getter<number> = {
   },
 };
 
+export const totalDefense: Getter<number> = {
+  print: "totalDefense",
+  get: (s) => {
+    const view = toView(s);
+    const ids = values(s.cards)
+      .filter((c) => c.mark.defending)
+      .map((c) => c.id);
+
+    return ids
+      .map((c) => view.cards[c])
+      .map((c) => c.props.defense || 0)
+      .reduce((p, c) => p + c, 0);
+  },
+};
+
 export const attackers: Getter<CardId[]> = {
   print: "attackers",
   get: (s) => {
     return values(s.cards)
       .filter((c) => c.mark.attacking)
+      .map((c) => c.id);
+  },
+};
+
+export const defenders: Getter<CardId[]> = {
+  print: "defenders",
+  get: (s) => {
+    return values(s.cards)
+      .filter((c) => c.mark.defending)
       .map((c) => c.id);
   },
 };

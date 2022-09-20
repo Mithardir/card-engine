@@ -9,11 +9,23 @@ import {
   hasMark,
   someCards,
   filterCards,
+  isHero,
 } from "../filters";
-import { playerZone, gameZone, topCard } from "../getters";
+import {
+  playerZone,
+  gameZone,
+  topCard,
+  attackers,
+  defenders,
+  getProp,
+  totalAttack,
+  totalDefense,
+  value,
+} from "../getters";
 import { Getter } from "../types";
 import { moveCard } from "./basic";
 import { commitToQuest, resolveEnemyAttack, resolvePlayerAttack } from "./card";
+import { dealDamage } from "./card/dealDamage";
 import { playerAction } from "./factories";
 import {
   chooseCardsActions,
@@ -94,6 +106,44 @@ export const resolveEnemyAttacks = playerAction("resolveEnemyAttacks", (c) => {
     )
   );
 });
+
+export const determineCombatDamage = playerAction<"defend" | "attack">(
+  "determineCombatDamage",
+  (c, phase) => {
+    const attacking = c.get(attackers);
+    const defending = c.get(defenders);
+    const attack = c.get(totalAttack);
+    const defense = c.get(totalDefense);
+
+    if (phase === "defend" && defending.length === 0) {
+      c.run(
+        chooseCardAction(
+          "Choose hero for undefended attack",
+          and(isHero, isInZone(playerZone("playerArea", c.player.id))),
+          dealDamage({
+            damage: value(attack),
+            attackers: value(attacking),
+          }),
+          false
+        )
+      );
+    } else {
+      const damage = attack - defense;
+      if (damage > 0) {
+        if (defending.length === 1) {
+          c.run(
+            dealDamage({
+              damage: value(damage),
+              attackers: value(attacking),
+            }).card(defending[0])
+          );
+        } else {
+          // todo multiple defenders
+        }
+      }
+    }
+  }
+);
 
 export const optionalEngagement = playerAction("optionalEngagement", (c) => {
   c.run(

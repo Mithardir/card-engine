@@ -21,6 +21,7 @@ import {
 } from "./global";
 import { addToken, mark, tap } from "./basic";
 import { dealDamage } from "./card/dealDamage";
+import { determineCombatDamage } from "./player";
 
 export const cardActionSequence = cardAction<CardAction[]>(
   "sequence",
@@ -29,14 +30,25 @@ export const cardActionSequence = cardAction<CardAction[]>(
   }
 );
 
+export function asCardAction(action: (cardId: CardId) => Action): CardAction {
+  return {
+    print: action(0).print,
+    card: (card) =>
+      typeof card === "number" ? action(card) : sequence(/* todo */),
+  };
+}
+
 export const resolveEnemyAttack = cardAction<PlayerId>(
   "resolveEnemyAttack",
   (c, player) => {
     c.run(
       sequence(
-        mark("attacked").card(c.card.id),
+        mark("attacking").card(c.card.id),
         playerActions("Declare defender"),
-        declareDefender(c.card.id, player)
+        declareDefender(c.card.id, player),
+        determineCombatDamage("defend").player(player),
+        clearMarks("defending"),
+        mark("attacked").card(c.card.id)
       )
     );
   }

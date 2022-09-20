@@ -28,10 +28,14 @@ import {
   value,
   playerZone,
   getProp,
+  attackers,
+  defenders,
+  totalAttack,
+  totalDefense,
 } from "../getters";
 import { Action, Getter, PlayerAction, Predicate, CardAction } from "../types";
 import { flip, mark, moveCard, tap, travelTo } from "./basic";
-import { resolveDefense, cardActionSequence } from "./card";
+import { resolveDefense, cardActionSequence, asCardAction } from "./card";
 import { dealDamage } from "./card/dealDamage";
 import { ActionResult } from "./factories";
 import { incrementThreat } from "./player";
@@ -335,35 +339,22 @@ export function declareDefender(attacker: CardId, player: PlayerId): Action {
   return {
     print: `declareDefender(${attacker}, ${player})`,
     apply: (state) => {
-      const cards = filterCards(
-        and(isReady, isCharacter, isInZone(playerZone("playerArea", player)))
-      ).get(state);
-
-      if (cards) {
-        const action = chooseOne("Declare defender", [
-          ...cards.map((defender) => ({
-            image: defender.props.image,
-            title: defender.props.name || "",
-            action: cardActionSequence([tap(), resolveDefense(attacker)]).card(
-              defender.id
-            ),
-          })),
-          {
-            title: "No defender",
-            action: chooseCardAction(
-              "Choose hero for undefended attack",
-              and(isHero, isInZone(playerZone("playerArea", player))),
-              dealDamage({
-                damage: getProp("attack", attacker),
-                attackers: value([attacker]),
-              }),
-              false
-            ),
-          },
-        ]);
-
-        action.apply(state);
-      }
+      chooseCardAction(
+        "Declare defender",
+        and(isReady, isCharacter, isInZone(playerZone("playerArea", player))),
+        cardActionSequence([
+          tap(),
+          mark("defending"),
+          asCardAction((defender) =>
+            resolveResponses(
+              "Choose response for declaring defender",
+              (s) => s.declaredDefender,
+              () => ({ attacker, defender: defender })
+            )
+          ),
+        ]),
+        true
+      ).apply(state);
     },
   };
 }

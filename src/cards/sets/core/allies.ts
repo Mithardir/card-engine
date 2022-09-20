@@ -1,4 +1,8 @@
+import { dealDamage } from "../../../engine/actions/card/dealDamage";
+import { sequence } from "../../../engine/actions/global";
+import { value } from "../../../engine/getters";
 import { keyword } from "../../abilities/keyword";
+import { response } from "../../abilities/response";
 import { ally } from "../../definitions/ally";
 
 export const veteranAxehand = ally({
@@ -25,14 +29,16 @@ export const gondorianSpearman = ally(
     traits: ["gondor", "warrior"],
     sphere: "tactics",
   },
-  keyword("sentinel")
-  // response({
-  //   description:
-  //     "Response: After Gondorian Spearman is declared as a defender, deal 1 damage to the attacking enemy.",
-  //   event: declaredAsDefender,
-  //   condition: (e) => e.defender === self,
-  //   action: (e) => dealDamage(1)(e.attacker),
-  // })
+  keyword("sentinel"),
+  response((s) => s.declaredDefender, {
+    description:
+      "Response: After Gondorian Spearman is declared as a defender, deal 1 damage to the attacking enemy.",
+    condition: (event, self) => event.defender === self,
+    action: (event, self) =>
+      dealDamage({ damage: value(1), attackers: value([self]) }).card(
+        event.attacker
+      ),
+  })
 );
 
 export const beorn = ally(

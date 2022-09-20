@@ -76,7 +76,7 @@ export function cardAction<T = void>(
   });
 }
 
-function resolveCard(ref: CardId | Getter<CardId | undefined>, state: State) {
+export function resolveCard(ref: CardId | Getter<CardId | undefined>, state: State) {
   if (typeof ref === "number") {
     return state.cards[ref];
   } else {

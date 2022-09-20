@@ -81,6 +81,7 @@ export type CardView = {
   responses: {
     enemyDestoryed: Array<Response<{ attackers: CardId[]; enemy: CardId }>>;
     revealed: Array<Response<{ card: CardId }>>;
+    declaredDefender: Array<Response<{ defender: CardId; attacker: CardId }>>;
   };
 };
 

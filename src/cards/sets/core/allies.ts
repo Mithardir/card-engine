@@ -127,7 +127,7 @@ export function action(props: {
   };
 }
 
-export type Modifier = {
+export type CardModifier = {
   print: string;
   to: (card: CardId) => Effect;
 };
@@ -136,18 +136,36 @@ export function increment(
   property: "attack" | "defense" | "willpower" | "hitPoints",
   amount: number,
   until?: Until
-): Modifier {
+): CardModifier {
   return {
     print: `increment(${property}, ${amount}, ${until})`,
     to: (card) => {
       return {
-        description: `+${amount} [${property}] to card ${card} ${
+        description: `+${amount} [${property}] to [${card}] ${
           until && "until " + until
         }`,
         apply: (v) => {
           const props = v.cards[card].props;
           if (props[property] !== undefined) {
             props[property]! += amount;
+          }
+        },
+        until,
+      };
+    },
+  };
+}
+
+export function cantAttackEngagedPlayer(until?: Until): CardModifier {
+  return {
+    print: `cantAttackEngagedPlayer(${until})`,
+    to: (card) => {
+      return {
+        description: `[${card}] can't attack engaged player`,
+        apply: (v, state) => {
+          const owner = ownerOf(card).get(state);
+          if (owner) {
+            v.cards[card].rules.cantAttackPlayer.push(owner);
           }
         },
         until,

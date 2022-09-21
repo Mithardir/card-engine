@@ -24,6 +24,9 @@ export function createCardView(state: CardState): CardView {
       declaredDefender: [],
       enteredPlay: [],
     },
+    rules: {
+      cantAttackPlayer: [],
+    },
   };
 }
 
@@ -50,7 +53,7 @@ export function toView(state: State): View {
   }
 
   state.effects.forEach((e) => {
-    e.apply(view);
+    e.apply(view, state);
   });
 
   return { ...view };

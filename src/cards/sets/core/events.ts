@@ -1,10 +1,21 @@
 import { cardActionSequence } from "../../../engine/actions/card";
 import { heal } from "../../../engine/actions/card/heal";
 import { cardAction } from "../../../engine/actions/factories";
-import { chooseCardAction } from "../../../engine/actions/global";
-import { isCharacter } from "../../../engine/filters";
+import { chooseCardAction, sequence } from "../../../engine/actions/global";
+import {
+  and,
+  isCharacter,
+  isEnemy,
+  isInZone,
+  isInZoneType,
+} from "../../../engine/filters";
 import { action, event } from "../../definitions/event";
-import { addEffect, increment, Modifier } from "./allies";
+import {
+  addEffect,
+  cantAttackEngagedPlayer,
+  increment,
+  CardModifier,
+} from "./allies";
 
 export const loreOfImladris = event(
   {
@@ -24,9 +35,12 @@ export const loreOfImladris = event(
   })
 );
 
-export const addModifier = cardAction<Modifier>("addEffect", (c, modifier) => {
-  c.run(addEffect(modifier.to(c.card.id)));
-});
+export const addModifier = cardAction<CardModifier>(
+  "addEffect",
+  (c, modifier) => {
+    c.run(addEffect(modifier.to(c.card.id)));
+  }
+);
 
 export const bladeMastery = event(
   {
@@ -54,17 +68,17 @@ export const feint = event(
     name: "Feint",
     cost: 1,
     sphere: "tactics",
-  }
-  // action({
-  //   description:
-  //     "Combat Action: Choose an enemy engaged with a player. That enemy cannot attack that player this phase.",
-  //   effect: chooseCardFor(and(isEnemy, inZone(ofType("engaged"))), (c) =>
-  //     modifyCard({
-  //       modifier: bindModifier(ownerOf(c), cantAttackPlayer),
-  //       until: "end_of_phase",
-  //     })(c)
-  //   ),
-  // })
+  },
+  action({
+    description:
+      "Combat Action: Choose an enemy engaged with a player. That enemy cannot attack that player this phase.",
+    effect: chooseCardAction(
+      "Choose enemy",
+      and(isEnemy, isInZoneType("engaged")),
+      addModifier(cantAttackEngagedPlayer("end_of_phase")),
+      false
+    ),
+  })
 );
 
 export const quickStrike = event(

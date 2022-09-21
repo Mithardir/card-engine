@@ -2,6 +2,7 @@ import { toPairs, values } from "lodash";
 import { GameZoneType, Mark, PlayerZoneType, Sphere } from "../types/basic";
 import { CardView, ZoneState, PlayerId, State, CardId } from "../types/state";
 import { toView } from "./engine";
+import { zoneTypeOf } from "./getters";
 import { ownerOf } from "./getters/ownerOf";
 import { Predicate, Getter } from "./types";
 
@@ -105,6 +106,13 @@ export const isEnemy: Predicate<CardView> = {
   eval: (card) => card.props.type === "enemy",
 };
 
+export function canAttack(player: PlayerId): Predicate<CardView> {
+  return {
+    print: `canAttack(${player})`,
+    eval: (card) => !card.rules.cantAttackPlayer.includes(player),
+  };
+}
+
 export const isTapped: Predicate<CardView> = {
   print: "isTapped",
   eval: (card, state) => state.cards[card.id].tapped,
@@ -142,6 +150,15 @@ export function isInZone(zone: Getter<ZoneState>): Predicate<CardView> {
   return {
     print: `isInZone(${zone.print})`,
     eval: (card, state) => zone.get(state)?.cards.includes(card.id) || false,
+  };
+}
+
+export function isInZoneType(
+  type: GameZoneType | PlayerZoneType
+): Predicate<CardView> {
+  return {
+    print: `isInZoneType(${type})`,
+    eval: (card, state) => zoneTypeOf(card.id).get(state) === type,
   };
 }
 

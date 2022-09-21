@@ -10,6 +10,7 @@ import {
   someCards,
   filterCards,
   isHero,
+  canAttack,
 } from "../filters";
 import {
   playerZone,
@@ -106,7 +107,8 @@ export const resolveEnemyAttacks = playerAction("resolveEnemyAttacks", (c) => {
   const attackers = and(
     isEnemy,
     not(hasMark("attacked")),
-    isInZone(playerZone("engaged", c.player.id))
+    isInZone(playerZone("engaged", c.player.id)),
+    canAttack(c.player.id)
   );
 
   c.run(

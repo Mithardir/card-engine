@@ -88,6 +88,9 @@ export type CardView = {
     declaredDefender: Array<Response<{ defender: CardId; attacker: CardId }>>;
     enteredPlay: Array<Response<{ card: CardId }>>;
   };
+  rules: {
+    cantAttackPlayer: PlayerId[];
+  };
 };
 
 export type Response<T> = {

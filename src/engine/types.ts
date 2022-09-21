@@ -5,7 +5,7 @@ export type Until = "end_of_phase" | "end_of_round";
 
 export type Effect = {
   description: string;
-  apply: (view: View) => void;
+  apply: (view: View, state: State) => void;
   until?: Until;
 };
 

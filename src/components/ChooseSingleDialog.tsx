@@ -6,6 +6,7 @@ import {
   List,
   ListItem,
 } from "@mui/material";
+import { useEffect } from "react";
 import { Action } from "../engine/types";
 
 export const ChooseSingleDialog = (props: {
@@ -17,10 +18,11 @@ export const ChooseSingleDialog = (props: {
   const width = 430 * scale;
   const height = 600 * scale;
 
-  if (props.choices.length === 1) {
-    props.onChoice(props.choices[0].action);
-    return <></>;
-  }
+  useEffect(() => {
+    if (props.choices.length === 1) {
+      props.onChoice(props.choices[0].action);
+    }
+  });
 
   return (
     <Dialog open={true} maxWidth="md">

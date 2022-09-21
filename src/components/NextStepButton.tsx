@@ -1,5 +1,6 @@
 import { Fab, Icon } from "@mui/material";
 import produce from "immer";
+import { useEffect } from "react";
 import { State } from "../types/state";
 import { advanceToChoiceState } from "./GameView";
 
@@ -9,14 +10,16 @@ export const NextStepButton = (props: {
 }) => {
   const state = props.state;
   if (state.choice && !state.choice.dialog) {
-    if (state.choice.options.length === 0) {
-      const newState = produce(state, (draft) => {
-        draft.choice = undefined;
-        advanceToChoiceState(draft);
-      });
+    useEffect(() => {
+      if (state.choice?.options.length === 0) {
+        const newState = produce(state, (draft) => {
+          draft.choice = undefined;
+          advanceToChoiceState(draft);
+        });
 
-      props.setState(newState);
-    }
+        props.setState(newState);
+      }
+    });
 
     return (
       <Fab

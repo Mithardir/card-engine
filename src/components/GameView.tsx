@@ -69,8 +69,8 @@ export const GameView = (props: {}) => {
         )}
 
         <div style={{ overflow: "auto", height: 250 }}>
-          {state.next.map((a) => (
-            <ul>
+          {state.next.map((a, i) => (
+            <ul key={i}>
               <li>{a.print}</li>
             </ul>
           ))}

@@ -40,7 +40,7 @@ export function addSetup(action: Action): CardModifier {
 export type Ability = {
   description: string;
   implicit: boolean;
-  modify: (card: CardView, state: State) => void;
+  modify: (self: CardView, state: State) => void;
 };
 
 export function setup(props: { description: string; action: Action }): Ability {

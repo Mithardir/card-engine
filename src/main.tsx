@@ -7,6 +7,9 @@ import { beginScenario } from "./engine/actions/round";
 import { passageThroughMirkwood, coreTactics } from "./engine/setup";
 import { State } from "./types/state";
 import { StateProvider } from "./components/StateContext";
+import { setAutoFreeze } from "immer";
+
+setAutoFreeze(false);
 
 const initState: State = {
   phase: "setup",
@@ -22,7 +25,8 @@ const initState: State = {
     victoryDisplay: { cards: [], stack: true },
   },
   next: [beginScenario(passageThroughMirkwood, coreTactics)],
-  responses: {},
+  triggers: { end_of_phase: [], end_of_round: [] },
+  flags: {},
 };
 
 console.log(initState.next[0].print);

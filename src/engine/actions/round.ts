@@ -28,6 +28,8 @@ import {
   setupActions,
   shuffleZone,
   repeat,
+  endPhase,
+  endRound,
 } from "./global";
 import {
   commitCharactersToQuest,
@@ -46,12 +48,14 @@ export const phaseResource = sequence(
   beginPhase("resource"),
   eachPlayer(draw(1)),
   eachCard(and(isHero, isInPlay), generateResource(value(1))),
-  playerActions("End resource phase")
+  playerActions("End resource phase"),
+  endPhase()
 );
 
 export const phasePlanning = sequence(
   beginPhase("planning"),
-  playerActions("End planning phase")
+  playerActions("End planning phase"),
+  endPhase()
 );
 
 export const phaseQuest = sequence(
@@ -62,13 +66,15 @@ export const phaseQuest = sequence(
   playerActions("Quest resolution"),
   resolveQuest(),
   playerActions("End phase"),
-  clearMarks("questing")
+  clearMarks("questing"),
+  endPhase()
 );
 
 export const phaseTravel = sequence(
   beginPhase("travel"),
   ifThenElse(canTravel, chooseTravelLocation, sequence()),
-  playerActions("End travel phase")
+  playerActions("End travel phase"),
+  endPhase()
 );
 
 export const phaseEncounter = sequence(
@@ -76,7 +82,8 @@ export const phaseEncounter = sequence(
   eachPlayer(optionalEngagement()),
   playerActions("Engagement Checks"),
   whileDo(enemiesToEngage, eachPlayer(engagementCheck())),
-  playerActions("Next encounter phase")
+  playerActions("Next encounter phase"),
+  endPhase()
 );
 
 export const phaseCombat = sequence(
@@ -88,7 +95,8 @@ export const phaseCombat = sequence(
   playerActions("Resolve player attacks"),
   eachPlayer(resolvePlayerAttacks()),
   clearMarks("attacked"),
-  playerActions("End combat phase")
+  playerActions("End combat phase"),
+  endPhase()
 );
 
 export const phaseRefresh = sequence(
@@ -96,7 +104,8 @@ export const phaseRefresh = sequence(
   eachCard(isTapped, untap()),
   eachPlayer(incrementThreat(value(1))),
   // passFirstPlayerToken,
-  playerActions("End refresh phase and round")
+  playerActions("End refresh phase and round"),
+  endPhase()
 );
 
 export const gameRound = sequence(
@@ -106,7 +115,8 @@ export const gameRound = sequence(
   phaseTravel,
   phaseEncounter,
   phaseCombat,
-  phaseRefresh
+  phaseRefresh,
+  endRound()
 );
 
 export const startGame = whileDo(value(true), gameRound);

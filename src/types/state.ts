@@ -18,6 +18,10 @@ export type State = {
   zones: Record<GameZoneType, ZoneState>;
   cards: Record<CardId, CardState>;
   effects: Effect[];
+  triggers: {
+    end_of_phase: Action[];
+    end_of_round: Action[];
+  };
   choice?: {
     title: string;
     dialog: boolean;
@@ -25,8 +29,8 @@ export type State = {
     options: Array<{ title: string; action: Action }>;
   };
   next: Action[];
-  responses: {};
   result?: "win" | "lost";
+  flags: Record<string, any>;
 };
 
 export type View = {

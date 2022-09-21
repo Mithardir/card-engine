@@ -1,16 +1,31 @@
+import { moveCard } from "../../../engine/actions/basic";
 import { dealDamage } from "../../../engine/actions/card/dealDamage";
+import { cardAction } from "../../../engine/actions/factories";
 import {
   chooseAction,
   chooseCardAction,
   sequence,
 } from "../../../engine/actions/global";
-import { draw, incrementThreat } from "../../../engine/actions/player";
-import { isEnemy } from "../../../engine/filters";
-import { value } from "../../../engine/getters";
+import {
+  draw,
+  incrementThreat,
+  shuffleLibrary,
+} from "../../../engine/actions/player";
+import { and, isEnemy, isInPlay, not } from "../../../engine/filters";
+import { playerZone, value } from "../../../engine/getters";
 import { ownerOf } from "../../../engine/getters/ownerOf";
+import {
+  Action,
+  Effect,
+  Getter,
+  Predicate,
+  Until,
+} from "../../../engine/types";
+import { CardId, State } from "../../../types/state";
 import { keyword } from "../../abilities/keyword";
 import { response } from "../../abilities/response";
 import { ally } from "../../definitions/ally";
+import { Ability } from "./quests";
 
 export const veteranAxehand = ally({
   name: "Veteran Axehand",
@@ -48,6 +63,105 @@ export const gondorianSpearman = ally(
   })
 );
 
+export function setFlag<T>(name: string, value: Getter<T>): Action {
+  return {
+    print: `setFlag(${name}, ${value.print})`,
+    apply: (s) => {
+      s.flags[name] = value.get(s);
+    },
+  };
+}
+
+export function isFlagEqual<T>(
+  name: string,
+  value: Getter<T>
+): Predicate<State> {
+  return {
+    print: `setFlag(${name}, ${value.print})`,
+    eval: (state) => state.flags[name] === value.get(state),
+  };
+}
+
+export function atEndOfRound(action: Action): Action {
+  return {
+    print: `atEndOfRound(${action.print})`,
+    apply: (s) => {
+      s.triggers.end_of_round.push(action);
+    },
+  };
+}
+
+export function atEndOfPhase(action: Action): Action {
+  return {
+    print: `atEndOfPhase(${action.print})`,
+    apply: (s) => {
+      s.triggers.end_of_phase.push(action);
+    },
+  };
+}
+
+export function addEffect(effect: Effect): Action {
+  return {
+    print: `addEffect(${effect.description})`,
+    apply: (s) => {
+      s.effects.push(effect);
+    },
+  };
+}
+
+export function action(props: {
+  description: string;
+  action: (self: CardId) => Action;
+  canRun: Predicate<State>;
+}): Ability {
+  return {
+    description: props.description,
+    implicit: false,
+    modify: (self, state) => {
+      self.actions.push({
+        title: props.description,
+        action: props.action(self.id),
+        canRun: and(isInPlay.card(self.id), props.canRun),
+      });
+    },
+  };
+}
+
+export function increment(
+  card: CardId,
+  property: "attack" | "defense" | "willpower" | "hitPoints",
+  amount: number,
+  until?: Until
+): Effect {
+  return {
+    description: `+${amount} [${property}] to card ${card} ${
+      until && "until " + until
+    }`,
+    apply: (v) => {
+      const props = v.cards[card].props;
+      if (props[property] !== undefined) {
+        props[property]! += amount;
+      }
+    },
+    until,
+  };
+}
+
+export const moveToLibrary = cardAction("moveToLibrary", (c) => {
+  const owner = c.get(ownerOf(c.card.id));
+  if (owner) {
+    c.run(
+      sequence(
+        moveCard({
+          to: playerZone("library", owner),
+          side: "back",
+        }).card(c.card.id),
+        shuffleLibrary().player(owner)
+      )
+    );
+  }
+});
+
 export const beorn = ally(
   {
     name: "Beorn",
@@ -59,26 +173,19 @@ export const beorn = ally(
     hitPoints: 6,
     traits: ["beorning", "warrior"],
     sphere: "tactics",
-  }
-  // action({
-  //   description:
-  //     "Action: Beorn gains +5 Attack until the end of the phase. At the end of the phase in which you trigger this effect, shuffle Beorn back into your deck. (Limit once per round.)",
-  //   effect: all(
-  //     modifyCard({
-  //       modifier: increment("attack")(5),
-  //       until: "end_of_phase",
-  //     })(self),
-  //     atEndOfPhase(
-  //       bindAction(ownerOf(self), (owner) =>
-  //         sequence(
-  //           move2(self, "library", "back", owner),
-  //           update(shuffleZones(and(ofType("library"), ofPlayer(owner))))
-  //         )
-  //       )
-  //     )
-  //   ),
-  //   limit: oncePerRound(),
-  // })
+  },
+  action({
+    description:
+      "Action: Beorn gains +5 Attack until the end of the phase. At the end of the phase in which you trigger this effect, shuffle Beorn back into your deck. (Limit once per round.)",
+    canRun: not(isFlagEqual("beorn_ability_used", value(true))),
+    action: (self) =>
+      sequence(
+        addEffect(increment(self, "attack", 5, "end_of_phase")),
+        setFlag("beorn_ability_used", value(true)),
+        atEndOfPhase(moveToLibrary().card(self)),
+        atEndOfRound(setFlag("beorn_ability_used", value(false)))
+      ),
+  })
 );
 
 export const horsebackArcher = ally(

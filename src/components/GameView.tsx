@@ -51,9 +51,9 @@ export const GameView = (props: {}) => {
         </Paper>
         <Paper style={{ margin: 4 }}>
           <Typography>Effects:</Typography>
-          {/* {game.view.effects.map((e, index) => (
-        <Typography key={index}>{e.modifier.print()}</Typography>
-      ))} */}
+          {state.effects.map((e, index) => (
+            <Typography key={index}>{e.description}</Typography>
+          ))}
         </Paper>
 
         {state.choice && (

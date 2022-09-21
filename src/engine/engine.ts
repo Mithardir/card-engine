@@ -11,7 +11,7 @@ import {
 } from "../types/state";
 
 export function createCardView(state: CardState): CardView {
-  const printed = cloneDeep(state.definition[state.sideUp]);
+  const printed = state.definition[state.sideUp];
   return {
     id: state.id,
     props: printed,
@@ -28,9 +28,9 @@ export function createCardView(state: CardState): CardView {
 }
 
 export function toView(state: State): View {
-  const view: View = {
+  const view: View = cloneDeep({
     cards: mapValues(state.cards, (c) => createCardView(c)),
-  };
+  });
 
   while (true) {
     let allApplied = true;
@@ -48,6 +48,10 @@ export function toView(state: State): View {
       break;
     }
   }
+
+  state.effects.forEach((e) => {
+    e.apply(view);
+  });
 
   return { ...view };
 }

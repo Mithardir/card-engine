@@ -49,6 +49,7 @@ export const moveCard = cardAction<{
   if (zoneTo && zoneFrom && inZone) {
     zoneFrom.cards = zoneFrom.cards.filter((c) => c !== card.id);
     zoneTo.cards.push(c.card.id);
+    console.log(`moving card ${card.id} to ${args.to.print}`);
   }
 });
 

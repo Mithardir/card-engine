@@ -113,6 +113,32 @@ export function beginPhase(type: Phase): Action {
   };
 }
 
+export function endPhase(): Action {
+  return {
+    print: `endPhase()`,
+    apply: (state) => {
+      state.effects = state.effects.filter((s) => s.until !== "end_of_phase");
+      for (const trigger of state.triggers.end_of_phase) {
+        trigger.apply(state);
+      }
+      state.triggers.end_of_phase = [];
+    },
+  };
+}
+
+export function endRound(): Action {
+  return {
+    print: `endRound()`,
+    apply: (state) => {
+      state.effects = state.effects.filter((s) => s.until !== "end_of_round");
+      for (const trigger of state.triggers.end_of_round) {
+        trigger.apply(state);
+      }
+      state.triggers.end_of_round = [];
+    },
+  };
+}
+
 export function eachPlayer(playerAction: PlayerAction): Action {
   return {
     print: `eachPlayer(${playerAction.print})`,

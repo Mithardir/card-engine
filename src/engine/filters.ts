@@ -1,6 +1,6 @@
 import { toPairs, values } from "lodash";
 import { GameZoneType, Mark, PlayerZoneType, Sphere } from "../types/basic";
-import { CardView, ZoneState, PlayerId } from "../types/state";
+import { CardView, ZoneState, PlayerId, State, CardId } from "../types/state";
 import { toView } from "./engine";
 import { ownerOf } from "./getters/ownerOf";
 import { Predicate, Getter } from "./types";
@@ -22,7 +22,12 @@ export const isHero: Predicate<CardView> = {
   eval: (card) => card.props.type === "hero",
 };
 
-export const isInPlay: Predicate<CardView> = {
+export type CardPredicate = {
+  print: string;
+  card: (card: CardId) => Predicate<State>;
+};
+
+export const isInPlay: Predicate<CardView> & CardPredicate = {
   print: "isInPlay",
   eval: (card, state) => {
     const inStaging = state.zones.stagingArea.cards.includes(card.id);
@@ -33,6 +38,21 @@ export const isInPlay: Predicate<CardView> = {
     );
 
     return inStaging || inPlayerArea;
+  },
+  card: (card) => {
+    return {
+      print: "isInPlay",
+      eval: (state) => {
+        const inStaging = state.zones.stagingArea.cards.includes(card);
+        const inPlayerArea = values(state.players).some(
+          (p) =>
+            p.zones.engaged.cards.includes(card) ||
+            p.zones.playerArea.cards.includes(card)
+        );
+
+        return inStaging || inPlayerArea;
+      },
+    };
   },
 };
 

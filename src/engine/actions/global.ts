@@ -92,7 +92,14 @@ export function chooseAction(
   return {
     print: `choose: ${options.map((o) => o.title)}`,
     apply: (s) => {
-      s.choice = { title, options, dialog: true, multi: false };
+      s.choice = {
+        title,
+        options: options.filter(
+          (o) => !o.action.result || o.action.result(s) !== "none"
+        ),
+        dialog: true,
+        multi: false,
+      };
     },
   };
 }
@@ -170,7 +177,9 @@ export function chooseCardAction(
       }
 
       const actions = cards.map((c) => factory.card(c.id));
-      return mergeOrResults(...actions.map((a) => a.result!(state)));
+      return mergeOrResults(
+        ...actions.map((a) => (a.result ? a.result(state) : "full"))
+      );
     },
   };
 }

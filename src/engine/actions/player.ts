@@ -36,17 +36,32 @@ import {
   sequence,
 } from "./global";
 
-export const draw = playerAction<number>("draw", (c, amount) => {
-  for (let index = 0; index < amount; index++) {
-    c.run(
-      moveCard({
-        from: playerZone("library", c.player.id),
-        to: playerZone("hand", c.player.id),
-        side: "face",
-      }).card(topCard(playerZone("library", c.player.id)))
-    );
+export const draw = playerAction<number>(
+  "draw",
+  (c, amount) => {
+    for (let index = 0; index < amount; index++) {
+      c.run(
+        moveCard({
+          from: playerZone("library", c.player.id),
+          to: playerZone("hand", c.player.id),
+          side: "face",
+        }).card(topCard(playerZone("library", c.player.id)))
+      );
+    }
+  },
+  (p, state, amount) => {
+    const cards = p.zones.library.cards.length;
+    if (cards === 0) {
+      return "none";
+    }
+
+    if (cards >= amount) {
+      return "full";
+    }
+
+    return "partial";
   }
-});
+);
 
 export const incrementThreat = playerAction<Getter<number>>(
   "incrementThreat",

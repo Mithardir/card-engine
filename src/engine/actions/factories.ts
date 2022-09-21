@@ -76,7 +76,10 @@ export function cardAction<T = void>(
   });
 }
 
-export function resolveCard(ref: CardId | Getter<CardId | undefined>, state: State) {
+export function resolveCard(
+  ref: CardId | Getter<CardId | undefined>,
+  state: State
+) {
   if (typeof ref === "number") {
     return state.cards[ref];
   } else {
@@ -96,7 +99,8 @@ export function playerAction<T = void>(
       get: <T>(getter: Getter<T>) => T;
     },
     args: T
-  ) => void
+  ) => void,
+  result?: (card: PlayerState, s: State, args: T) => ActionResult
 ): (args: T) => PlayerAction {
   return (args) => ({
     print: `${name}(${JSON.stringify(args)})`,
@@ -118,6 +122,16 @@ export function playerAction<T = void>(
             );
           }
         },
+        result: result
+          ? (state) => {
+              const player = state.players[id];
+              if (!player) {
+                return "none";
+              }
+
+              return result(player, state, args);
+            }
+          : undefined,
       };
     },
   });

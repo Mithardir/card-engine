@@ -127,23 +127,32 @@ export function action(props: {
   };
 }
 
+export type Modifier = {
+  print: string;
+  to: (card: CardId) => Effect;
+};
+
 export function increment(
-  card: CardId,
   property: "attack" | "defense" | "willpower" | "hitPoints",
   amount: number,
   until?: Until
-): Effect {
+): Modifier {
   return {
-    description: `+${amount} [${property}] to card ${card} ${
-      until && "until " + until
-    }`,
-    apply: (v) => {
-      const props = v.cards[card].props;
-      if (props[property] !== undefined) {
-        props[property]! += amount;
-      }
+    print: `increment(${property}, ${amount}, ${until})`,
+    to: (card) => {
+      return {
+        description: `+${amount} [${property}] to card ${card} ${
+          until && "until " + until
+        }`,
+        apply: (v) => {
+          const props = v.cards[card].props;
+          if (props[property] !== undefined) {
+            props[property]! += amount;
+          }
+        },
+        until,
+      };
     },
-    until,
   };
 }
 
@@ -180,7 +189,7 @@ export const beorn = ally(
     canRun: not(isFlagEqual("beorn_ability_used", value(true))),
     action: (self) =>
       sequence(
-        addEffect(increment(self, "attack", 5, "end_of_phase")),
+        addEffect(increment("attack", 5, "end_of_phase").to(self)),
         setFlag("beorn_ability_used", value(true)),
         atEndOfPhase(moveToLibrary().card(self)),
         atEndOfRound(setFlag("beorn_ability_used", value(false)))

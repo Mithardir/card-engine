@@ -1,7 +1,10 @@
+import { cardActionSequence } from "../../../engine/actions/card";
 import { heal } from "../../../engine/actions/card/heal";
+import { cardAction } from "../../../engine/actions/factories";
 import { chooseCardAction } from "../../../engine/actions/global";
-import { and, isCharacter, isDamaged } from "../../../engine/filters";
+import { isCharacter } from "../../../engine/filters";
 import { action, event } from "../../definitions/event";
+import { addEffect, increment, Modifier } from "./allies";
 
 export const loreOfImladris = event(
   {
@@ -21,23 +24,29 @@ export const loreOfImladris = event(
   })
 );
 
+export const addModifier = cardAction<Modifier>("addEffect", (c, modifier) => {
+  c.run(addEffect(modifier.to(c.card.id)));
+});
+
 export const bladeMastery = event(
   {
     name: "Blade Mastery",
     cost: 1,
     sphere: "tactics",
-  }
-  // action({
-  //   description:
-  //     "Action: Choose a character. Until the end of the phase, that character gains +1 Attack and +1 Defense.",
-  //   effect: chooseCardFor(
-  //     isCharacter,
-  //     modifyCard({
-  //       modifier: combine(increment("attack")(1), increment("defense")(1)),
-  //       until: "end_of_phase",
-  //     })
-  //   ),
-  // })
+  },
+  action({
+    description:
+      "Action: Choose a character. Until the end of the phase, that character gains +1 Attack and +1 Defense.",
+    effect: chooseCardAction(
+      "Choose character for +1/+1",
+      isCharacter,
+      cardActionSequence([
+        addModifier(increment("attack", 1, "end_of_phase")),
+        addModifier(increment("defense", 1, "end_of_phase")),
+      ]),
+      false
+    ),
+  })
 );
 
 export const feint = event(

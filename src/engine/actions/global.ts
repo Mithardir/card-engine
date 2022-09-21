@@ -17,6 +17,7 @@ import {
   isReady,
   isCharacter,
   isHero,
+  isInPlay,
 } from "../filters";
 import {
   topCard,
@@ -176,7 +177,7 @@ export function chooseCardAction(
   return {
     print: `chooseCardAction("${title}", ${filter.print}, ${factory.print})`,
     apply: (state) => {
-      const cards = filterCards(filter).get(state);
+      const cards = filterCards(and(filter, isInPlay)).get(state);
       if (cards) {
         const options = cards
           .map((card) => ({

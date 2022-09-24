@@ -74,6 +74,11 @@ export function sequence(...actions: Action[]): Action {
   };
 }
 
+export const emptyAction: Action = {
+  print: "emptyAction",
+  apply: () => {},
+};
+
 export function whileDo(exp: Getter<boolean>, action: Action): Action {
   return {
     print: `whileDo(${exp.print}, ${action.print})`,

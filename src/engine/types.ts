@@ -22,7 +22,7 @@ export type Getter<T> = {
 
 export type PlayerAction = {
   print: string;
-  player: (playerId: PlayerId) => Action;
+  player: (playerId: PlayerId | undefined) => Action;
 };
 
 // todo remove
@@ -30,7 +30,7 @@ export type CardFilter = { print: string };
 
 export type CardAction = {
   print: string;
-  card: (cardId: CardId | Getter<CardId | undefined>) => Action;
+  card: (cardId: CardId | Getter<CardId | undefined> | undefined) => Action;
 };
 
 export type Predicate<T> = {

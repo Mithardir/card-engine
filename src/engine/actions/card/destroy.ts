@@ -23,7 +23,7 @@ export const destroy = cardAction("destroy", (c) => {
         }).card(c.card.id),
         ifThen(
           isSame(countCards(and(isHero, isInPlay, hasOwner(owner!))), value(0)),
-          eliminatePlayer().player(owner!)
+          eliminatePlayer().player(owner)
         )
       )
     ),

@@ -1,5 +1,6 @@
 import { CardState, State, PlayerState, CardId } from "../../types/state";
 import { Action, CardAction, Getter, PlayerAction } from "../types";
+import { emptyAction, sequence } from "./global";
 
 export function action<T = void>(
   name: string,
@@ -43,6 +44,10 @@ export function cardAction<T = void>(
   return (args) => ({
     print: `${name}(${JSON.stringify(args)})`,
     card: (ref) => {
+      if (!ref) {
+        return emptyAction;
+      }
+
       return {
         print: `${name}(${JSON.stringify({ ...args, card: ref })})`,
         apply: (state) => {
@@ -103,6 +108,10 @@ export function playerAction<T = void>(
   return (args) => ({
     print: `${name}(${JSON.stringify(args)})`,
     player: (id) => {
+      if (!id) {
+        return emptyAction;
+      }
+
       return {
         print: `${name}(${JSON.stringify({ ...args, card: id })})`,
         apply: (state) => {

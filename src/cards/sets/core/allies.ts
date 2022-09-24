@@ -177,14 +177,12 @@ export function cantAttackEngagedPlayer(until?: Until): CardModifier {
 export const moveToLibrary = cardAction("moveToLibrary", (c) => {
   const owner = c.get(ownerOf(c.card.id));
   if (owner) {
-    c.run(
-      sequence(
-        moveCard({
-          to: playerZone("library", owner),
-          side: "back",
-        }).card(c.card.id),
-        shuffleLibrary().player(owner)
-      )
+    return sequence(
+      moveCard({
+        to: playerZone("library", owner),
+        side: "back",
+      }).card(c.card.id),
+      shuffleLibrary().player(owner)
     );
   }
 });

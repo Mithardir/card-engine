@@ -34,11 +34,10 @@ export function cardAction<T = void>(
   apply: (
     context: {
       card: CardState;
-      run: (action: Action) => void;
       get: <T>(getter: Getter<T>) => T;
     },
     args: T
-  ) => void,
+  ) => Action | void,
   result?: (card: CardState, s: State, args: T) => ActionResult
 ): (args: T) => CardAction {
   return (args) => ({
@@ -49,16 +48,16 @@ export function cardAction<T = void>(
         apply: (state) => {
           const card = resolveCard(ref, state);
           if (card) {
-            apply(
+            const action = apply(
               {
                 card,
-                run: (action) => {
-                  action.apply(state);
-                },
                 get: <T>(getter: Getter<T>) => getter.get(state),
               },
               args
             );
+            if (action) {
+              action.apply(state);
+            }
           }
         },
         result: result
@@ -95,11 +94,10 @@ export function playerAction<T = void>(
   apply: (
     context: {
       player: PlayerState;
-      run: (action: Action) => void;
       get: <T>(getter: Getter<T>) => T;
     },
     args: T
-  ) => void,
+  ) => Action | void,
   result?: (card: PlayerState, s: State, args: T) => ActionResult
 ): (args: T) => PlayerAction {
   return (args) => ({
@@ -110,16 +108,16 @@ export function playerAction<T = void>(
         apply: (state) => {
           const player = state.players[id];
           if (player) {
-            apply(
+            const action = apply(
               {
                 player,
-                run: (action) => {
-                  action.apply(state);
-                },
                 get: <T>(getter: Getter<T>) => getter.get(state),
               },
               args
             );
+            if (action) {
+              action.apply(state);
+            }
           }
         },
         result: result

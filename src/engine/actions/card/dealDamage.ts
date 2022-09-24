@@ -1,9 +1,10 @@
 import { cardAction } from "../factories";
 import { CardId } from "../../../types/state";
 import { Getter } from "../../types";
-import { getProps } from "../../getters";
+import { getProps, value } from "../../getters";
 import { destroy } from "./destroy";
 import { resolveResponses } from "../resolveResponses";
+import { ifThenElse, sequence } from "../global";
 
 export const dealDamage = cardAction<{
   damage: Getter<number>;
@@ -15,9 +16,10 @@ export const dealDamage = cardAction<{
   if (amount && props.hitPoints) {
     c.card.token.damage += amount;
     if (c.card.token.damage >= props.hitPoints) {
-      c.run(destroy().card(c.card.id));
-      if (props.type === "enemy") {
-        c.run(
+      return sequence(
+        destroy().card(c.card.id),
+        ifThenElse(
+          value(props.type === "enemy"),
           resolveResponses(
             "Choose reponse for destroying enemy",
             (s) => s.enemyDestoryed,
@@ -25,9 +27,10 @@ export const dealDamage = cardAction<{
               attackers: attackers,
               enemy: c.card.id,
             })
-          )
-        );
-      }
+          ),
+          sequence()
+        )
+      );
     }
   }
 });

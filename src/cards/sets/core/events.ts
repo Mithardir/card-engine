@@ -38,7 +38,7 @@ export const loreOfImladris = event(
 export const addModifier = cardAction<CardModifier>(
   "addEffect",
   (c, modifier) => {
-    c.run(addEffect(modifier.to(c.card.id)));
+    return addEffect(modifier.to(c.card.id));
   }
 );
 

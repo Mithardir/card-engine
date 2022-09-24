@@ -1,4 +1,5 @@
 import { cardAction } from "../factories";
+import { sequence } from "../global";
 
 export const removeAllTokens = cardAction("removeAllTokens", (c) => {
   c.card.token.damage = 0;

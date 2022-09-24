@@ -321,6 +321,18 @@ export function ifThenElse(
   };
 }
 
+export function ifThen(condition: Getter<boolean>, ifTrue: Action): Action {
+  return {
+    print: `if(${condition.print}) {${ifTrue.print}}`,
+    apply: (s) => {
+      const result = condition.get(s);
+      if (result) {
+        ifTrue.apply(s);
+      }
+    },
+  };
+}
+
 export function placeProgress(amount: Getter<number>): Action {
   // TODO to active location
   return {

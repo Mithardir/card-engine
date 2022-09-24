@@ -5,5 +5,5 @@ import { moveCard } from "../basic";
 
 export const attach = cardAction<CardId>("attachTo", (c, attachment) => {
   c.card.attachments.push(attachment);
-  c.run(moveCard({ to: zoneOf(c.card.id), side: "face" }).card(attachment));
+  return moveCard({ to: zoneOf(c.card.id), side: "face" }).card(attachment);
 });

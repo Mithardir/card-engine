@@ -115,6 +115,17 @@ export function isMore(a: Getter<number>, b: Getter<number>): Getter<boolean> {
   };
 }
 
+export function isSame(a: Getter<number>, b: Getter<number>): Getter<boolean> {
+  return {
+    print: `${a.print} === ${b.print}`,
+    get: (s) => {
+      const va = a.get(s);
+      const vb = b.get(s);
+      return va === vb;
+    },
+  };
+}
+
 export const canTravel: Getter<boolean> = {
   print: "canTravel",
   get: (s) => {

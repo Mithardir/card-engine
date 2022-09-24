@@ -10,19 +10,17 @@ export const payResources = playerAction<[number, Sphere]>(
   (c, args) => {
     const sphere = args[1];
     const amount = args[0];
-    c.run(
-      repeat(
-        value(amount),
-        chooseCardAction(
-          "Choose hero to pay 1 resource",
-          and(
-            isHero,
-            isInZone(playerZone("playerArea", c.player.id)),
-            hasResource(sphere)
-          ),
-          removeToken({ amount: 1, token: "resources" }),
-          false
-        )
+    return repeat(
+      value(amount),
+      chooseCardAction(
+        "Choose hero to pay 1 resource",
+        and(
+          isHero,
+          isInZone(playerZone("playerArea", c.player.id)),
+          hasResource(sphere)
+        ),
+        removeToken({ amount: 1, token: "resources" }),
+        false
       )
     );
   }

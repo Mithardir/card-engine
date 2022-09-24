@@ -26,7 +26,7 @@ import { determineCombatDamage } from "./player";
 export const cardActionSequence = cardAction<CardAction[]>(
   "sequence",
   (c, actions) => {
-    c.run(sequence(...actions.map((a) => a.card(c.card.id))));
+    return sequence(...actions.map((a) => a.card(c.card.id)));
   }
 );
 
@@ -41,16 +41,14 @@ export function asCardAction(action: (cardId: CardId) => Action): CardAction {
 export const resolveEnemyAttack = cardAction<PlayerId>(
   "resolveEnemyAttack",
   (c, player) => {
-    c.run(
-      sequence(
-        mark("attacking").card(c.card.id),
-        playerActions("Declare defender"),
-        declareDefender(c.card.id, player),
-        determineCombatDamage("defend").player(player),
-        clearMarks("attacking"),
-        clearMarks("defending"),
-        mark("attacked").card(c.card.id)
-      )
+    return sequence(
+      mark("attacking").card(c.card.id),
+      playerActions("Declare defender"),
+      declareDefender(c.card.id, player),
+      determineCombatDamage("defend").player(player),
+      clearMarks("attacking"),
+      clearMarks("defending"),
+      mark("attacked").card(c.card.id)
     );
   }
 );
@@ -64,12 +62,10 @@ export const resolveDefense = cardAction<CardId>(
       getProp("defense", defender)
     );
 
-    c.run(
-      ifThenElse(
-        isMore(damage, value(0)),
-        dealDamage({ damage, attackers: value([attacker]) }).card(defender),
-        sequence()
-      )
+    return ifThenElse(
+      isMore(damage, value(0)),
+      dealDamage({ damage, attackers: value([attacker]) }).card(defender),
+      sequence()
     );
   }
 );
@@ -79,19 +75,17 @@ export const resolvePlayerAttack = cardAction<PlayerId>(
   (c, player) => {
     const enemy = c.card.id;
     const damage = minus(totalAttack, getProp("defense", enemy));
-    c.run(
-      sequence(
-        playerActions("Declare attackers"),
-        declareAttackers(enemy, player),
-        playerActions("Determine combat damage"),
-        ifThenElse(
-          isMore(damage, value(0)),
-          dealDamage({ damage, attackers }).card(enemy),
-          sequence()
-        ),
-        clearMarks("attacking"),
-        mark("attacked").card(enemy)
-      )
+    return sequence(
+      playerActions("Declare attackers"),
+      declareAttackers(enemy, player),
+      playerActions("Determine combat damage"),
+      ifThenElse(
+        isMore(damage, value(0)),
+        dealDamage({ damage, attackers }).card(enemy),
+        sequence()
+      ),
+      clearMarks("attacking"),
+      mark("attacked").card(enemy)
     );
   }
 );

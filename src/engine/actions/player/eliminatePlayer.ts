@@ -2,7 +2,7 @@ import { playerAction } from "../factories";
 import { values } from "lodash";
 
 export const eliminatePlayer = playerAction("eliminatePlayer", (c) => {
-  c.run({
+  return {
     print: "eliminatePlayer",
     apply: (s) => {
       if (values(s.players).length === 1) {
@@ -13,5 +13,5 @@ export const eliminatePlayer = playerAction("eliminatePlayer", (c) => {
         delete s.players[c.player.id];
       }
     },
-  });
+  };
 });

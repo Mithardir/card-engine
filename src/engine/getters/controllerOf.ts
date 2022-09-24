@@ -1,10 +1,9 @@
 import { Getter } from "../types";
 import { CardId, PlayerId } from "../../types/state";
 
-
-export function ownerOf(card: CardId): Getter<PlayerId | undefined> {
+export function controllerOf(card: CardId): Getter<PlayerId | undefined> {
   return {
-    print: `ownerOf(${card})`,
+    print: `controllerOf(${card})`,
     get: (s) => s.cards[card].controller,
   };
 }

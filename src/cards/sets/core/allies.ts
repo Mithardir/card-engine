@@ -13,6 +13,7 @@ import {
 } from "../../../engine/actions/player";
 import { and, isEnemy, isInPlay, not } from "../../../engine/filters";
 import { playerZone, value } from "../../../engine/getters";
+import { controllerOf } from "../../../engine/getters/controllerOf";
 import { ownerOf } from "../../../engine/getters/ownerOf";
 import {
   Action,
@@ -163,9 +164,9 @@ export function cantAttackEngagedPlayer(until?: Until): CardModifier {
       return {
         description: `[${card}] can't attack engaged player`,
         apply: (v, state) => {
-          const owner = ownerOf(card).get(state);
-          if (owner) {
-            v.cards[card].rules.cantAttackPlayer.push(owner);
+          const controller = controllerOf(card).get(state);
+          if (controller) {
+            v.cards[card].rules.cantAttackPlayer.push(controller);
           }
         },
         until,
@@ -248,7 +249,7 @@ export const gandalf = ally(
       chooseAction("Choose Gandalfs effect", [
         {
           title: "Draw 3 card",
-          action: draw(3).player(ownerOf(self).get(state)!),
+          action: draw(3).player(controllerOf(self).get(state)!),
         },
         {
           title: "Deal 4 damage to 1 enemy in play",
@@ -261,7 +262,9 @@ export const gandalf = ally(
         },
         {
           title: "Reduce your threat by 5",
-          action: incrementThreat(value(-5)).player(ownerOf(self).get(state)!),
+          action: incrementThreat(value(-5)).player(
+            controllerOf(self).get(state)!
+          ),
         },
       ]),
   })

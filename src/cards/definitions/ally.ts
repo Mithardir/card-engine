@@ -7,7 +7,7 @@ import { AllyProps } from "../../types/cards";
 import { CardDefinition } from "../../types/state";
 import { canPayResources } from "../../engine/predicates/canPayResources";
 import { isPhase } from "../../engine/predicates/isPhase";
-import { ownerOf } from "../../engine/getters/ownerOf";
+import { controllerOf } from "../../engine/getters/controllerOf";
 import { payResources } from "../../engine/actions/player/payResources";
 import { putAllyInPlay } from "../../engine/actions/card/putAllyInPlay";
 import { Ability } from "../sets/core/quests";
@@ -31,19 +31,23 @@ export function ally(
           description: "Play ally",
           implicit: true,
           modify: (card, s) => {
-            const owner = ownerOf(card.id).get(s);
-            if (owner && card.props.cost && card.props.sphere) {
+            const controller = controllerOf(card.id).get(s);
+            if (controller && card.props.cost && card.props.sphere) {
               const zone = zoneTypeOf(card.id).get(s);
               if (zone === "hand") {
                 card.actions.push({
                   title: `Play ${card.props.name}`,
                   canRun: and(
                     isPhase("planning"),
-                    canPayResources(owner, card.props.cost, card.props.sphere)
+                    canPayResources(
+                      controller,
+                      card.props.cost,
+                      card.props.sphere
+                    )
                   ),
                   action: sequence(
                     payResources([card.props.cost, card.props.sphere]).player(
-                      owner
+                      controller
                     ),
                     putAllyInPlay().card(card.id)
                   ),

@@ -1,16 +1,16 @@
 import { cardAction } from "../factories";
 import { gameZone, getProps, isSame, playerZone, value } from "../../getters";
-import { ownerOf } from "../../getters/ownerOf";
+import { controllerOf as öwnerOf } from "../../getters/controllerOf";
 import { moveCard } from "../basic";
 import { removeAllTokens } from "./removeAllTokens";
 import { ifThen, sequence } from "../global";
-import { and, hasOwner, isHero, isInPlay } from "../../filters";
+import { and, hasController, isHero, isInPlay } from "../../filters";
 import { eliminatePlayer } from "../player/eliminatePlayer";
 import { countCards } from "../../countCards";
 
 export const destroy = cardAction("destroy", (c) => {
   const props = c.get(getProps(c.card.id));
-  const owner = c.get(ownerOf(c.card.id));
+  const owner = c.get(öwnerOf(c.card.id));
 
   return sequence(
     removeAllTokens().card(c.card.id),
@@ -22,7 +22,7 @@ export const destroy = cardAction("destroy", (c) => {
           side: "face",
         }).card(c.card.id),
         ifThen(
-          isSame(countCards(and(isHero, isInPlay, hasOwner(owner!))), value(0)),
+          isSame(countCards(and(isHero, isInPlay, hasController(owner!))), value(0)),
           eliminatePlayer().player(owner)
         )
       )

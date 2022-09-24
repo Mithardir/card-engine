@@ -1,5 +1,5 @@
 import { CardView } from "../../types/state";
-import { ownerOf } from "../../engine/getters/ownerOf";
+import { controllerOf } from "../../engine/getters/controllerOf";
 import { zoneTypeOf } from "../../engine/getters";
 import { chooseCardAction, sequence } from "../../engine/actions/global";
 import { payResources } from "../../engine/actions/player/payResources";
@@ -18,18 +18,20 @@ export function attaches(params: {
     description: params.description,
     implicit: false,
     modify: (card, s) => {
-      const owner = ownerOf(card.id).get(s);
-      if (owner && card.props.cost && card.props.sphere) {
+      const controller = controllerOf(card.id).get(s);
+      if (controller && card.props.cost && card.props.sphere) {
         const zone = zoneTypeOf(card.id).get(s);
         if (zone === "hand") {
           card.actions.push({
             title: `Play ${card.props.name}`,
             canRun: and(
               isPhase("planning"),
-              canPayResources(owner, card.props.cost, card.props.sphere)
+              canPayResources(controller, card.props.cost, card.props.sphere)
             ),
             action: sequence(
-              payResources([card.props.cost, card.props.sphere]).player(owner),
+              payResources([card.props.cost, card.props.sphere]).player(
+                controller
+              ),
               chooseCardAction(
                 "Select target for attachment",
                 and(isInPlay, params.filter),

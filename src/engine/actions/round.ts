@@ -145,14 +145,15 @@ export function addPlayer(playerId: PlayerId, deck: PlayerDeck): Action {
       const playerIndex = playerIds.findIndex((p) => p === playerId);
 
       const heroes = deck.heroes.map((h, index) =>
-        createCardState(index * 5 + playerIndex + 1, h, "face")
+        createCardState(index * 5 + playerIndex + 1, h, "face", playerId)
       );
 
       const library = deck.library.map((l, index) =>
         createCardState(
           (index + heroes.length) * 5 + playerIndex + 1,
           l,
-          "back"
+          "back",
+          playerId
         )
       );
 
@@ -183,11 +184,11 @@ export function setupScenario(scenario: Scenario): Action {
     print: `setupScenario("${scenario.name}")`,
     apply: (s) => {
       const quest = scenario.questCards.map((q, index) =>
-        createCardState(index * 5 + 5, q, "back")
+        createCardState(index * 5 + 5, q, "back", undefined)
       );
 
       const cards = scenario.encounterCards.map((e, index) =>
-        createCardState((index + quest.length) * 5 + 5, e, "back")
+        createCardState((index + quest.length) * 5 + 5, e, "back", undefined)
       );
 
       s.zones.encounterDeck.cards.push(...cards.map((c) => c.id));

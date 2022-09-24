@@ -6,6 +6,7 @@ import {
   CardId,
   CardState,
   CardView,
+  PlayerId,
   State,
   View,
 } from "../types/state";
@@ -69,7 +70,8 @@ export function nextStep(state: State): void {
 export function createCardState(
   id: CardId,
   definition: CardDefinition,
-  side: Side
+  side: Side,
+  owner: PlayerId | undefined
 ): CardState {
   return {
     id,
@@ -88,5 +90,7 @@ export function createCardState(
     tapped: false,
     definition: definition,
     attachments: [],
+    owner,
+    controller: owner,
   };
 }

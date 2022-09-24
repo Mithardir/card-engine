@@ -70,6 +70,8 @@ export type CardState = {
   token: Tokens;
   mark: Marks;
   attachments: CardId[];
+  owner: PlayerId | undefined;
+  controller: PlayerId | undefined;
 };
 
 export type CardView = {

@@ -4,7 +4,7 @@ import { emptyKeywords } from "../../types/basic";
 import { EventProps } from "../../types/cards";
 import { Ability } from "../sets/core/quests";
 import { Action } from "../../engine/types";
-import { ownerOf } from "../../engine/getters/ownerOf";
+import { controllerOf } from "../../engine/getters/controllerOf";
 import { playerZone, zoneTypeOf } from "../../engine/getters";
 import { and } from "../../engine/filters";
 import {
@@ -23,21 +23,23 @@ export function action(params: {
     description: params.description,
     implicit: false,
     modify: (card, s) => {
-      const owner = ownerOf(card.id).get(s);
-      if (owner && card.props.cost && card.props.sphere) {
+      const controller = controllerOf(card.id).get(s);
+      if (controller && card.props.cost && card.props.sphere) {
         const zone = zoneTypeOf(card.id).get(s);
         if (zone === "hand") {
           card.actions.push({
             title: `Play ${card.props.name}`,
             canRun: and(
-              canPayResources(owner, card.props.cost, card.props.sphere),
+              canPayResources(controller, card.props.cost, card.props.sphere),
               canDoPartiallyAction(params.effect)
             ),
             action: sequence(
-              payResources([card.props.cost, card.props.sphere]).player(owner),
+              payResources([card.props.cost, card.props.sphere]).player(
+                controller
+              ),
               params.effect,
               moveCard({
-                to: playerZone("discardPile", owner),
+                to: playerZone("discardPile", controller),
                 side: "face",
               }).card(card.id)
             ),

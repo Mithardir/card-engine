@@ -3,6 +3,7 @@ import { GameZoneType, Mark, PlayerZoneType, Sphere } from "../types/basic";
 import { CardView, ZoneState, PlayerId, State, CardId } from "../types/state";
 import { toView } from "./engine";
 import { zoneTypeOf } from "./getters";
+import { controllerOf } from "./getters/controllerOf";
 import { ownerOf } from "./getters/ownerOf";
 import { Predicate, Getter } from "./types";
 
@@ -59,10 +60,20 @@ export const isInPlay: Predicate<CardView> & CardPredicate = {
 
 export function hasOwner(player: PlayerId): Predicate<CardView> {
   return {
-    print: "isInPlay",
+    print: "hasOwner",
     eval: (card, state) => {
       const owner = ownerOf(card.id).get(state);
       return player === owner;
+    },
+  };
+}
+
+export function hasController(player: PlayerId): Predicate<CardView> {
+  return {
+    print: "hasController",
+    eval: (card, state) => {
+      const controller = controllerOf(card.id).get(state);
+      return player === controller;
     },
   };
 }

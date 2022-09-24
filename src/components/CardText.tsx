@@ -12,6 +12,8 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
     props: { ...props.view.props },
     attachments: props.state.attachments,
     abilities: props.view.abilities,
+    owner: props.state.owner,
+    controller: props.state.controller,
   };
 
   const { state } = React.useContext(StateContext);
@@ -21,6 +23,9 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
       <tbody>
         <tr>
           <td colSpan={4} style={{ textAlign: "center" }}>
+            {c.owner && c.controller
+              ? `O: ${c.owner}, C: ${c.controller} `
+              : null}
             {!c.props.type && <React.Fragment>[{c.id}]</React.Fragment>}
             {c.props.type === "hero" && (
               <React.Fragment>

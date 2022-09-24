@@ -1,12 +1,12 @@
 import { moveCard } from "../basic";
 import { cardAction } from "../factories";
 import { playerZone } from "../../getters";
-import { ownerOf } from "../../getters/ownerOf";
+import { controllerOf } from "../../getters/controllerOf";
 import { resolveResponses } from "../resolveResponses";
 import { sequence } from "../global";
 
 export const putAllyInPlay = cardAction("playAlly", (c) => {
-  const player = c.get(ownerOf(c.card.id));
+  const player = c.get(controllerOf(c.card.id));
   if (player) {
     return sequence(
       moveCard({

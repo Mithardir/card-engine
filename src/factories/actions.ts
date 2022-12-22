@@ -12,6 +12,7 @@ import {
   Side,
   PlayerId,
   PlayerZoneType,
+  BoolValue,
 } from "../types/basic";
 
 export function setupScenario(scenario: Scenario): Action {
@@ -80,6 +81,14 @@ export function startGame(): Action {
   };
 }
 
+export function whileDo(condition: BoolValue, action: Action): Action {
+  return {
+    type: "While",
+    condition,
+    action,
+  };
+}
+
 export function playerActions(label: string): GameAction {
   return {
     type: "PlayerActions",
@@ -109,9 +118,10 @@ export function endPhase(): GameAction {
 }
 
 export function and<T extends CardPredicate | PlayerPredicate>(
-  ...predicates: T[]
-): { type: "and"; predicates: T[] } {
-  return { type: "and", predicates };
+  a: T,
+  b: T
+): { type: "and"; a: T; b: T } {
+  return { type: "and", a, b };
 }
 
 export function generateResource(amount: NumberValue): CardAction {

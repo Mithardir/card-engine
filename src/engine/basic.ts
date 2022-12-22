@@ -1,7 +1,8 @@
-import { isArray, last, values } from "lodash";
+import { intersectionBy, isArray, last, values } from "lodash";
 import { gameZone, playerZone } from "../factories/actions";
 import { Action, CardAction, PlayerAction } from "../types/actions";
 import {
+  BoolValue,
   CardDefinition,
   CardFilter,
   CardId,
@@ -13,6 +14,7 @@ import {
 } from "../types/basic";
 import { CardState, PlayerState, State } from "../types/state";
 import { shuffleArray } from "../utils";
+import { whileDo } from "../factories/actions";
 
 export function createState(program: Action): State {
   return {
@@ -32,6 +34,20 @@ export function createState(program: Action): State {
     nextId: 1,
     cards: {},
   };
+}
+
+export function advanceToChoiceState(state: State) {
+  while (true) {
+    if (state.next.length === 0) {
+      return;
+    }
+
+    if (state.choice) {
+      return state;
+    }
+
+    nextStep(state);
+  }
 }
 
 export function nextStep(state: State) {
@@ -101,6 +117,29 @@ export function nextStep(state: State) {
         resolveCardAction(state, action.card, action.action);
         return;
       }
+      case "While": {
+        const result = evaluateBool(action.condition, state);
+        if (result) {
+          state.next = [
+            action.action,
+            whileDo(action.condition, action.action),
+            ...state.next,
+          ];
+        }
+        return;
+      }
+      case "BeginPhase": {
+        return;
+      }
+      case "PlayerActions": {
+        state.choice = {
+          title: action.label,
+          dialog: false,
+          multi: false,
+          options: [],
+        };
+        return;
+      }
     }
   }
 
@@ -158,10 +197,10 @@ export function resolvePlayerAction(
       case "ShuffleZone": {
         const zone = getZone(playerZone(player.id, action.zone), state);
         shuffleArray(zone.cards);
-        return;
+        break;
       }
       case "Draw": {
-        const amount = evaluate(action.amount, state);
+        const amount = evaluateNumber(action.amount, state);
         for (let index = 0; index < amount; index++) {
           const top = last(player.zones.library.cards);
           if (top) {
@@ -170,7 +209,7 @@ export function resolvePlayerAction(
             player.zones.hand.cards.push(top);
           }
         }
-        return;
+        break;
       }
       default: {
         throw new Error(`unknown action: ${JSON.stringify(action)}`);
@@ -196,9 +235,27 @@ export function getPlayers(state: State, filter: PlayerFilter) {
   }
 }
 
-export function evaluate(expr: NumberValue, state: State) {
+export function evaluateNumber(expr: NumberValue, state: State) {
   if (typeof expr === "number") {
     return expr;
+  }
+
+  throw new Error(`unknown expression: ${JSON.stringify(expr)}`);
+}
+
+export function evaluateBool(expr: BoolValue, state: State): boolean {
+  if (typeof expr === "boolean") {
+    return expr;
+  }
+
+  if (expr === "GameFinished") {
+    return !!state.result;
+  }
+
+  switch (expr.type) {
+    case "Not": {
+      return !evaluateBool(expr.value, state);
+    }
   }
 
   throw new Error(`unknown expression: ${JSON.stringify(expr)}`);
@@ -213,7 +270,12 @@ export function resolveCardAction(
   for (const card of cards) {
     switch (action.type) {
       case "flip": {
-        return;
+        card.sideUp = action.side;
+        break;
+      }
+      case "AddResources": {
+        card.token.resources += evaluateNumber(action.amount, state);
+        break;
       }
       default: {
         throw new Error(`unknown action: ${JSON.stringify(action)}`);
@@ -274,6 +336,12 @@ export function getCards(state: State, filter: CardFilter): CardState[] {
       } else {
         return getCards(state, last(zone.cards)!);
       }
+    }
+
+    case "and": {
+      const a = getCards(state, filter.a);
+      const b = getCards(state, filter.b);
+      return intersectionBy(a, b, (item) => item.id);
     }
   }
 

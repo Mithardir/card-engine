@@ -1,33 +1,28 @@
-import { useState } from "react";
+import { CssBaseline } from "@mui/material";
+import React from "react";
 import { passageThroughMirkwood } from "./cards/core/scenarios";
+import { DetailProvider } from "./components/DetailContext";
+import { GameView } from "./components/GameView";
+import { StateProvider } from "./components/StateContext";
 import { coreTactics } from "./decks/coreTactics";
-import { createState, nextStep } from "./engine/basic";
+import { advanceToChoiceState, createState } from "./engine/basic";
 import { beginScenario } from "./factories/actions";
 
 const state = createState(beginScenario(passageThroughMirkwood, coreTactics));
 
+advanceToChoiceState(state);
+
 console.log(state);
 
 export const App = () => {
-  const [version, setVersion] = useState(0);
-
   return (
-    <>
-      <button
-        onClick={() => {
-          try {
-            let i = 0;
-            while (i < 1000) {
-              nextStep(state);
-            }
-          } finally {
-            setVersion((p) => p + 1);
-          }
-        }}
-      >
-        Next
-      </button>
-      <pre>{JSON.stringify(state, null, 1)}</pre>
-    </>
+    <React.StrictMode>
+      <CssBaseline />
+      <DetailProvider>
+        <StateProvider init={state}>
+          <GameView />
+        </StateProvider>
+      </DetailProvider>
+    </React.StrictMode>
   );
 };

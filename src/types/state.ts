@@ -9,6 +9,7 @@ import {
   Side,
   Marks,
   Tokens,
+  PrintedProps,
 } from "./basic";
 
 export type CardState = {
@@ -21,6 +22,15 @@ export type CardState = {
   attachments: CardId[];
   owner: PlayerId | "game";
   controller: PlayerId | "game";
+};
+
+export type CardView = {
+  id: CardId;
+  props: PrintedProps;
+};
+
+export type View = {
+  cards: Record<CardId, CardView>;
 };
 
 export type PlayerState = {

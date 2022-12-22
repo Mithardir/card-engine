@@ -34,12 +34,12 @@ export const achosenPath1 = quest({
   a: {
     name: "A Chosen Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3A.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3A.jpg",
   },
   b: {
     name: "Don't Leave the Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3B.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Don't-Leave-the-Path-3B.jpg",
     questPoints: 0,
   },
 });
@@ -49,12 +49,12 @@ export const achosenPath2 = quest({
   a: {
     name: "A Chosen Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3A.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3A.jpg",
   },
   b: {
     name: "Beorn's Path",
     image:
-      "https://s3.amazonaws.com/hallofbeorn-resources/images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3B.jpg",
+      "https://s3.amazonaws.com/hallofbeorn-resources/Images/Cards/Core-Set/A-Chosen-Path-Beorn's-Path-3B.jpg",
     questPoints: 10,
   },
 });

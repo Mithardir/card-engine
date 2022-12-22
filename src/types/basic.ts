@@ -218,8 +218,7 @@ export type CardPredicate =
   | "isCharacter"
   | "isHero"
   | "isAlly"
-  | { type: "and"; predicates: CardPredicate[] }
-  | { type: "or"; predicates: CardPredicate[] };
+  | { type: "and"; a: CardPredicate; b: CardPredicate };
 
 export type PlayerPredicate =
   | "active"

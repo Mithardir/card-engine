@@ -52,7 +52,17 @@ export type CardNumProperty =
 
 export type Mark = "questing" | "attacked";
 
-export type Ability = {};
+export type Ability = {
+  type: "ModifySelf";
+  description: string;
+  modifier: (self: CardId) => CardModifier;
+};
+
+export type CardModifier = {
+  type: "increment";
+  property: "attack";
+  amount: NumberValue;
+};
 
 export type CommonProps = {
   image: string;
@@ -241,4 +251,6 @@ export type BoolValue =
   | { type: "Or"; a: BoolValue; b: BoolValue }
   | { type: "Not"; value: BoolValue };
 
-export type NumberValue = "SumA" | "SumN" | number;
+export type NumberValue =
+  | number
+  | { type: "CardNumberValue"; card: CardId; property: "damage" };

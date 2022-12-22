@@ -1,3 +1,4 @@
+import { modifySelf } from "../../factories/abilities";
 import { hero } from "../../factories/cards";
 
 export const gimli = hero(
@@ -10,17 +11,15 @@ export const gimli = hero(
     hitPoints: 5,
     traits: ["dwarf", "noble", "warrior"],
     sphere: "tactics",
-  }
-  // {
-  //   description: "Gimli gets +1 [attack] for each damage token on him.",
-  //   implicit: false,
-  //   modify: (c, s) => {
-  //     const damage = s.cards[c.id].token.damage;
-  //     if (c.props.attack) {
-  //       c.props.attack += damage;
-  //     }
-  //   },
-  // }
+  },
+  modifySelf({
+    description: "Gimli gets +1 [attack] for each damage token on him.",
+    modifier: (self) => ({
+      type: "increment",
+      property: "attack",
+      amount: { type: "CardNumberValue", card: self, property: "damage" },
+    }),
+  })
 );
 
 export const legolas = hero(

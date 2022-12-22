@@ -1,12 +1,11 @@
 import { cardActionSequence } from "../../../engine/actions/card";
 import { heal } from "../../../engine/actions/card/heal";
 import { cardAction } from "../../../engine/actions/factories";
-import { chooseCardAction, sequence } from "../../../engine/actions/global";
+import { chooseCardAction } from "../../../engine/actions/global";
 import {
   and,
   isCharacter,
   isEnemy,
-  isInZone,
   isInZoneType,
 } from "../../../engine/filters";
 import { action, event } from "../../definitions/event";

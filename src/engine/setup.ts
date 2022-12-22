@@ -25,7 +25,6 @@ import {
 import {
   bladeMastery,
   feint,
-  loreOfImladris,
   quickStrike,
   rainOfArrows,
   standTogether,
@@ -36,8 +35,6 @@ import {
   legolas,
   thalin,
   gimli,
-  beravor,
-  glorfindel,
 } from "../cards/sets/core/heroes";
 import {
   greatForestWeb,

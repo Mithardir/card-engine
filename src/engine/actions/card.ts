@@ -1,8 +1,6 @@
-import { Mark, Side, Token } from "../../types/basic";
 import { cardAction } from "./factories";
-import { CardId, PlayerId, ZoneState } from "../../types/state";
+import { CardId, PlayerId } from "../../types/state";
 import {
-  gameZone,
   minus,
   getProp,
   isMore,

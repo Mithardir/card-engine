@@ -1,7 +1,6 @@
 import { Paper, Typography } from "@mui/material";
 import produce from "immer";
-import { useContext, useMemo, useState } from "react";
-import { coreTactics, passageThroughMirkwood } from "../engine/setup";
+import { useContext, useMemo } from "react";
 import { random, values } from "lodash";
 import { DetailContext } from "./DetailContext";
 import { PlayerShow } from "./PlayerShow";
@@ -11,7 +10,6 @@ import { CardShow } from "./CardShow";
 import { ChooseSingleDialog } from "./ChooseSingleDialog";
 import { ChooseMultipleDialog } from "./ChooseMultipleDialog";
 import { sequence } from "../engine/actions/global";
-import { beginScenario } from "../engine/actions/round";
 import { toView, nextStep } from "../engine/engine";
 import { State } from "../types/state";
 import { StateContext } from "./StateContext";

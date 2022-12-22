@@ -1,5 +1,4 @@
 import { cloneDeep, mapValues, values } from "lodash";
-import { Getter } from "./types";
 import { Side } from "../types/basic";
 import {
   CardDefinition,

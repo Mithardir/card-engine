@@ -23,7 +23,6 @@ import {
   chooseTravelLocation,
   whileDo,
   eachPlayer,
-  flipCard,
   sequence,
   setupActions,
   shuffleZone,

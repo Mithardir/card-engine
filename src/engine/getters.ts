@@ -4,8 +4,7 @@ import { PrintedProps } from "../types/cards";
 import {
   CardId,
   CardView,
-  ZoneState,
-  CardState,
+  ZoneState,  
   PlayerId,
 } from "../types/state";
 import { toView } from "./engine";

@@ -1,5 +1,4 @@
 import { View, State, PlayerId, CardId } from "../types/state";
-import { isInPlay } from "./filters";
 
 export type Until = "end_of_phase" | "end_of_round";
 

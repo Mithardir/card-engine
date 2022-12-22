@@ -1,6 +1,5 @@
-import { Property } from "../cards/definitions/test";
 import { Ability } from "../cards/sets/core/quests";
-import { Effect, Action, Getter, Predicate } from "../engine/types";
+import { Effect, Action, Predicate } from "../engine/types";
 import {
   GameZoneType,
   Marks,

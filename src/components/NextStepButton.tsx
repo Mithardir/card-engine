@@ -9,18 +9,23 @@ export const NextStepButton = (props: {
   setState: (state: State) => void;
 }) => {
   const state = props.state;
+
+  useEffect(() => {
+    if (
+      state.choice &&
+      !state.choice.dialog &&
+      state.choice?.options.length === 0
+    ) {
+      const newState = produce(state, (draft) => {
+        draft.choice = undefined;
+        advanceToChoiceState(draft);
+      });
+
+      props.setState(newState);
+    }
+  });
+
   if (state.choice && !state.choice.dialog) {
-    useEffect(() => {
-      if (state.choice?.options.length === 0) {
-        const newState = produce(state, (draft) => {
-          draft.choice = undefined;
-          advanceToChoiceState(draft);
-        });
-
-        props.setState(newState);
-      }
-    });
-
     return (
       <Fab
         color="primary"

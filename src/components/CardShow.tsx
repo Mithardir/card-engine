@@ -20,6 +20,7 @@ export const CardShow = (props: {
   style?: React.CSSProperties;
 }) => {
   const { state, setState } = useContext(StateContext);
+  const detail = useContext(DetailContext);
 
   if (!props.state || !props.view) {
     return <>empty</>;
@@ -39,7 +40,7 @@ export const CardShow = (props: {
 
   const margin = actions.length > 0 ? 1 : 3;
 
-  const detail = useContext(DetailContext);
+ 
 
   return (
     <div

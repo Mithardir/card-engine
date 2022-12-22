@@ -1,6 +1,6 @@
 import { CardState, State, PlayerState, CardId } from "../../types/state";
 import { Action, CardAction, Getter, PlayerAction } from "../types";
-import { emptyAction, sequence } from "./global";
+import { emptyAction } from "./global";
 
 export function action<T = void>(
   name: string,

@@ -1,7 +1,6 @@
 import { values, keys } from "lodash";
-import { toView } from "../../engine/engine";
-import { PlayerZoneType, Sphere } from "../../types/basic";
-import { CardId, CardView, PlayerId, State, View } from "../../types/state";
+import { PlayerZoneType } from "../../types/basic";
+import { CardId, PlayerId, State } from "../../types/state";
 
 export type Property<I, V> = {
   print: string;
@@ -30,7 +29,7 @@ export function and<T>(
   };
 }
 
-const isTapped: Property<CardId, boolean> = {
+export const isTapped: Property<CardId, boolean> = {
   print: "isTapped",
   get: (card, state) => state.cards[card].tapped,
 };
@@ -46,21 +45,6 @@ export function cardOwner(): Property<CardId, PlayerId | undefined> {
           }
         }
       }
-    },
-  };
-}
-
-const a = and(isTapped, isTapped);
-
-function sum<T>(
-  entities: Expr<T[]>,
-  property: Property<T, number>
-): Expr<number> {
-  return {
-    print: `total ${property.print} of ${entities.print}`,
-    get: (state: State) => {
-      const items = entities.get(state, state);
-      return items.reduce((acc, item) => acc + property.get(item, state), 0);
     },
   };
 }

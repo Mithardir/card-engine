@@ -16,7 +16,6 @@ import {
   isInZone,
   isReady,
   isCharacter,
-  isHero,
   isInPlay,
 } from "../filters";
 import {
@@ -28,16 +27,10 @@ import {
   isMore,
   value,
   playerZone,
-  getProp,
-  attackers,
-  defenders,
-  totalAttack,
-  totalDefense,
 } from "../getters";
 import { Action, Getter, PlayerAction, Predicate, CardAction } from "../types";
 import { flip, mark, moveCard, tap, travelTo } from "./basic";
-import { resolveDefense, cardActionSequence, asCardAction } from "./card";
-import { dealDamage } from "./card/dealDamage";
+import { cardActionSequence, asCardAction } from "./card";
 import { ActionResult } from "./factories";
 import { incrementThreat } from "./player";
 import { resolveResponses } from "./resolveResponses";

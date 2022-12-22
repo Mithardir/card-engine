@@ -1,4 +1,4 @@
-import { CardId, CardState, CardView, State, View } from "../types/state";
+import { CardId, State, View } from "../types/state";
 import { CardShow } from "./CardShow";
 
 export const CardBox = (props: {

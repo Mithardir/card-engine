@@ -2,7 +2,6 @@ import playerBack from "../../images/back/card.jpg";
 import { CardDefinition } from "../../types/state";
 import { emptyKeywords } from "../../types/basic";
 import { AttachmentProps } from "../../types/cards";
-import { putAllyInPlay } from "../../engine/actions/card/putAllyInPlay";
 import { Ability } from "../sets/core/quests";
 
 export function attachment(

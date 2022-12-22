@@ -3,7 +3,6 @@ import { Action } from "../types";
 import { toView } from "../engine";
 import { values } from "lodash";
 import { chooseAction, sequence } from "./global";
-import { event } from "../../cards/definitions/event";
 
 export function resolveResponses<T>(
   title: string,

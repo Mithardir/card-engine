@@ -1,4 +1,4 @@
-import { Ability } from "../cards/sets/core/quests";
+import { Ability } from "../cards/abilities/Ability";
 import { Effect, Action, Predicate } from "../engine/types";
 import {
   GameZoneType,

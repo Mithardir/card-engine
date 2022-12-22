@@ -1,16 +1,35 @@
 import { sequence } from "../../engine/actions/global";
-import { and } from "../../engine/filters";
+import { and, isInPlay } from "../../engine/filters";
 import { zoneTypeOf } from "../../engine/getters";
 import playerBack from "../../images/back/card.jpg";
 import { emptyKeywords } from "../../types/basic";
 import { AllyProps } from "../../types/cards";
-import { CardDefinition } from "../../types/state";
+import { CardDefinition, CardId, State } from "../../types/state";
 import { canPayResources } from "../../engine/predicates/canPayResources";
 import { isPhase } from "../../engine/predicates/isPhase";
 import { controllerOf } from "../../engine/getters/controllerOf";
 import { payResources } from "../../engine/actions/player/payResources";
 import { putAllyInPlay } from "../../engine/actions/card/putAllyInPlay";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "../abilities/Ability";
+import { Action, Predicate } from "../../engine/types";
+
+export function action(props: {
+  description: string;
+  action: (self: CardId) => Action;
+  canRun: Predicate<State>;
+}): Ability {
+  return {
+    description: props.description,
+    implicit: false,
+    modify: (self, state) => {
+      self.actions.push({
+        title: props.description,
+        action: props.action(self.id),
+        canRun: and(isInPlay.card(self.id), props.canRun),
+      });
+    },
+  };
+}
 
 export function ally(
   props: AllyProps,

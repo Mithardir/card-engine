@@ -7,7 +7,7 @@ import { canPayResources } from "../../engine/predicates/canPayResources";
 import { isPhase } from "../../engine/predicates/isPhase";
 import { and, isInPlay } from "../../engine/filters";
 import { Predicate } from "../../engine/types";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "./Ability";
 import { attach } from "../../engine/actions/card/attach";
 
 export function attaches(params: {

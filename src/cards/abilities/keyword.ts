@@ -1,5 +1,5 @@
 import { Keyword } from "../../types/basic";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "./Ability";
 
 
 export function keyword(type: Keyword): Ability {

@@ -1,6 +1,6 @@
 import { CardDefinition } from "../../types/state";
 import { emptyKeywords } from "../../types/basic";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "../abilities/Ability";
 
 export type QuestDefinition =
   | {

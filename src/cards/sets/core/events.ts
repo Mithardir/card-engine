@@ -9,12 +9,10 @@ import {
   isInZoneType,
 } from "../../../engine/filters";
 import { action, event } from "../../definitions/event";
-import {
-  addEffect,
-  cantAttackEngagedPlayer,
-  increment,
-  CardModifier,
-} from "./allies";
+import { cantAttackEngagedPlayer } from "../../../engine/modifiers/cantAttackEngagedPlayer";
+import { increment } from "../../../engine/modifiers/increment";
+import { CardModifier } from "../../../engine/modifiers/CardModifier";
+import { addEffect } from "../../../engine/actions/addEffect";
 
 export const loreOfImladris = event(
   {

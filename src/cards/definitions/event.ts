@@ -2,7 +2,7 @@ import playerBack from "../../images/back/card.jpg";
 import { CardDefinition } from "../../types/state";
 import { emptyKeywords } from "../../types/basic";
 import { EventProps } from "../../types/cards";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "../abilities/Ability";
 import { Action } from "../../engine/types";
 import { controllerOf } from "../../engine/getters/controllerOf";
 import { playerZone, zoneTypeOf } from "../../engine/getters";

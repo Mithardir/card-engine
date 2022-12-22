@@ -1,4 +1,4 @@
-import { Ability } from "../cards/sets/core/quests";
+import { Ability } from "../cards/abilities/Ability";
 import { Trait, Keywords, Sphere, CardType } from "./basic";
 
 export type CommonProps = {

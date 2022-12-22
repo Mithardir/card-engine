@@ -1,5 +1,5 @@
 import { CardId, CardView, Response, State } from "../../types/state";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "./Ability";
 import { Action } from "../../engine/types";
 
 export function response<T>(

@@ -2,7 +2,7 @@ import playerBack from "../../images/back/card.jpg";
 import { CardDefinition } from "../../types/state";
 import { emptyKeywords } from "../../types/basic";
 import { AttachmentProps } from "../../types/cards";
-import { Ability } from "../sets/core/quests";
+import { Ability } from "../abilities/Ability";
 
 export function attachment(
   props: AttachmentProps,

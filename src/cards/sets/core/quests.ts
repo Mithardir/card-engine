@@ -4,52 +4,8 @@ import {
   shuffleZone,
 } from "../../../engine/actions/global";
 import { gameZone } from "../../../engine/getters";
-import { Action } from "../../../engine/types";
-import { View, CardView, CardId, State } from "../../../types/state";
 import { quest } from "../../definitions/quest";
-
-export type ViewModifier = {
-  print: string;
-  modify: (view: View, state: State) => void;
-};
-
-export type CardModifier = {
-  print: string;
-  modify: (card: CardView, view: View) => void;
-};
-
-export function modifyCard(id: CardId, modifier: CardModifier): ViewModifier {
-  return {
-    print: `modifyCard(${id}, ${modifier.print})`,
-    modify: (v) => {
-      const card = v.cards[id];
-      if (card) {
-        modifier.modify(card, v);
-      }
-    },
-  };
-}
-
-export function addSetup(action: Action): CardModifier {
-  return {
-    print: `addSetup(${action.print})`,
-    modify: (c) => c.setup.push(action),
-  };
-}
-
-export type Ability = {
-  description: string;
-  implicit: boolean;
-  modify: (self: CardView, state: State) => void;
-};
-
-export function setup(props: { description: string; action: Action }): Ability {
-  return {
-    description: props.description,
-    implicit: false,
-    modify: (card) => card.setup.push(props.action),
-  };
-}
+import { setup } from "../../abilities/setup";
 
 export const fliesAndSpiders = quest(
   {

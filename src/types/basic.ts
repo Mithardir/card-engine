@@ -14,6 +14,8 @@ export type PlayerDeck = {
   library: CardDefinition[];
 };
 
+export const playerIds = ["A", "B", "C", "D"] as const;
+
 export type PlayerId = "A" | "B" | "C" | "D";
 
 export type CardId = Flavor<number, "Card">;
@@ -50,7 +52,7 @@ export type CardNumProperty =
   | "willpower"
   | "threat";
 
-export type Mark = "questing" | "attacked";
+export type Mark = "questing" | "attacked" | "attacking" | "defending";
 
 export type Ability = {
   type: "ModifySelf";
@@ -254,3 +256,7 @@ export type BoolValue =
 export type NumberValue =
   | number
   | { type: "CardNumberValue"; card: CardId; property: "damage" };
+
+export type Tokens = Record<Token, number>;
+
+export type Marks = Record<Mark, boolean>;

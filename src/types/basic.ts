@@ -1,3 +1,25 @@
+export interface Flavoring<FlavorT> {
+  _type?: FlavorT;
+}
+
+export type Scenario = {
+  name: string;
+  questCards: CardDefinition[];
+  encounterCards: CardDefinition[];
+};
+
+export type PlayerDeck = {
+  name: string;
+  heroes: CardDefinition[];
+  library: CardDefinition[];
+};
+
+export type PlayerId = "A" | "B" | "C" | "D";
+
+export type CardId = Flavor<number, "Card">;
+
+export type Flavor<T, FlavorT> = T & Flavoring<FlavorT>;
+
 export type Phase =
   | "setup"
   | "resource"
@@ -10,7 +32,16 @@ export type Phase =
 
 export type Token = "damage" | "progress" | "resources";
 
-export type CardType = "hero" | "ally" | "event" | "location";
+export type CardType =
+  | "hero"
+  | "ally"
+  | "quest"
+  | "attachment"
+  | "enemy"
+  | "event"
+  | "treachery"
+  | "location"
+  | "quest";
 
 export type CardNumProperty =
   | "attack"
@@ -25,8 +56,8 @@ export type Ability = {};
 
 export type CommonProps = {
   image: string;
-  traits: Trait[];
-  keywords: Keywords;
+  traits?: Trait[];
+  keywords?: Keywords;
   abilities?: Ability[];
 };
 
@@ -55,7 +86,7 @@ export type HeroProps = {
   attack: number;
   defense: number;
   hitPoints: number;
-  traits: Trait[];
+  traits?: Trait[];
   sphere: Sphere;
 };
 
@@ -154,3 +185,60 @@ export type CardDefinition = {
   back: PrintedProps;
   orientation: "landscape" | "portrait";
 };
+
+export type Zone =
+  | {
+      owner: "game";
+      type: GameZoneType;
+    }
+  | { owner: PlayerId; type: PlayerZoneType };
+
+export type CardFilter =
+  | CardPredicate
+  | CardId
+  | CardId[]
+  | { type: "TopCard"; zone: Zone };
+
+export type PlayerFilter = PlayerPredicate | PlayerId | PlayerId[];
+
+export type CardPredicate =
+  | "inPlay"
+  | "isCharacter"
+  | "isHero"
+  | "isAlly"
+  | { type: "and"; predicates: CardPredicate[] }
+  | { type: "or"; predicates: CardPredicate[] };
+
+export type PlayerPredicate =
+  | "active"
+  | "first"
+  | { type: "and"; predicates: PlayerPredicate[] }
+  | { type: "or"; predicates: PlayerPredicate[] };
+
+export type Side = "face" | "back";
+
+export type GameZoneType =
+  | "discardPile"
+  | "stagingArea"
+  | "activeLocation"
+  | "encounterDeck"
+  | "questDeck"
+  | "victoryDisplay";
+
+export type PlayerZoneType =
+  | "hand"
+  | "library"
+  | "discardPile"
+  | "playerArea"
+  | "engaged";
+
+export type BoolValue =
+  | boolean
+  | "GameFinished"
+  | { type: "IsLess"; a: NumberValue; b: NumberValue }
+  | { type: "IsMore"; a: NumberValue; b: NumberValue }
+  | { type: "And"; a: BoolValue; b: BoolValue }
+  | { type: "Or"; a: BoolValue; b: BoolValue }
+  | { type: "Not"; value: BoolValue };
+
+export type NumberValue = "SumA" | "SumN" | number;

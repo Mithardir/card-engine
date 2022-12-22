@@ -1,10 +1,8 @@
-import { beginScenario } from "./types/actions";
+import { passageThroughMirkwood } from "./cards/core/scenarios";
+import { coreTactics } from "./decks/coreTactics";
+import { beginScenario } from "./factories/actions";
 
-const program = beginScenario(
-  { name: "test", encounterCards: [], questCards: [] },
-  { name: "testA", heroes: [], library: [] },
-  { name: "testB", heroes: [], library: [] }
-);
+const program = beginScenario(passageThroughMirkwood, coreTactics);
 
 console.log(program);
 

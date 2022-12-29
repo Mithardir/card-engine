@@ -13,6 +13,7 @@ import {
   PlayerId,
   PlayerZoneType,
   BoolValue,
+  CardId,
 } from "../types/basic";
 
 export function setupScenario(scenario: Scenario): Action {
@@ -100,7 +101,7 @@ export function phaseResource(): Action {
   return sequence(
     beginPhase("resource"),
     eachPlayer(draw(1)),
-    eachCard(and("isHero", "inPlay"), generateResource(1)),
+    eachCard(and("isHero", "inPlay"), addResources(1)),
     playerActions("End resource phase"),
     endPhase()
   );
@@ -122,13 +123,6 @@ export function and<T extends CardPredicate | PlayerPredicate>(
   b: T
 ): { type: "and"; a: T; b: T } {
   return { type: "and", a, b };
-}
-
-export function generateResource(amount: NumberValue): CardAction {
-  return {
-    type: "AddResources",
-    amount,
-  };
 }
 
 export function gameRound(): Action {
@@ -211,4 +205,40 @@ export function eachCard(card: CardFilter, action: CardAction): Action {
     card,
     action,
   };
+}
+
+export function placeProgress(amount: NumberValue): Action {
+  throw new Error("not implemented");
+}
+
+export function dealDamage(amount: number): CardAction;
+export function dealDamage(amount: number, cardId: CardId): Action;
+export function dealDamage(
+  amount: number,
+  cardId?: CardId
+): Action | CardAction {
+  throw new Error("not implemented");
+}
+
+export function addResources(amount: NumberValue): CardAction;
+export function addResources(amount: NumberValue, cardId: CardId): Action;
+export function addResources(
+  amount: NumberValue,
+  cardId?: CardId
+): Action | CardAction {
+  if (cardId) {
+    return {
+      type: "CardAction",
+      card: cardId,
+      action: {
+        type: "AddResources",
+        amount,
+      },
+    };
+  } else {
+    return {
+      type: "AddResources",
+      amount,
+    };
+  }
 }

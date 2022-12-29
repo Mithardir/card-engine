@@ -16,7 +16,8 @@ export type CardAction =
       type: "flip";
       side: Side;
     }
-  | { type: "AddResources"; amount: NumberValue };
+  | { type: "AddResources"; amount: NumberValue }
+  | { type: "DealDamage"; amount: NumberValue };
 
 export type PlayerAction =
   | { type: "Draw"; amount: NumberValue }

@@ -1,5 +1,9 @@
 import { modifySelf } from "../../factories/abilities";
+import { addResources, dealDamage, placeProgress } from "../../factories/actions";
 import { hero } from "../../factories/cards";
+import { keyword } from "../../factories/keyword";
+import { response } from "../../factories/responses";
+import { and, isQuesting, isEnemy } from "../../factories/boolValues";
 
 export const gimli = hero(
   {
@@ -32,14 +36,15 @@ export const legolas = hero(
     hitPoints: 4,
     traits: ["noble", "silvan", "warrior"],
     sphere: "tactics",
-  }
-  // keyword("ranged"),
-  // response((c) => c.enemyDestoryed, {
-  //   description:
-  //     "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-  //   condition: (event, self) => event.attackers.includes(self),
-  //   action: () => placeProgress(value(2)),
-  // })
+  },
+  keyword("ranged"),
+  response({
+    description:
+      "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
+    type: "enemyDestoryed",
+    condition: (e, self) => e.attackers.includes(self),
+    action: () => placeProgress(2),
+  })
 );
 
 export const thalin = hero(
@@ -52,18 +57,14 @@ export const thalin = hero(
     hitPoints: 4,
     traits: ["dwarf", "warrior"],
     sphere: "tactics",
-  }
-  // response((s) => s.revealed, {
-  //   description:
-  //     "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
-  //   condition: (event, self, state) =>
-  //     state.cards[self].mark.questing &&
-  //     toView(state).cards[event.card].props.type === "enemy",
-  //   action: (event, self) =>
-  //     dealDamage({ damage: value(1), attackers: value([self]) }).card(
-  //       event.card
-  //     ),
-  // })
+  },
+  response({
+    description:
+      "While Thalin is committed to a quest, deal 1 damage to each enemy as it is revealed by the encounter deck.",
+    type: "cardReveladed",
+    condition: (e, self) => and(isQuesting(self), isEnemy(e.card)),
+    action: (e) => dealDamage(1, e.card),
+  })
 );
 
 export const gloin = hero(
@@ -76,14 +77,14 @@ export const gloin = hero(
     hitPoints: 4,
     traits: ["dwarf", "noble"],
     sphere: "leadership",
-  }
-  // response({
-  //   description:
-  //     "After Glóin suffers damage, add 1 resource to his resource pool for each point of damage he just suffered.",
-  //   event: receivedDamage(),
-  //   condition: (e) => e.cardId === self,
-  //   action: (e) => addResources(e.amount)(self),
-  // })
+  },
+  response({
+    description:
+      "After Glóin suffers damage, add 1 resource to his resource pool for each point of damage he just suffered.",
+    type: "receivedDamage",
+    condition: (e, self) => e.card === self,
+    action: (e) => addResources(e.amount, self),
+  })
 );
 
 export const eowyn = hero(

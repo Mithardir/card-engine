@@ -250,7 +250,8 @@ export type BoolValue =
   | { type: "IsMore"; a: NumberValue; b: NumberValue }
   | { type: "And"; a: BoolValue; b: BoolValue }
   | { type: "Or"; a: BoolValue; b: BoolValue }
-  | { type: "Not"; value: BoolValue };
+  | { type: "Not"; value: BoolValue }
+  | { type: "CardBoolValue"; card: CardId; predicate: CardPredicate };
 
 export type NumberValue =
   | number

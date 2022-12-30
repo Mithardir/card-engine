@@ -145,7 +145,7 @@ export const beravor = hero(
   action({
     description:
       "Exhaust Beravor to choose a player. That player draws 2 cards. Limit once per round.",
-    limit: oncePerRound("beravor_ability"),
+    limit: oncePerRound(),
     cost: (caster, self) => targetCard(self).to(exhaust()),
     effect: choosePlayer({
       label: "Choose player to draw 2 cards",
@@ -174,6 +174,6 @@ export const glorfindel = hero(
       filter: "isCharacter",
       action: heal(1),
     }),
-    limit: oncePerRound("glorfindel_ability"),
+    limit: oncePerRound(),
   })
 );

@@ -6,6 +6,6 @@ export function eachPlayerOncePerRound(
   throw new Error("not implemented");
 }
 
-export function oncePerRound(key: string): (player: PlayerId) => ActionLimit {
+export function oncePerRound(): (player: PlayerId) => ActionLimit {
   throw new Error("not implemented");
 }

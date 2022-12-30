@@ -21,7 +21,7 @@ import {
   thicketOfSpears,
 } from "../cards/core/events";
 import { legolas, thalin, gimli } from "../cards/core/heroes";
-import { PlayerDeck } from "../types/actions";
+import { PlayerDeck } from "../types/basic";
 
 export const coreTactics: PlayerDeck = {
   name: "Core (Tactics)",

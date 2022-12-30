@@ -17,7 +17,8 @@ export type CardAction =
       side: Side;
     }
   | { type: "AddResources"; amount: NumberValue }
-  | { type: "DealDamage"; amount: NumberValue };
+  | { type: "DealDamage"; amount: NumberValue }
+  | { type: "Heal"; amount: NumberValue };
 
 export type PlayerAction =
   | { type: "Draw"; amount: NumberValue }
@@ -34,7 +35,21 @@ export type GameAction =
   | { type: "ShuffleZone"; zone: GameZoneType }
   | { type: "PlayerActions"; label: string }
   | { type: "BeginPhase"; phase: Phase }
+  | {
+      type: "ChoosePlayer";
+      label: string;
+      action: PlayerAction;
+      filter?: PlayerFilter;
+    }
+  | {
+      type: "ChooseCard";
+      label: string;
+      action: CardAction;
+      filter?: CardFilter;
+    }
+  | { type: "PlaceProgress"; amount: NumberValue }
   | "EndPhase"
+  | "EndRound"
   | "SetupActions";
 
 export type Action =

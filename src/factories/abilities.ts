@@ -1,25 +1,12 @@
-import { Action } from "../types/actions";
-import {
-  Ability,
-  ActionLimit,
-  CardId,
-  CardModifier,
-  PlayerId,
-} from "../types/basic";
+import { Ability, ActionAbility, ModifySelfAbility } from "../types/basic";
 
-export function modifySelf(params: {
-  description: string;
-  modifier: (self: CardId) => CardModifier;
-}): Ability {
+export function modifySelf(params: Omit<ModifySelfAbility, "type">): Ability {
   return { type: "ModifySelf", ...params };
 }
 
-export function action(params: {
-  description: string;
-  caster?: "controller" | "any";
-  limit?: (caster: PlayerId) => ActionLimit;
-  cost: (caster: PlayerId, self: CardId) => Action;
-  effect: Action | ((caster: PlayerId, self: CardId) => Action);
-}): Ability {
-  throw new Error("not implemented");
+export function action(params: Omit<ActionAbility, "type">): Ability {
+  return {
+    type: "Action",
+    ...params,
+  };
 }

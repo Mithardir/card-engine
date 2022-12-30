@@ -57,7 +57,7 @@ export const legolas = hero(
   response({
     description:
       "After Legolas participates in an attack that destroys an enemy, place 2 progress tokens on the current quest.",
-    type: "enemyDestoryed",
+    type: "enemyDestroyed",
     condition: (e, self) => e.attackers.includes(self),
     action: () => placeProgress(2),
   })
@@ -118,7 +118,7 @@ export const eowyn = hero(
     description:
       "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round.",
     caster: "any",
-    limit: eachPlayerOncePerRound("eowyn_ability"),
+    limit: eachPlayerOncePerRound(),
     cost: (caster, self) => targetPlayer(caster).to(discard(1)),
     effect: (caster, self) =>
       targetCard(self).to(

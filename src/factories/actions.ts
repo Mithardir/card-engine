@@ -98,15 +98,69 @@ export function playerActions(label: string): GameAction {
   };
 }
 
-export function phaseResource(): Action {
-  return sequence(
-    beginPhase("resource"),
-    eachPlayer(draw(1)),
-    eachCard(and("isHero", "inPlay"), addResources(1)),
-    playerActions("End resource phase"),
-    endPhase()
-  );
-}
+export const phaseResource = sequence(
+  beginPhase("resource"),
+  eachPlayer(draw(1)),
+  eachCard(and("isHero", "inPlay"), addResources(1)),
+  playerActions("End resource phase"),
+  endPhase()
+);
+
+export const phasePlanning = sequence(
+  beginPhase("planning"),
+  playerActions("End planning phase"),
+  endPhase()
+);
+
+export const phaseQuest = sequence(
+  beginPhase("quest"),
+  //eachPlayer(commitCharactersToQuest()),
+  playerActions("Staging"),
+  //repeat(countOfPlayers, revealEncounterCard),
+  playerActions("Quest resolution"),
+  //resolveQuest(),
+  playerActions("End phase"),
+  //clearMarks("questing"),
+  endPhase()
+);
+
+export const phaseTravel = sequence(
+  beginPhase("travel"),
+  //ifThenElse(canTravel, chooseTravelLocation, sequence()),
+  playerActions("End travel phase"),
+  endPhase()
+);
+
+export const phaseEncounter = sequence(
+  beginPhase("encounter"),
+  //eachPlayer(optionalEngagement()),
+  playerActions("Engagement Checks"),
+  //whileDo(enemiesToEngage, eachPlayer(engagementCheck())),
+  playerActions("Next encounter phase"),
+  endPhase()
+);
+
+export const phaseCombat = sequence(
+  beginPhase("combat"),
+  // dealShadowCards,
+  playerActions("Resolve enemy attacks"),
+  //eachPlayer(resolveEnemyAttacks()),
+  //clearMarks("attacked"),
+  playerActions("Resolve player attacks"),
+  //eachPlayer(resolvePlayerAttacks()),
+  //clearMarks("attacked"),
+  playerActions("End combat phase"),
+  endPhase()
+);
+
+export const phaseRefresh = sequence(
+  beginPhase("refresh"),
+  //eachCard(isTapped, untap()),
+  //eachPlayer(incrementThreat(value(1))),
+  // passFirstPlayerToken,
+  playerActions("End refresh phase and round"),
+  endPhase()
+);
 
 export function beginPhase(phase: Phase): GameAction {
   return {
@@ -128,14 +182,14 @@ export function and<T extends CardPredicate | PlayerPredicate>(
 
 export function gameRound(): Action {
   return sequence(
-    phaseResource()
-    //phasePlanning,
-    //phaseQuest,
-    //phaseTravel,
-    //phaseEncounter,
-    //phaseCombat,
-    //phaseRefresh,
-    //endRound()
+    phaseResource,
+    phasePlanning,
+    phaseQuest,
+    phaseTravel,
+    phaseEncounter,
+    phaseCombat,
+    phaseRefresh,
+    "EndRound"
   );
 }
 
@@ -209,15 +263,24 @@ export function eachCard(card: CardFilter, action: CardAction): Action {
 }
 
 export function placeProgress(amount: NumberValue): Action {
-  throw new Error("not implemented");
+  return {
+    type: "PlaceProgress",
+    amount,
+  };
 }
 
 export function dealDamage(amount: number): CardAction {
-  throw new Error("not implemented");
+  return {
+    type: "DealDamage",
+    amount,
+  };
 }
 
 export function heal(amount: number): CardAction {
-  throw new Error("not implemented");
+  return {
+    type: "Heal",
+    amount,
+  };
 }
 
 export function payCardResources(amount: number): CardAction {
@@ -280,7 +343,10 @@ export function choosePlayer(params: {
   label: string;
   action: PlayerAction;
 }): Action {
-  throw new Error("not implemented");
+  return {
+    type: "ChoosePlayer",
+    ...params,
+  };
 }
 
 export function chooseCard(params: {
@@ -288,5 +354,8 @@ export function chooseCard(params: {
   label: string;
   action: CardAction;
 }): Action {
-  throw new Error("not implemented");
+  return {
+    type: "ChooseCard",
+    ...params,
+  };
 }

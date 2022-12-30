@@ -1,3 +1,6 @@
+import { Action } from "./actions";
+import { Events } from "./events";
+
 export interface Flavoring<FlavorT> {
   _type?: FlavorT;
 }
@@ -54,10 +57,42 @@ export type CardNumProperty =
 
 export type Mark = "questing" | "attacked" | "attacking" | "defending";
 
-export type Ability = {
+export type ActionAbility = {
+  type: "Action";
+  description: string;
+  caster?: "controller" | "any";
+  limit?: ActionLimit;
+  cost: (caster: PlayerId, self: CardId) => Action;
+  effect: Action | ((caster: PlayerId, self: CardId) => Action);
+};
+
+export type ModifySelfAbility = {
   type: "ModifySelf";
   description: string;
   modifier: (self: CardId) => CardModifier;
+};
+
+export type KeywordAbility = {
+  type: "Keyword";
+  keyword: keyof Keywords;
+};
+
+export type Ability =
+  | ModifySelfAbility
+  | KeywordAbility
+  | ActionAbility
+  | ResponseAbility<"cardReveladed">
+  | ResponseAbility<"enemyDestroyed">
+  | ResponseAbility<"receivedDamage">;
+
+export type ResponseAbility<T extends keyof Events> = {
+  type: "Response";
+  description: string;
+  response: {
+    type: T;
+    condition: (e: Events[T], self: CardId) => BoolValue;
+    action: (e: Events[T], self: CardId) => Action;
+  };
 };
 
 export type CardModifier = {
@@ -264,5 +299,5 @@ export type Marks = Record<Mark, boolean>;
 export type ActionLimit = {
   type: "phase" | "round" | "game";
   limit: number;
-  separatePlayers: boolean;
+  byPlayer: boolean;
 };

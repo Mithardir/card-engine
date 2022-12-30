@@ -1,11 +1,17 @@
 import { ActionLimit, PlayerId } from "../types/basic";
 
-export function eachPlayerOncePerRound(
-  key: string
-): (player: PlayerId) => ActionLimit {
-  throw new Error("not implemented");
+export function eachPlayerOncePerRound(): ActionLimit {
+  return {
+    type: "phase",
+    limit: 1,
+    byPlayer: true,
+  };
 }
 
-export function oncePerRound(): (player: PlayerId) => ActionLimit {
-  throw new Error("not implemented");
+export function oncePerRound(): ActionLimit {
+  return {
+    type: "round",
+    limit: 1,
+    byPlayer: false,
+  };
 }

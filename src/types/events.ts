@@ -1,7 +1,7 @@
 import { CardId } from "./basic";
 
-export type Responses = {
-  enemyDestoryed: {
+export type Events = {
+  enemyDestroyed: {
     attackers: CardId[];
     enemyDestoryed: { attackers: CardId[] };
   };

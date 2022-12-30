@@ -57,9 +57,10 @@ export function nextStep(state: State) {
     switch (action) {
       case "Empty":
         return;
-      case "EndPhase":
-        return;
       case "SetupActions":
+      case "EndPhase":
+      case "EndRound":
+        // TODO
         return;
     }
 
@@ -128,6 +129,7 @@ export function nextStep(state: State) {
         return;
       }
       case "BeginPhase": {
+        // TODO
         return;
       }
       case "PlayerActions": {

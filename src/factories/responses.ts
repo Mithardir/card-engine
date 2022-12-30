@@ -1,13 +1,20 @@
 import { Action } from "../types/actions";
-import { Ability, BoolValue, CardId } from "../types/basic";
-import { Responses } from "../types/responses";
+import { BoolValue, CardId, ResponseAbility } from "../types/basic";
+import { Events } from "../types/events";
 
-
-export function response<TR extends keyof Responses>(params: {
+export function response<TE extends keyof Events>(params: {
   description: string;
-  type: TR;
-  condition: (e: Responses[TR], self: CardId) => BoolValue;
-  action: (e: Responses[TR], self: CardId) => Action;
-}): Ability {
-  throw new Error("not implemented");
+  type: TE;
+  condition: (e: Events[TE], self: CardId) => BoolValue;
+  action: (e: Events[TE], self: CardId) => Action;
+}): ResponseAbility<TE> {
+  return {
+    type: "Response",
+    description: params.description,
+    response: {
+      type: params.type,
+      condition: params.condition,
+      action: params.action,
+    },
+  };
 }

@@ -15,6 +15,7 @@ import {
   BoolValue,
   PlayerFilter,
   CardModifier,
+  Mark,
 } from "../types/basic";
 
 export function setupScenario(scenario: Scenario): Action {
@@ -98,6 +99,10 @@ export function playerActions(label: string): GameAction {
   };
 }
 
+export function clearMarks(mark: Mark): Action {
+  return { type: "ClearMarks", mark };
+}
+
 export const phaseResource = sequence(
   beginPhase("resource"),
   eachPlayer(draw(1)),
@@ -112,21 +117,29 @@ export const phasePlanning = sequence(
   endPhase()
 );
 
+export function repeat(amount: NumberValue, action: Action): Action {
+  return {
+    type: "Repeat",
+    amount,
+    action,
+  };
+}
+
 export const phaseQuest = sequence(
   beginPhase("quest"),
   //eachPlayer(commitCharactersToQuest()),
   playerActions("Staging"),
-  //repeat(countOfPlayers, revealEncounterCard),
+  repeat("countOfPlayers", "RevealEncounterCard"),
   playerActions("Quest resolution"),
-  //resolveQuest(),
+  "ResolveQuesting",
   playerActions("End phase"),
-  //clearMarks("questing"),
+  clearMarks("questing"),
   endPhase()
 );
 
 export const phaseTravel = sequence(
   beginPhase("travel"),
-  //ifThenElse(canTravel, chooseTravelLocation, sequence()),
+  "ChooseTravelDestination",
   playerActions("End travel phase"),
   endPhase()
 );
@@ -145,19 +158,19 @@ export const phaseCombat = sequence(
   // dealShadowCards,
   playerActions("Resolve enemy attacks"),
   //eachPlayer(resolveEnemyAttacks()),
-  //clearMarks("attacked"),
+  clearMarks("attacked"),
   playerActions("Resolve player attacks"),
   //eachPlayer(resolvePlayerAttacks()),
-  //clearMarks("attacked"),
+  clearMarks("attacked"),
   playerActions("End combat phase"),
   endPhase()
 );
 
 export const phaseRefresh = sequence(
   beginPhase("refresh"),
-  //eachCard(isTapped, untap()),
-  //eachPlayer(incrementThreat(value(1))),
-  // passFirstPlayerToken,
+  eachCard("isTapped", "Untap"),
+  eachPlayer(incrementThreat(1)),
+  "PassFirstPlayerToken",
   playerActions("End refresh phase and round"),
   endPhase()
 );
@@ -279,6 +292,13 @@ export function dealDamage(amount: number): CardAction {
 export function heal(amount: number): CardAction {
   return {
     type: "Heal",
+    amount,
+  };
+}
+
+export function incrementThreat(amount: number): PlayerAction {
+  return {
+    type: "IncrementThreat",
     amount,
   };
 }

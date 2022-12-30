@@ -249,6 +249,7 @@ export type CardFilter =
 export type PlayerFilter = PlayerPredicate | PlayerId | PlayerId[];
 
 export type CardPredicate =
+  | "isTapped"
   | "inPlay"
   | "isCharacter"
   | "isHero"
@@ -290,6 +291,7 @@ export type BoolValue =
 
 export type NumberValue =
   | number
+  | "countOfPlayers"
   | { type: "CardNumberValue"; card: CardId; property: "damage" };
 
 export type Tokens = Record<Token, number>;

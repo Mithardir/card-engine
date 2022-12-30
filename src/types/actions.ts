@@ -3,6 +3,7 @@ import {
   CardDefinition,
   CardFilter,
   GameZoneType,
+  Mark,
   NumberValue,
   Phase,
   PlayerDeck,
@@ -12,6 +13,8 @@ import {
 } from "./basic";
 
 export type CardAction =
+  | "Tap"
+  | "Untap"
   | {
       type: "Flip";
       side: Side;
@@ -21,6 +24,7 @@ export type CardAction =
   | { type: "Heal"; amount: NumberValue };
 
 export type PlayerAction =
+  | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType };
 
@@ -48,6 +52,11 @@ export type GameAction =
       filter?: CardFilter;
     }
   | { type: "PlaceProgress"; amount: NumberValue }
+  | { type: "ClearMarks"; mark: Mark }
+  | "RevealEncounterCard"
+  | "ResolveQuesting"
+  | "ChooseTravelDestination"
+  | "PassFirstPlayerToken"
   | "EndPhase"
   | "EndRound"
   | "SetupActions";
@@ -72,4 +81,5 @@ export type Action =
       else: Action;
     }
   | { type: "While"; condition: BoolValue; action: Action }
+  | { type: "Repeat"; amount: NumberValue; action: Action }
   | "Empty";

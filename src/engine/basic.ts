@@ -60,6 +60,10 @@ export function nextStep(state: State) {
       case "SetupActions":
       case "EndPhase":
       case "EndRound":
+      case "ChooseTravelDestination":
+      case "PassFirstPlayerToken":
+      case "RevealEncounterCard":
+      case "ResolveQuesting":
         // TODO
         return;
     }
@@ -267,8 +271,13 @@ export function executeCardAction(
   filter: CardFilter,
   action: CardAction
 ) {
-  const cards = getCards(state, filter);
+  const cards = filterCards(state, filter);
   for (const card of cards) {
+    if (typeof action === "string") {
+      // TODO
+      break;
+    }
+
     switch (action.type) {
       case "Flip": {
         card.sideUp = action.side;
@@ -299,7 +308,7 @@ export function getCardsInPlay(state: State): CardId[] {
   return [...gameCards, ...playerCards];
 }
 
-export function getCards(state: State, filter: CardFilter): CardState[] {
+export function filterCards(state: State, filter: CardFilter): CardState[] {
   if (typeof filter === "number") {
     return [state.cards[filter]!];
   }
@@ -311,7 +320,7 @@ export function getCards(state: State, filter: CardFilter): CardState[] {
   const allCards = values(state.cards);
   if (typeof filter === "string") {
     if (filter === "inPlay") {
-      return getCards(state, getCardsInPlay(state));
+      return filterCards(state, getCardsInPlay(state));
     }
     if (filter === "isAlly") {
       return allCards.filter((c) => c.definition.face.type === "ally");
@@ -325,6 +334,9 @@ export function getCards(state: State, filter: CardFilter): CardState[] {
     if (filter === "isHero") {
       return allCards.filter((c) => c.definition.face.type === "hero");
     }
+    if (filter === "isTapped") {
+      return allCards.filter((c) => c.tapped);
+    }
 
     return [state.cards[filter]!];
   }
@@ -335,13 +347,13 @@ export function getCards(state: State, filter: CardFilter): CardState[] {
       if (zone.cards.length === 0) {
         return [];
       } else {
-        return getCards(state, last(zone.cards)!);
+        return filterCards(state, last(zone.cards)!);
       }
     }
 
     case "and": {
-      const a = getCards(state, filter.a);
-      const b = getCards(state, filter.b);
+      const a = filterCards(state, filter.a);
+      const b = filterCards(state, filter.b);
       return intersectionBy(a, b, (item) => item.id);
     }
   }

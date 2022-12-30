@@ -109,11 +109,11 @@ export function nextStep(state: State) {
         return;
       }
       case "PlayerAction": {
-        resolvePlayerAction(state, action.player, action.action);
+        executePlayerAction(state, action.player, action.action);
         return;
       }
       case "CardAction": {
-        resolveCardAction(state, action.card, action.action);
+        executeCardAction(state, action.card, action.action);
         return;
       }
       case "While": {
@@ -185,7 +185,7 @@ export function getZone(zone: Zone, state: State) {
   }
 }
 
-export function resolvePlayerAction(
+export function executePlayerAction(
   state: State,
   filter: PlayerFilter,
   action: PlayerAction
@@ -260,7 +260,7 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
   throw new Error(`unknown expression: ${JSON.stringify(expr)}`);
 }
 
-export function resolveCardAction(
+export function executeCardAction(
   state: State,
   filter: CardFilter,
   action: CardAction
@@ -268,7 +268,7 @@ export function resolveCardAction(
   const cards = getCards(state, filter);
   for (const card of cards) {
     switch (action.type) {
-      case "flip": {
+      case "Flip": {
         card.sideUp = action.side;
         break;
       }

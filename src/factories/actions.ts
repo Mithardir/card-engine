@@ -165,7 +165,7 @@ export function flip(side: Side, card: CardFilter): Action {
     type: "CardAction",
     card: card,
     action: {
-      type: "flip",
+      type: "Flip",
       side,
     },
   };

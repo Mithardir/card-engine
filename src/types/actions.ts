@@ -13,7 +13,7 @@ import {
 
 export type CardAction =
   | {
-      type: "flip";
+      type: "Flip";
       side: Side;
     }
   | { type: "AddResources"; amount: NumberValue }

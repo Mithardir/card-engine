@@ -8,11 +8,10 @@ import {
   CardId,
   NumberValue,
   PlayerFilter,
-  PlayerId,
   Side,
   Zone,
 } from "../types/basic";
-import { CardState, PlayerState, State } from "../types/state";
+import { CardState, State } from "../types/state";
 import { shuffleArray } from "../utils";
 import { whileDo } from "../factories/actions";
 

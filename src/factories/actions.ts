@@ -13,7 +13,8 @@ import {
   PlayerId,
   PlayerZoneType,
   BoolValue,
-  CardId,
+  PlayerFilter,
+  CardModifier,
 } from "../types/basic";
 
 export function setupScenario(scenario: Scenario): Action {
@@ -211,34 +212,81 @@ export function placeProgress(amount: NumberValue): Action {
   throw new Error("not implemented");
 }
 
-export function dealDamage(amount: number): CardAction;
-export function dealDamage(amount: number, cardId: CardId): Action;
-export function dealDamage(
-  amount: number,
-  cardId?: CardId
-): Action | CardAction {
+export function dealDamage(amount: number): CardAction {
   throw new Error("not implemented");
 }
 
-export function addResources(amount: NumberValue): CardAction;
-export function addResources(amount: NumberValue, cardId: CardId): Action;
-export function addResources(
-  amount: NumberValue,
-  cardId?: CardId
-): Action | CardAction {
-  if (cardId) {
-    return {
-      type: "CardAction",
-      card: cardId,
-      action: {
-        type: "AddResources",
-        amount,
-      },
-    };
-  } else {
-    return {
-      type: "AddResources",
-      amount,
-    };
-  }
+export function heal(amount: number): CardAction {
+  throw new Error("not implemented");
+}
+
+export function payCardResources(amount: number): CardAction {
+  throw new Error("not implemented");
+}
+
+export function addResources(amount: NumberValue): CardAction {
+  return {
+    type: "AddResources",
+    amount,
+  };
+}
+
+export function targetCard(
+  filter: CardFilter
+): { to: (action: CardAction) => Action } {
+  return {
+    to: (action) => {
+      return {
+        type: "CardAction",
+        action: action,
+        card: filter,
+      };
+    },
+  };
+}
+
+export function targetPlayer(
+  filter: PlayerFilter
+): { to: (action: PlayerAction) => Action } {
+  return {
+    to: (action) => {
+      return {
+        type: "PlayerAction",
+        action: action,
+        player: filter,
+      };
+    },
+  };
+}
+
+export function discard(amount: NumberValue): PlayerAction {
+  throw new Error("not implemented");
+}
+
+export function exhaust(): CardAction {
+  throw new Error("not implemented");
+}
+
+export function modify(params: {
+  description: string;
+  modifier: CardModifier;
+  until: "end_of_phase";
+}): CardAction {
+  throw new Error("not implemented");
+}
+
+export function choosePlayer(params: {
+  filter?: PlayerFilter;
+  label: string;
+  action: PlayerAction;
+}): Action {
+  throw new Error("not implemented");
+}
+
+export function chooseCard(params: {
+  filter?: CardFilter;
+  label: string;
+  action: CardAction;
+}): Action {
+  throw new Error("not implemented");
 }

@@ -62,7 +62,7 @@ export type Ability = {
 
 export type CardModifier = {
   type: "increment";
-  property: "attack";
+  property: "attack" | "willpower";
   amount: NumberValue;
 };
 
@@ -260,3 +260,9 @@ export type NumberValue =
 export type Tokens = Record<Token, number>;
 
 export type Marks = Record<Mark, boolean>;
+
+export type ActionLimit = {
+  type: "phase" | "round" | "game";
+  limit: number;
+  separatePlayers: boolean;
+};

@@ -282,6 +282,7 @@ export type PlayerZoneType =
 export type BoolValue =
   | boolean
   | "GameFinished"
+  | "EnemiesToEngage"
   | { type: "IsLess"; a: NumberValue; b: NumberValue }
   | { type: "IsMore"; a: NumberValue; b: NumberValue }
   | { type: "And"; a: BoolValue; b: BoolValue }

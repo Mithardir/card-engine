@@ -15,6 +15,7 @@ import {
 export type CardAction =
   | "Tap"
   | "Untap"
+  | "CommitToQuest"
   | {
       type: "Flip";
       side: Side;
@@ -24,11 +25,20 @@ export type CardAction =
   | { type: "Heal"; amount: NumberValue };
 
 export type PlayerAction =
+  | "CommitCharactersToQuest"
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType };
 
 export type GameAction =
+  | "RevealEncounterCard"
+  | "ResolveQuesting"
+  | "ChooseTravelDestination"
+  | "PassFirstPlayerToken"
+  | "EndPhase"
+  | "EndRound"
+  | "SetupActions"
+  | "DealShadowCards"
   | { type: "AddPlayer"; deck: PlayerDeck }
   | {
       type: "AddCard";
@@ -52,14 +62,7 @@ export type GameAction =
       filter?: CardFilter;
     }
   | { type: "PlaceProgress"; amount: NumberValue }
-  | { type: "ClearMarks"; mark: Mark }
-  | "RevealEncounterCard"
-  | "ResolveQuesting"
-  | "ChooseTravelDestination"
-  | "PassFirstPlayerToken"
-  | "EndPhase"
-  | "EndRound"
-  | "SetupActions";
+  | { type: "ClearMarks"; mark: Mark };
 
 export type Action =
   | GameAction

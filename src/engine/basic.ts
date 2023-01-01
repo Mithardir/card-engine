@@ -64,6 +64,7 @@ export function nextStep(state: State) {
       case "PassFirstPlayerToken":
       case "RevealEncounterCard":
       case "ResolveQuesting":
+      case "DealShadowCards":
         // TODO
         return;
     }
@@ -198,6 +199,12 @@ export function executePlayerAction(
 ) {
   const players = getPlayers(state, filter);
   for (const player of players) {
+    if (action === "CommitCharactersToQuest") {
+      debugger;
+      // TODO
+      break;
+    }
+
     switch (action.type) {
       case "ShuffleZone": {
         const zone = getZone(playerZone(player.id, action.zone), state);
@@ -255,6 +262,11 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
 
   if (expr === "GameFinished") {
     return !!state.result;
+  }
+
+  if (expr === "EnemiesToEngage") {
+    // TODO
+    return true;
   }
 
   switch (expr.type) {

@@ -127,7 +127,7 @@ export function repeat(amount: NumberValue, action: Action): Action {
 
 export const phaseQuest = sequence(
   beginPhase("quest"),
-  //eachPlayer(commitCharactersToQuest()),
+  eachPlayer("CommitCharactersToQuest"),
   playerActions("Staging"),
   repeat("countOfPlayers", "RevealEncounterCard"),
   playerActions("Quest resolution"),
@@ -148,14 +148,14 @@ export const phaseEncounter = sequence(
   beginPhase("encounter"),
   //eachPlayer(optionalEngagement()),
   playerActions("Engagement Checks"),
-  //whileDo(enemiesToEngage, eachPlayer(engagementCheck())),
+  //whileDo("EnemiesToEngage", eachPlayer(engagementCheck())),
   playerActions("Next encounter phase"),
   endPhase()
 );
 
 export const phaseCombat = sequence(
   beginPhase("combat"),
-  // dealShadowCards,
+  "DealShadowCards",
   playerActions("Resolve enemy attacks"),
   //eachPlayer(resolveEnemyAttacks()),
   clearMarks("attacked"),

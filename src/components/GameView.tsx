@@ -8,6 +8,11 @@ import { NextStepButton } from "./NextStepButton";
 import { CardShow } from "./CardShow";
 import { StateContext } from "./StateContext";
 import { toView } from "../engine/view";
+import { ChooseSingleDialog } from "./ChooseSingleDialog";
+import { ChooseMultipleDialog } from "./ChooseMultipleDialog";
+import { advanceToChoiceState } from "../engine/basic";
+import produce from "immer";
+import { sequence } from "../factories/actions";
 
 export const GameView = (props: {}) => {
   const detail = useContext(DetailContext);
@@ -71,37 +76,37 @@ export const GameView = (props: {}) => {
 
         {state.choice && state.choice.dialog && !state.choice.multi && (
           <>
-            {/* <ChooseSingleDialog
+            <ChooseSingleDialog
               title={state.choice.title}
               choices={state.choice.options}
               onChoice={(action) => {
                 const newState = produce(state, (draft) => {
                   draft.choice = undefined;
-                  action.apply(draft);
+                  draft.next.unshift(action);
                   advanceToChoiceState(draft);
                 });
 
                 setState(newState);
               }}
-            /> */}
+            />
           </>
         )}
 
         {state.choice && state.choice.dialog && state.choice.multi && (
           <>
-            {/* <ChooseMultipleDialog
+            <ChooseMultipleDialog
               title={state.choice.title}
               choices={state.choice.options}
               onChoices={(actions) => {
                 const newState = produce(state, (draft) => {
                   draft.choice = undefined;
-                  sequence(...actions).apply(draft);
+                  draft.next.unshift(sequence(...actions));
                   advanceToChoiceState(draft);
                 });
 
                 setState(newState);
               }}
-            /> */}
+            />
           </>
         )}
 

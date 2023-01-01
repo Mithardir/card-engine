@@ -8,7 +8,7 @@ import {
   ListItem,
 } from "@mui/material";
 import { useState } from "react";
-import { Action } from "../engine/types";
+import { Action } from "../types/actions";
 
 export const ChooseMultipleDialog = (props: {
   title: string;

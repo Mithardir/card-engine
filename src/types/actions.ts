@@ -8,6 +8,7 @@ import {
   Phase,
   PlayerDeck,
   PlayerFilter,
+  PlayerId,
   PlayerZoneType,
   Side,
 } from "./basic";
@@ -25,10 +26,16 @@ export type CardAction =
   | { type: "Heal"; amount: NumberValue };
 
 export type PlayerAction =
-  | "CommitCharactersToQuest"
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
-  | { type: "ShuffleZone"; zone: PlayerZoneType };
+  | { type: "ShuffleZone"; zone: PlayerZoneType }
+  | {
+      type: "ChooseCard";
+      multi: boolean;
+      label: string;
+      action: CardAction;
+      filter: CardFilter;
+    };
 
 export type GameAction =
   | "RevealEncounterCard"
@@ -74,7 +81,7 @@ export type Action =
   | {
       type: "PlayerAction";
       player: PlayerFilter;
-      action: PlayerAction;
+      action: PlayerAction | ((player: PlayerId) => PlayerAction);
     }
   | { type: "Sequence"; actions: Action[] }
   | {

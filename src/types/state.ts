@@ -57,7 +57,7 @@ export type State = {
     title: string;
     dialog: boolean;
     multi: boolean;
-    options: Array<{ title: string; action: Action }>;
+    options: Array<{ title: string; action: Action; image?: string }>;
   };
   next: Action[];
   result?: "win" | "lost";

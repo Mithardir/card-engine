@@ -125,9 +125,19 @@ export function repeat(amount: NumberValue, action: Action): Action {
   };
 }
 
+const commitCharactersToQuest: (id: PlayerId) => PlayerAction = (
+  player: PlayerId
+) => {
+  return playerChooseCards({
+    action: "CommitToQuest",
+    label: "Choose characters commiting to quest",
+    filter: { type: "HasController", player: player },
+  });
+};
+
 export const phaseQuest = sequence(
   beginPhase("quest"),
-  eachPlayer("CommitCharactersToQuest"),
+  eachPlayer(commitCharactersToQuest),
   playerActions("Staging"),
   repeat("countOfPlayers", "RevealEncounterCard"),
   playerActions("Quest resolution"),
@@ -259,7 +269,9 @@ export function draw(amount: NumberValue): PlayerAction {
   };
 }
 
-export function eachPlayer(action: PlayerAction): Action {
+export function eachPlayer(
+  action: PlayerAction | ((player: PlayerId) => PlayerAction)
+): Action {
   return {
     type: "PlayerAction",
     player: "active",
@@ -376,6 +388,30 @@ export function chooseCard(params: {
 }): Action {
   return {
     type: "ChooseCard",
+    ...params,
+  };
+}
+
+export function playerChooseCard(params: {
+  filter: CardFilter;
+  label: string;
+  action: CardAction;
+}): PlayerAction {
+  return {
+    type: "ChooseCard",
+    multi: false,
+    ...params,
+  };
+}
+
+export function playerChooseCards(params: {
+  filter: CardFilter;
+  label: string;
+  action: CardAction;
+}): PlayerAction {
+  return {
+    type: "ChooseCard",
+    multi: true,
     ...params,
   };
 }

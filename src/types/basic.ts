@@ -254,6 +254,7 @@ export type CardPredicate =
   | "isCharacter"
   | "isHero"
   | "isAlly"
+  | { type: "HasController"; player: PlayerId }
   | { type: "and"; a: CardPredicate; b: CardPredicate };
 
 export type PlayerPredicate =

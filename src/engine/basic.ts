@@ -1,5 +1,5 @@
 import { intersectionBy, isArray, last, values } from "lodash";
-import { gameZone, playerZone } from "../factories/actions";
+import { gameZone, playerZone, targetCard } from "../factories/actions";
 import { Action, CardAction, PlayerAction } from "../types/actions";
 import {
   BoolValue,
@@ -8,6 +8,7 @@ import {
   CardId,
   NumberValue,
   PlayerFilter,
+  PlayerId,
   Side,
   Zone,
 } from "../types/basic";
@@ -195,16 +196,23 @@ export function getZone(zone: Zone, state: State) {
 export function executePlayerAction(
   state: State,
   filter: PlayerFilter,
-  action: PlayerAction
+  action: PlayerAction | ((player: PlayerId) => PlayerAction)
 ) {
   const players = getPlayers(state, filter);
-  for (const player of players) {
-    if (action === "CommitCharactersToQuest") {
-      debugger;
-      // TODO
-      break;
+
+  if (typeof action === "function") {
+    for (const player of players) {
+      state.next.unshift({
+        type: "PlayerAction",
+        player: player.id,
+        action: action(player.id),
+      });
     }
 
+    return;
+  }
+
+  for (const player of players) {
     switch (action.type) {
       case "ShuffleZone": {
         const zone = getZone(playerZone(player.id, action.zone), state);
@@ -221,6 +229,20 @@ export function executePlayerAction(
             player.zones.hand.cards.push(top);
           }
         }
+        break;
+      }
+      case "ChooseCard": {
+        const cards = filterCards(state, action.filter);
+        state.choice = {
+          dialog: true,
+          multi: action.multi,
+          title: action.label,
+          options: cards.map((c) => ({
+            action: targetCard(c.id).to(action.action),
+            image: c.definition.face.image,
+            title: c.id.toString(), // TODO
+          })),
+        };
         break;
       }
       default: {
@@ -285,8 +307,19 @@ export function executeCardAction(
 ) {
   const cards = filterCards(state, filter);
   for (const card of cards) {
-    if (typeof action === "string") {
-      // TODO
+    if (action === "CommitToQuest") {
+      card.tapped = true;
+      card.mark.questing = true;
+      break;
+    }
+
+    if (action === "Tap") {
+      card.tapped = true;
+      break;
+    }
+
+    if (action === "Untap") {
+      card.tapped = false;
       break;
     }
 
@@ -367,6 +400,11 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
       const a = filterCards(state, filter.a);
       const b = filterCards(state, filter.b);
       return intersectionBy(a, b, (item) => item.id);
+    }
+
+    case "HasController": {
+      // TODO
+      return allCards.filter((c) => c.definition.face.type === "hero");
     }
   }
 

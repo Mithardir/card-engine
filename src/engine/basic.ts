@@ -1,5 +1,5 @@
 import { intersectionBy, isArray, last, values } from "lodash";
-import { gameZone, playerZone, targetCard } from "../factories/actions";
+import { gameZone, playerZone, repeat, targetCard } from "../factories/actions";
 import { Action, CardAction, PlayerAction } from "../types/actions";
 import {
   BoolValue,
@@ -154,6 +154,24 @@ export function nextStep(state: State) {
         };
         return;
       }
+      case "ClearMarks": {
+        for (const card of values(state.cards)) {
+          card.mark[action.mark] = false;
+        }
+        return;
+      }
+      case "Repeat": {
+        const amount = evaluateNumber(action.amount, state);
+        if (amount === 0) {
+          return;
+        } else {
+          return (state.next = [
+            action.action,
+            repeat(amount - 1, action.action),
+            ...state.next,
+          ]);
+        }
+      }
     }
   }
 
@@ -281,6 +299,12 @@ export function evaluateNumber(expr: NumberValue, state: State) {
     return expr;
   }
 
+  switch (expr) {
+    case "countOfPlayers": {
+      return Object.keys(state.players).length;
+    }
+  }
+
   throw new Error(`unknown expression: ${JSON.stringify(expr)}`);
 }
 
@@ -314,33 +338,32 @@ export function executeCardAction(
 ) {
   const cards = filterCards(state, filter);
   for (const card of cards) {
-    if (action === "CommitToQuest") {
-      card.tapped = true;
-      card.mark.questing = true;
-      break;
-    }
-
-    if (action === "Tap") {
-      card.tapped = true;
-      break;
-    }
-
-    if (action === "Untap") {
-      card.tapped = false;
-      break;
-    }
-
-    switch (action.type) {
-      case "Flip": {
-        card.sideUp = action.side;
-        break;
+    if (typeof action === "string") {
+      switch (action) {
+        case "CommitToQuest":
+          card.tapped = true;
+          card.mark.questing = true;
+          break;
+        case "Tap":
+          card.tapped = true;
+          break;
+        case "Untap":
+          card.tapped = false;
+          break;
       }
-      case "AddResources": {
-        card.token.resources += evaluateNumber(action.amount, state);
-        break;
-      }
-      default: {
-        throw new Error(`unknown action: ${JSON.stringify(action)}`);
+    } else {
+      switch (action.type) {
+        case "Flip": {
+          card.sideUp = action.side;
+          break;
+        }
+        case "AddResources": {
+          card.token.resources += evaluateNumber(action.amount, state);
+          break;
+        }
+        default: {
+          throw new Error(`unknown action: ${JSON.stringify(action)}`);
+        }
       }
     }
   }

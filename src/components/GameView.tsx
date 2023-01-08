@@ -1,5 +1,5 @@
-import { Paper, Typography } from "@mui/material";
-import { useContext, useMemo } from "react";
+import { Alert, Paper, Snackbar, Typography } from "@mui/material";
+import { useContext, useMemo, useState } from "react";
 import { values } from "lodash";
 import { DetailContext } from "./DetailContext";
 import { PlayerShow } from "./PlayerShow";
@@ -18,9 +18,21 @@ export const GameView = (props: {}) => {
   const detail = useContext(DetailContext);
   const { state, setState } = useContext(StateContext);
   const view = useMemo(() => toView(state), [state]);
+  const [error, setError] = useState("");
 
   return (
     <div style={{ display: "flex", backgroundColor: "#33eaff" }}>
+      {error && (
+        <Snackbar
+          open={!!error}
+          autoHideDuration={6000}
+          onClose={() => setError("")}
+        >
+          <Alert onClose={() => setError("")} severity="error">
+            {error}
+          </Alert>
+        </Snackbar>
+      )}
       <div style={{ backgroundColor: "#5393ff", width: 330, flexShrink: 0 }}>
         <Paper
           style={{
@@ -83,7 +95,7 @@ export const GameView = (props: {}) => {
                 const newState = produce(state, (draft) => {
                   draft.choice = undefined;
                   draft.next.unshift(action);
-                  advanceToChoiceState(draft);
+                  advanceToChoiceState(draft, setError);
                 });
 
                 setState(newState);
@@ -101,7 +113,7 @@ export const GameView = (props: {}) => {
                 const newState = produce(state, (draft) => {
                   draft.choice = undefined;
                   draft.next.unshift(sequence(...actions));
-                  advanceToChoiceState(draft);
+                  advanceToChoiceState(draft, setError);
                 });
 
                 setState(newState);
@@ -110,7 +122,7 @@ export const GameView = (props: {}) => {
           </>
         )}
 
-        <NextStepButton state={state} setState={setState} />
+        <NextStepButton state={state} setState={setState} setError={setError} />
       </div>
 
       <div

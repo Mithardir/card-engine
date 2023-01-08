@@ -6,6 +6,7 @@ import { advanceToChoiceState } from "../engine/basic";
 export const NextStepButton = (props: {
   state: State;
   setState: (state: State) => void;
+  setError: (error: string) => void;
 }) => {
   const state = props.state;
 
@@ -33,7 +34,7 @@ export const NextStepButton = (props: {
         onClick={() => {
           const newState = produce(state, (draft) => {
             draft.choice = undefined;
-            advanceToChoiceState(draft);
+            advanceToChoiceState(draft, props.setError);
           });
 
           props.setState(newState);

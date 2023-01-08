@@ -36,7 +36,10 @@ export function createState(program: Action): State {
   };
 }
 
-export function advanceToChoiceState(state: State) {
+export function advanceToChoiceState(
+  state: State,
+  onError: (error: string) => void
+) {
   while (true) {
     if (state.next.length === 0) {
       return;
@@ -46,7 +49,11 @@ export function advanceToChoiceState(state: State) {
       return state;
     }
 
-    nextStep(state);
+    try {
+      nextStep(state);
+    } catch (error) {
+      onError(error.message);
+    }
   }
 }
 

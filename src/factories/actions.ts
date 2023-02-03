@@ -66,14 +66,10 @@ export function beginScenario(
     eachPlayer(shuffleLibrary()),
     eachPlayer(draw(6)),
     flip("face", topCard(gameZone("questDeck"))),
-    setupActions(),
+    "SetupActions",
     flip("back", topCard(gameZone("questDeck"))),
     startGame()
   );
-}
-
-export function setupActions(): Action {
-  return "SetupActions";
 }
 
 export function startGame(): Action {
@@ -382,12 +378,13 @@ export function choosePlayer(params: {
 }
 
 export function chooseCard(params: {
-  filter?: CardFilter;
+  filter: CardFilter;
   label: string;
   action: CardAction;
 }): Action {
   return {
     type: "ChooseCard",
+    multi: false,
     ...params,
   };
 }

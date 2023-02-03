@@ -10,7 +10,9 @@ import { beginScenario } from "./factories/actions";
 
 const state = createState(beginScenario(passageThroughMirkwood, coreTactics));
 
-advanceToChoiceState(state);
+advanceToChoiceState(state, (error) => {
+  console.log(error);
+});
 
 console.log(state);
 

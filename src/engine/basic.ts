@@ -1,5 +1,22 @@
-import { intersectionBy, isArray, last, values } from "lodash";
-import { gameZone, playerZone, repeat, targetCard } from "../factories/actions";
+import {
+  intersectionBy,
+  isArray,
+  last,
+  mapValues,
+  sumBy,
+  values,
+} from "lodash";
+import {
+  chooseCard,
+  eachPlayer,
+  gameZone,
+  incrementThreat,
+  placeProgress,
+  playerZone,
+  repeat,
+  targetCard,
+  topCard,
+} from "../factories/actions";
 import { Action, CardAction, PlayerAction } from "../types/actions";
 import {
   BoolValue,
@@ -15,6 +32,7 @@ import {
 import { CardState, State } from "../types/state";
 import { shuffleArray } from "../utils";
 import { whileDo } from "../factories/actions";
+import { createCardView, toView } from "./view";
 
 export function createState(program: Action): State {
   return {
@@ -65,13 +83,87 @@ export function nextStep(state: State) {
     switch (action) {
       case "Empty":
         return;
-      case "SetupActions":
+      case "SetupActions": {
+        const view = toView(state);
+        const actions = values(mapValues(view.cards, (c) => c.setup)).map(
+          (a) => a
+        ) as Action[];
+        state.next = [...actions, ...state.next];
+        return;
+      }
       case "EndPhase":
+        return;
       case "EndRound":
-      case "ChooseTravelDestination":
-      case "PassFirstPlayerToken":
+        return;
       case "RevealEncounterCard":
-      case "ResolveQuesting":
+        const stagingArea = getZone(gameZone("stagingArea"), state);
+        const encounterDeck = getZone(gameZone("encounterDeck"), state);
+        const cardId = encounterDeck.cards.pop();
+        if (cardId) {
+          stagingArea.cards.push(cardId);
+          state.cards[cardId].sideUp = "face";
+        } else {
+          // TODO reshuffle from discard pile
+        }
+        return;
+      case "ResolveQuesting": {
+        const questerIds = filterCards(state, {
+          type: "HasMark",
+          mark: "questing",
+        }).map((c) => c.id);
+
+        const inStagingIds = getZone(gameZone("stagingArea"), state).cards;
+
+        const view = toView(state);
+
+        const questers = questerIds.map((id) => view.cards[id]);
+        const inStaging = inStagingIds.map((id) => view.cards[id]);
+
+        const totalWillpower = sumBy(questers, (q) => q.props.willpower || 0);
+        const totalThreat = sumBy(inStaging, (q) => q.props.threat || 0);
+
+        const diff = totalWillpower - totalThreat;
+        if (diff > 0) {
+          state.next = [placeProgress(diff), ...state.next];
+        }
+        if (diff < 0) {
+          state.next = [eachPlayer(incrementThreat(-diff)), ...state.next];
+        }
+        return;
+      }
+      case "ChooseTravelDestination": {
+        const activeLocation = filterCard(
+          state,
+          topCard(gameZone("activeLocation"))
+        );
+
+        if (activeLocation) {
+          return;
+        }
+
+        const view = toView(state);
+        const choices = state.zones.stagingArea.cards.filter(
+          (id) => view.cards[id].props.type === "location"
+        );
+
+        if (choices.length === 0) {
+          return;
+        }
+
+        state.next = [
+          chooseCard({
+            label: "Choose location for traveling",
+            action: "TravelTo",
+            filter: choices,
+          }),
+          ...state.next,
+        ];
+        return;
+      }
+
+      case "PassFirstPlayerToken":
+        // TODO
+        return;
       case "DealShadowCards":
         // TODO
         return;
@@ -142,7 +234,7 @@ export function nextStep(state: State) {
         return;
       }
       case "BeginPhase": {
-        // TODO
+        state.phase = action.phase;
         return;
       }
       case "PlayerActions": {
@@ -171,6 +263,28 @@ export function nextStep(state: State) {
             ...state.next,
           ]);
         }
+      }
+      case "PlaceProgress": {
+        // TODO add to active location
+        const questCard = filterCard(state, topCard(gameZone("questDeck")));
+        if (questCard) {
+          questCard.token.progress += evaluateNumber(action.amount, state);
+        }
+        return;
+      }
+      case "ChooseCard": {
+        const cards = filterCards(state, action.filter);
+        state.choice = {
+          dialog: true,
+          multi: action.multi,
+          title: action.label,
+          options: cards.map((c) => ({
+            action: targetCard(c.id).to(action.action),
+            image: c.definition.face.image,
+            title: c.id.toString(), // TODO
+          })),
+        };
+        break;
       }
     }
   }
@@ -268,6 +382,10 @@ export function executePlayerAction(
             title: c.id.toString(), // TODO
           })),
         };
+        break;
+      }
+      case "IncrementThreat": {
+        player.thread += evaluateNumber(action.amount, state);
         break;
       }
       default: {
@@ -383,6 +501,18 @@ export function getCardsInPlay(state: State): CardId[] {
   return [...gameCards, ...playerCards];
 }
 
+export function filterCard(
+  state: State,
+  filter: CardFilter
+): CardState | undefined {
+  const cards = filterCards(state, filter);
+  if (cards.length === 1) {
+    return cards[0];
+  } else {
+    return undefined;
+  }
+}
+
 export function filterCards(state: State, filter: CardFilter): CardState[] {
   if (typeof filter === "number") {
     return [state.cards[filter]!];
@@ -435,6 +565,10 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     case "HasController": {
       // TODO
       return allCards.filter((c) => c.definition.face.type === "hero");
+    }
+
+    case "HasMark": {
+      return allCards.filter((c) => c.mark[filter.mark] === true);
     }
   }
 

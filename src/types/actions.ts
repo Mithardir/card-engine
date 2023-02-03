@@ -17,6 +17,7 @@ export type CardAction =
   | "Tap"
   | "Untap"
   | "CommitToQuest"
+  | "TravelTo"
   | {
       type: "Flip";
       side: Side;
@@ -66,7 +67,8 @@ export type GameAction =
       type: "ChooseCard";
       label: string;
       action: CardAction;
-      filter?: CardFilter;
+      filter: CardFilter;
+      multi: boolean;
     }
   | { type: "PlaceProgress"; amount: NumberValue }
   | { type: "ClearMarks"; mark: Mark };

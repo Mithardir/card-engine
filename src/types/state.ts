@@ -27,6 +27,7 @@ export type CardState = {
 export type CardView = {
   id: CardId;
   props: PrintedProps;
+  setup?: Action;
 };
 
 export type View = {

@@ -69,6 +69,7 @@ export type GameAction =
       action: CardAction;
       filter: CardFilter;
       multi: boolean;
+      optional: boolean;
     }
   | { type: "PlaceProgress"; amount: NumberValue }
   | { type: "ClearMarks"; mark: Mark };

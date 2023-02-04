@@ -381,6 +381,7 @@ export function chooseCard(params: {
   filter: CardFilter;
   label: string;
   action: CardAction;
+  optional: boolean;
 }): Action {
   return {
     type: "ChooseCard",

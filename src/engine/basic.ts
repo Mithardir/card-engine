@@ -29,7 +29,7 @@ import {
   Side,
   Zone,
 } from "../types/basic";
-import { CardState, State } from "../types/state";
+import { CardState, State, ZoneState } from "../types/state";
 import { shuffleArray } from "../utils";
 import { whileDo } from "../factories/actions";
 import { createCardView, toView } from "./view";
@@ -95,17 +95,32 @@ export function nextStep(state: State) {
         return;
       case "EndRound":
         return;
-      case "RevealEncounterCard":
-        const stagingArea = getZone(gameZone("stagingArea"), state);
+      case "RevealEncounterCard": {
         const encounterDeck = getZone(gameZone("encounterDeck"), state);
         const cardId = encounterDeck.cards.pop();
         if (cardId) {
-          stagingArea.cards.push(cardId);
           state.cards[cardId].sideUp = "face";
+          const view = toView(state);
+          const cardType = view.cards[cardId].props.type;
+          switch (cardType) {
+            case "treachery":
+              const discardPile = getZone(gameZone("discardPile"), state);
+              discardPile.cards.push(cardId);
+              break;
+            case "enemy":
+            case "location":
+              const stagingArea = getZone(gameZone("stagingArea"), state);
+              stagingArea.cards.push(cardId);
+              break;
+            default:
+              throw new Error("unknown encounter card type: " + cardType);
+          }
         } else {
           // TODO reshuffle from discard pile
         }
         return;
+      }
+
       case "ResolveQuesting": {
         const questerIds = filterCards(state, {
           type: "HasMark",
@@ -155,6 +170,7 @@ export function nextStep(state: State) {
             label: "Choose location for traveling",
             action: "TravelTo",
             filter: choices,
+            optional: true,
           }),
           ...state.next,
         ];
@@ -273,23 +289,27 @@ export function nextStep(state: State) {
         return;
       }
       case "ChooseCard": {
+        const view = toView(state);
         const cards = filterCards(state, action.filter);
+        const options = cards.map((c) => ({
+          action: targetCard(c.id).to(action.action),
+          image: c.definition.face.image,
+          title: view.cards[c.id].props.name || "Unknown card",
+        }));
         state.choice = {
           dialog: true,
           multi: action.multi,
           title: action.label,
-          options: cards.map((c) => ({
-            action: targetCard(c.id).to(action.action),
-            image: c.definition.face.image,
-            title: c.id.toString(), // TODO
-          })),
+          options: action.optional
+            ? [...options, { action: "Empty", title: "None" }]
+            : options,
         };
-        break;
+        return;
       }
     }
   }
 
-  throw new Error(`unknown action: ${JSON.stringify(action)}`);
+  throw new Error(`unknown game action: ${JSON.stringify(action)}`);
 }
 
 export function addCard(
@@ -371,6 +391,7 @@ export function executePlayerAction(
         break;
       }
       case "ChooseCard": {
+        const view = toView(state);
         const cards = filterCards(state, action.filter);
         state.choice = {
           dialog: true,
@@ -379,7 +400,7 @@ export function executePlayerAction(
           options: cards.map((c) => ({
             action: targetCard(c.id).to(action.action),
             image: c.definition.face.image,
-            title: c.id.toString(), // TODO
+            title: view.cards[c.id].props.name || "Unknown card",
           })),
         };
         break;
@@ -389,7 +410,7 @@ export function executePlayerAction(
         break;
       }
       default: {
-        throw new Error(`unknown action: ${JSON.stringify(action)}`);
+        throw new Error(`unknown player action: ${JSON.stringify(action)}`);
       }
     }
   }
@@ -468,6 +489,9 @@ export function executeCardAction(
         case "Untap":
           card.tapped = false;
           break;
+        case "TravelTo":
+          moveCard(state, card.id, gameZone("activeLocation"));
+          break;
       }
     } else {
       switch (action.type) {
@@ -480,7 +504,7 @@ export function executeCardAction(
           break;
         }
         default: {
-          throw new Error(`unknown action: ${JSON.stringify(action)}`);
+          throw new Error(`unknown card action: ${JSON.stringify(action)}`);
         }
       }
     }
@@ -573,4 +597,29 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
   }
 
   throw new Error(`not implemented card filter: ${JSON.stringify(filter)} `);
+}
+
+export function moveCard(state: State, id: CardId, target: Zone) {
+  const sourceZone = getZoneOfCard(state, id);
+  const targetZone = getZone(target, state);
+  sourceZone.cards = sourceZone.cards.filter((c) => c !== id);
+  targetZone.cards.push(id);
+}
+
+export function getZoneOfCard(state: State, id: CardId): ZoneState {
+  for (const zone of values(state.zones)) {
+    if (zone.cards.includes(id)) {
+      return zone;
+    }
+  }
+
+  for (const player of values(state.players)) {
+    for (const zone of values(player.zones)) {
+      if (zone.cards.includes(id)) {
+        return zone;
+      }
+    }
+  }
+
+  throw new Error("zone of card not found");
 }

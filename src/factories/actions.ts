@@ -16,6 +16,7 @@ import {
   PlayerFilter,
   CardModifier,
   Mark,
+  Sphere,
 } from "../types/basic";
 
 export function setupScenario(scenario: Scenario): Action {
@@ -102,7 +103,7 @@ export function clearMarks(mark: Mark): Action {
 export const phaseResource = sequence(
   beginPhase("resource"),
   eachPlayer(draw(1)),
-  eachCard(and("isHero", "inPlay"), addResources(1)),
+  eachCard(and(["isHero", "inPlay"]), addResources(1)),
   playerActions("End resource phase"),
   endPhase()
 );
@@ -193,10 +194,9 @@ export function endPhase(): GameAction {
 }
 
 export function and<T extends CardPredicate | PlayerPredicate>(
-  a: T,
-  b: T
-): { type: "and"; a: T; b: T } {
-  return { type: "and", a, b };
+  values: T[]
+): { type: "and"; values: T[] } {
+  return { type: "and", values };
 }
 
 export function gameRound(): Action {
@@ -311,8 +311,11 @@ export function incrementThreat(amount: number): PlayerAction {
   };
 }
 
-export function payCardResources(amount: number): CardAction {
-  throw new Error("not implemented");
+export function payCardResources(amount: NumberValue): CardAction {
+  return {
+    type: "PayResources",
+    amount: amount,
+  };
 }
 
 export function addResources(amount: NumberValue): CardAction {
@@ -352,6 +355,17 @@ export function targetPlayer(
 
 export function discard(amount: NumberValue): PlayerAction {
   throw new Error("not implemented");
+}
+
+export function payResources(
+  amount: NumberValue,
+  sphere: Sphere | "any"
+): PlayerAction {
+  return {
+    type: "PayResources",
+    amount,
+    sphere,
+  };
 }
 
 export function exhaust(): CardAction {

@@ -9,5 +9,8 @@ export function isEnemy(card: CardId): BoolValue {
 }
 
 export function and(...values: BoolValue[]): BoolValue {
-  throw new Error("not implemented");
+  return {
+    type: "And",
+    values,
+  };
 }

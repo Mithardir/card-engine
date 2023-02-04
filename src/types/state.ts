@@ -32,12 +32,11 @@ export type ActionView = {
 };
 
 export type CardView = {
-  id: CardId;
   props: PrintedProps;
   setup?: Action;
   actions: Array<ActionView>;
   abilities: Array<{ applied: boolean; ability: Ability }>;
-};
+} & CardState;
 
 export type View = {
   cards: Record<CardId, CardView>;

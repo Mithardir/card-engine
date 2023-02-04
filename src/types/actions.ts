@@ -11,6 +11,7 @@ import {
   PlayerId,
   PlayerZoneType,
   Side,
+  Sphere,
 } from "./basic";
 
 export type CardAction =
@@ -24,6 +25,7 @@ export type CardAction =
       side: Side;
     }
   | { type: "AddResources"; amount: NumberValue }
+  | { type: "PayResources"; amount: NumberValue }
   | { type: "DealDamage"; amount: NumberValue }
   | { type: "Heal"; amount: NumberValue | "all" };
 
@@ -31,6 +33,7 @@ export type PlayerAction =
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType }
+  | { type: "PayResources"; amount: NumberValue; sphere: Sphere | "any" }
   | {
       type: "ChooseCard";
       multi: boolean;

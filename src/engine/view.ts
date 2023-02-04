@@ -1,18 +1,30 @@
 import { cloneDeep, defer, mapValues, values } from "lodash";
-import { discard, sequence } from "../factories/actions";
-import { Action } from "../types/actions";
-import { Ability, EventActionAbility } from "../types/basic";
+import {
+  discard,
+  payResources,
+  sequence,
+  targetPlayer,
+} from "../factories/actions";
+import { and } from "../factories/boolValues";
+import { Action, PlayerAction } from "../types/actions";
+import {
+  Ability,
+  BoolValue,
+  CardId,
+  EventActionAbility,
+  PlayerId,
+} from "../types/basic";
 import { ActionView, CardState, CardView, State, View } from "../types/state";
 
 export function createCardView(state: CardState): CardView {
   const printed = state.definition[state.sideUp];
   return {
-    id: state.id,
     props: printed,
     actions: [],
     abilities: printed.abilities
       ? printed.abilities.map((a) => ({ applied: false, ability: a }))
       : [],
+    ...state,
   };
 }
 
@@ -20,14 +32,49 @@ export function createEventActionView(
   ability: EventActionAbility,
   card: CardView
 ): ActionView {
+  if (!card.props.sphere || card.owner === "game") {
+    return {
+      action: "Empty",
+      enabled: false,
+    };
+  }
+
+  const payCost = payResources(
+    card.props.cost || 0,
+    card.props.sphere === "neutral" ? "any" : card.props.sphere
+  );
+
   return {
-    action: sequence(ability.effect, {
-      type: "CardAction",
-      card: card.id,
-      action: "Discard",
-    }),
-    enabled: { type: "CardBoolValue", card: card.id, predicate: "inHand" },
+    action: sequence(
+      targetPlayer(card.owner).to(payCost),
+      ability.effect,
+      discardCard(card.id)
+    ),
+    enabled: and(cardInHand(card.id), canPayCost(card.owner, payCost)),
   };
+}
+
+export function canPayCost(player: PlayerId, cost: PlayerAction): BoolValue {
+  return {
+    type: "PlayerBoolValue",
+    player,
+    predicate: {
+      type: "CanPayCost",
+      cost,
+    },
+  };
+}
+
+export function discardCard(card: CardId): Action {
+  return {
+    type: "CardAction",
+    card,
+    action: "Discard",
+  };
+}
+
+export function cardInHand(card: CardId): BoolValue {
+  return { type: "CardBoolValue", card, predicate: "inHand" };
 }
 
 export function executeAbility(ability: Ability, card: CardView): void {

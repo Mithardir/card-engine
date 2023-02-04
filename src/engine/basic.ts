@@ -7,10 +7,12 @@ import {
   values,
 } from "lodash";
 import {
+  and,
   chooseCard,
   eachPlayer,
   gameZone,
   incrementThreat,
+  payCardResources,
   placeProgress,
   playerZone,
   repeat,
@@ -27,7 +29,9 @@ import {
   NumberValue,
   PlayerFilter,
   PlayerId,
+  PlayerPredicate,
   Side,
+  Sphere,
   Zone,
 } from "../types/basic";
 import { CardState, State, ZoneState } from "../types/state";
@@ -292,6 +296,8 @@ export function nextStep(state: State) {
       case "ChooseCard": {
         const view = toView(state);
         const cards = filterCards(state, action.filter);
+        console.log("filter", action.filter);
+        console.log("cards", cards);
         const options = cards.map((c) => ({
           action: targetCard(c.id).to(action.action),
           image: c.definition.face.image,
@@ -410,6 +416,23 @@ export function executePlayerAction(
         player.thread += evaluateNumber(action.amount, state);
         break;
       }
+      case "PayResources": {
+        const sphere = action.sphere;
+        state.next = [
+          repeat(
+            action.amount,
+            chooseCard({
+              label: `Pay 1 ${sphere} sphere resource`,
+              filter: canPayResources(1, action.sphere),
+              action: payCardResources(1),
+              optional: false,
+            })
+          ),
+          ...state.next,
+        ];
+
+        break;
+      }
       default: {
         throw new Error(`unknown player action: ${JSON.stringify(action)}`);
       }
@@ -469,6 +492,25 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
     case "CardBoolValue": {
       return evaluateCardPredicate(state, expr.card, expr.predicate);
     }
+    case "PlayerBoolValue": {
+      return evaluatePlayerPredicate(state, expr.player, expr.predicate);
+    }
+    case "And": {
+      for (const value of expr.values) {
+        if (!evaluateBool(value, state)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    case "Or": {
+      for (const value of expr.values) {
+        if (evaluateBool(value, state)) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 
   throw new Error(`unknown expression: ${JSON.stringify(expr)}`);
@@ -512,6 +554,13 @@ export function executeCardAction(
         }
         case "AddResources": {
           card.token.resources += evaluateNumber(action.amount, state);
+          break;
+        }
+        case "PayResources": {
+          card.token.resources = Math.max(
+            0,
+            card.token.resources - evaluateNumber(action.amount, state)
+          );
           break;
         }
         case "Heal": {
@@ -580,15 +629,18 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
       return filterCards(state, getCardsInPlay(state));
     }
     if (filter === "isAlly") {
+      // TODO from view
       return allCards.filter((c) => c.definition.face.type === "ally");
     }
     if (filter === "isCharacter") {
+      // TODO from view
       return allCards.filter(
         (c) =>
           c.definition.face.type === "ally" || c.definition.face.type === "hero"
       );
     }
     if (filter === "isHero") {
+      // TODO from view
       return allCards.filter((c) => c.definition.face.type === "hero");
     }
     if (filter === "isTapped") {
@@ -612,9 +664,9 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
 
     case "and": {
-      const a = filterCards(state, filter.a);
-      const b = filterCards(state, filter.b);
-      return intersectionBy(a, b, (item) => item.id);
+      return filter.values
+        .map((predicate) => filterCards(state, predicate))
+        .reduce((p, c) => intersectionBy(p, c, (item) => item.id));
     }
 
     case "HasController": {
@@ -624,6 +676,10 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
 
     case "HasMark": {
       return allCards.filter((c) => c.mark[filter.mark] === true);
+    }
+
+    case "HasResources": {
+      return allCards.filter((c) => c.token.resources >= filter.amount);
     }
   }
 
@@ -669,5 +725,58 @@ export function evaluateCardPredicate(
     default: {
       throw new Error("unknown predicate: " + JSON.stringify(predicate));
     }
+  }
+}
+
+export function evaluatePlayerPredicate(
+  state: State,
+  player: PlayerId,
+  predicate: PlayerPredicate
+): boolean {
+  if (typeof predicate === "string") {
+    switch (predicate) {
+      default: {
+        throw new Error("unknown predicate: " + predicate);
+      }
+    }
+  } else {
+    switch (predicate.type) {
+      case "CanPayCost": {
+        return true; // TODO
+      }
+      default: {
+        throw new Error("unknown predicate: " + JSON.stringify(predicate));
+      }
+    }
+  }
+}
+
+export function canPayResources(
+  amount: number,
+  sphere: Sphere | "any"
+): CardFilter {
+  if (sphere === "any") {
+    return {
+      type: "and",
+      values: [
+        "inPlay",
+        {
+          type: "HasResources",
+          amount,
+        },
+      ],
+    };
+  } else {
+    return {
+      type: "and",
+      values: [
+        "inPlay",
+        { type: "HasSphere", sphere },
+        {
+          type: "HasResources",
+          amount,
+        },
+      ],
+    };
   }
 }

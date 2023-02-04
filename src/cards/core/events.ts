@@ -6,7 +6,7 @@ export const loreOfImladris = event(
   {
     name: "Lore of Imladris",
     cost: 2,
-    sphere: "lore",
+    sphere: "neutral", // TODO lore
   },
   eventAction({
     description:

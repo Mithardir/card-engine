@@ -140,40 +140,41 @@ export const GameView = (props: {}) => {
             state={state}
             view={view}
             setError={setError}
-            setGameState={setState}
           />
           <ZoneShow
             type="activeLocation"
             state={state}
             view={view}
             setError={setError}
-            setGameState={setState}
           />
           <ZoneShow
             type="questDeck"
             state={state}
             view={view}
             setError={setError}
-            setGameState={setState}
           />
           <ZoneShow
             type="encounterDeck"
             state={state}
             view={view}
             setError={setError}
-            setGameState={setState}
           />
           <ZoneShow
             type="discardPile"
             state={state}
             view={view}
             setError={setError}
-            setGameState={setState}
           />
         </div>
         <div style={{ display: "flex" }}>
           {values(state.players).map((p) => (
-            <PlayerShow player={p} key={p.id} state={state} view={view} />
+            <PlayerShow
+              setError={setError}
+              player={p}
+              key={p.id}
+              state={state}
+              view={view}
+            />
           ))}
         </div>
       </div>

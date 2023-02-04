@@ -1,4 +1,4 @@
-import { Action } from "./actions";
+import { Action, PlayerAction } from "./actions";
 import { Events } from "./events";
 
 export interface Flavoring<FlavorT> {
@@ -262,13 +262,16 @@ export type CardPredicate =
   | "isHero"
   | "isAlly"
   | "inHand"
+  | { type: "HasResources"; amount: number }
   | { type: "HasMark"; mark: Mark }
+  | { type: "HasSphere"; sphere: Sphere }
   | { type: "HasController"; player: PlayerId }
-  | { type: "and"; a: CardPredicate; b: CardPredicate };
+  | { type: "and"; values: CardPredicate[] };
 
 export type PlayerPredicate =
   | "active"
   | "first"
+  | { type: "CanPayCost"; cost: PlayerAction }
   | { type: "and"; predicates: PlayerPredicate[] }
   | { type: "or"; predicates: PlayerPredicate[] };
 
@@ -295,10 +298,11 @@ export type BoolValue =
   | "EnemiesToEngage"
   | { type: "IsLess"; a: NumberValue; b: NumberValue }
   | { type: "IsMore"; a: NumberValue; b: NumberValue }
-  | { type: "And"; a: BoolValue; b: BoolValue }
-  | { type: "Or"; a: BoolValue; b: BoolValue }
+  | { type: "And"; values: BoolValue[] }
+  | { type: "Or"; values: BoolValue[] }
   | { type: "Not"; value: BoolValue }
-  | { type: "CardBoolValue"; card: CardId; predicate: CardPredicate };
+  | { type: "CardBoolValue"; card: CardId; predicate: CardPredicate }
+  | { type: "PlayerBoolValue"; player: PlayerId; predicate: PlayerPredicate };
 
 export type NumberValue =
   | number

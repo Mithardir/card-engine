@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PrintedProps } from "../types/cards";
+import { PrintedProps } from "../types/basic";
 import { CardView, CardState } from "../types/state";
 
 export const PropertyView = (props: {

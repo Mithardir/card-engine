@@ -1,4 +1,4 @@
-import { Scenario } from "../../types/actions";
+import { Scenario } from "../../types/basic";
 import {
   kingSpider,
   hummerhorns,

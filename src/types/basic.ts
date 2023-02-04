@@ -57,8 +57,8 @@ export type CardNumProperty =
 
 export type Mark = "questing" | "attacked" | "attacking" | "defending";
 
-export type ActionAbility = {
-  type: "Action";
+export type CharacterActionAbility = {
+  type: "CharacterAction";
   description: string;
   caster?: "controller" | "any";
   limit?: ActionLimit;
@@ -80,7 +80,7 @@ export type KeywordAbility = {
 export type Ability =
   | ModifySelfAbility
   | KeywordAbility
-  | ActionAbility
+  | CharacterActionAbility
   | ResponseAbility<"cardReveladed">
   | ResponseAbility<"enemyDestroyed">
   | ResponseAbility<"receivedDamage">;

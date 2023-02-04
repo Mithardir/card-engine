@@ -8,6 +8,8 @@ import { CardShow } from "./CardShow";
 export const ZoneShow = (
   props:
     | {
+        setGameState: (state: State) => void;
+        setError: (error: string) => void;
         state: State;
         view: View;
         type: PlayerZoneType;
@@ -15,6 +17,8 @@ export const ZoneShow = (
         showAttachments?: boolean;
       }
     | {
+        setGameState: (state: State) => void;
+        setError: (error: string) => void;
         state: State;
         view: View;
         type: GameZoneType;
@@ -64,6 +68,8 @@ export const ZoneShow = (
             )
             .map((card) => (
               <CardBox
+                setError={props.setError}
+                setGameState={props.setGameState}
                 key={card.id}
                 cardId={card.id}
                 state={props.state}
@@ -73,6 +79,7 @@ export const ZoneShow = (
 
         {zone.cards.length !== 0 && zone.stack && (
           <CardShow
+            setError={props.setError}            
             content="image"
             state={props.state.cards[zone.cards[zone.cards.length - 1]]}
             view={props.view.cards[zone.cards[zone.cards.length - 1]]}

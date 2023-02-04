@@ -66,6 +66,12 @@ export type CharacterActionAbility = {
   effect: Action | ((caster: PlayerId, self: CardId) => Action);
 };
 
+export type EventActionAbility = {
+  type: "EventAction";
+  description: string;
+  effect: Action;
+};
+
 export type ModifySelfAbility = {
   type: "ModifySelf";
   description: string;
@@ -81,6 +87,7 @@ export type Ability =
   | ModifySelfAbility
   | KeywordAbility
   | CharacterActionAbility
+  | EventActionAbility
   | ResponseAbility<"cardReveladed">
   | ResponseAbility<"enemyDestroyed">
   | ResponseAbility<"receivedDamage">;
@@ -254,6 +261,7 @@ export type CardPredicate =
   | "isCharacter"
   | "isHero"
   | "isAlly"
+  | "inHand"
   | { type: "HasMark"; mark: Mark }
   | { type: "HasController"; player: PlayerId }
   | { type: "and"; a: CardPredicate; b: CardPredicate };

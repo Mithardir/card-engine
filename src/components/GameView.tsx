@@ -42,6 +42,7 @@ export const GameView = (props: {}) => {
         >
           {detail.cardId && (
             <CardShow
+              setError={setError}
               state={state.cards[detail.cardId]}
               view={view.cards[detail.cardId]}
               content="text"
@@ -134,11 +135,41 @@ export const GameView = (props: {}) => {
         }}
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
-          <ZoneShow type="stagingArea" state={state} view={view} />
-          <ZoneShow type="activeLocation" state={state} view={view} />
-          <ZoneShow type="questDeck" state={state} view={view} />
-          <ZoneShow type="encounterDeck" state={state} view={view} />
-          <ZoneShow type="discardPile" state={state} view={view} />
+          <ZoneShow
+            type="stagingArea"
+            state={state}
+            view={view}
+            setError={setError}
+            setGameState={setState}
+          />
+          <ZoneShow
+            type="activeLocation"
+            state={state}
+            view={view}
+            setError={setError}
+            setGameState={setState}
+          />
+          <ZoneShow
+            type="questDeck"
+            state={state}
+            view={view}
+            setError={setError}
+            setGameState={setState}
+          />
+          <ZoneShow
+            type="encounterDeck"
+            state={state}
+            view={view}
+            setError={setError}
+            setGameState={setState}
+          />
+          <ZoneShow
+            type="discardPile"
+            state={state}
+            view={view}
+            setError={setError}
+            setGameState={setState}
+          />
         </div>
         <div style={{ display: "flex" }}>
           {values(state.players).map((p) => (

@@ -18,13 +18,14 @@ export type CardAction =
   | "Untap"
   | "CommitToQuest"
   | "TravelTo"
+  | "Discard"
   | {
       type: "Flip";
       side: Side;
     }
   | { type: "AddResources"; amount: NumberValue }
   | { type: "DealDamage"; amount: NumberValue }
-  | { type: "Heal"; amount: NumberValue };
+  | { type: "Heal"; amount: NumberValue | "all" };
 
 export type PlayerAction =
   | { type: "IncrementThreat"; amount: NumberValue }

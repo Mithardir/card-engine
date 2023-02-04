@@ -10,6 +10,8 @@ import {
   Marks,
   Tokens,
   PrintedProps,
+  BoolValue,
+  Ability,
 } from "./basic";
 
 export type CardState = {
@@ -24,10 +26,17 @@ export type CardState = {
   controller: PlayerId | "game";
 };
 
+export type ActionView = {
+  enabled: BoolValue;
+  action: Action;
+};
+
 export type CardView = {
   id: CardId;
   props: PrintedProps;
   setup?: Action;
+  actions: Array<ActionView>;
+  abilities: Array<{ applied: boolean; ability: Ability }>;
 };
 
 export type View = {

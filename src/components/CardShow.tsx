@@ -4,9 +4,15 @@ import resourceImage from "../images/tokens/resource.png";
 import progressImage from "../images/tokens/progress.png";
 import { DetailContext } from "./DetailContext";
 import { CardText } from "./CardText";
-import { CardState, CardView } from "../types/state";
+import { CardState, CardView, State } from "../types/state";
+import { Action } from "../types/actions";
+import produce from "immer";
+import { advanceToChoiceState, evaluateBool } from "../engine/basic";
+import { StateContext } from "./StateContext";
+import { playerActions } from "../factories/actions";
 
 export const CardShow = (props: {
+  setError: (error: string) => void;
   state?: CardState;
   view?: CardView;
   content: "image" | "text";
@@ -15,13 +21,16 @@ export const CardShow = (props: {
   scale?: number;
   style?: React.CSSProperties;
 }) => {
+  const { state, setState } = useContext(StateContext);
   const detail = useContext(DetailContext);
 
   if (!props.state || !props.view) {
     return <>empty</>;
   }
 
-  const actions: any[] = []; //props.view.actions.filter((a) => a.canRun.eval(state, state));
+  const actions = props.view.actions.filter((a) =>
+    evaluateBool(a.enabled, state)
+  );
 
   const scale = props.scale || 0.28;
   const width = 430 * scale;
@@ -60,29 +69,26 @@ export const CardShow = (props: {
         }
       }}
       onClick={async () => {
-        // if (actions.length === 0) {
-        //   return;
-        // } else {
-        //   if (actions.length === 1) {
-        //     const newState = produce(state, (draft) => {
-        //       if (state.choice) {
-        //         const nextTitle = state.choice?.title;
-        //         draft.choice = undefined;
-        //         const action = sequence(
-        //           actions[0].action,
-        //           playerActions(nextTitle)
-        //         );
-        //         action.apply(draft);
-        //         advanceToChoiceState(draft);
-        //       }
-        //     });
-        //     setState(newState);
-        //   } else {
-        //     // TODO multiple actions
-        //     // tslint:disable-next-line:no-console
-        //     console.log("todo multiple actions");
-        //   }
-        // }
+        if (actions.length === 0 || !state.choice || state.choice.dialog) {
+          return;
+        } else {
+          if (actions.length === 1) {
+            const action = actions[0];
+            const title = state.choice.title;
+            const newState = produce(state, (draft) => {
+              draft.choice = undefined;
+              draft.next.unshift(playerActions(title));
+              draft.next.unshift(action.action);
+              advanceToChoiceState(draft, props.setError);
+            });
+
+            setState(newState);
+          } else {
+            // TODO multiple actions
+            // tslint:disable-next-line:no-console
+            console.log("todo multiple actions");
+          }
+        }
       }}
     >
       {props.content === "text" ? (

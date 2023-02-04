@@ -3,6 +3,8 @@ import { State, View } from "../types/state";
 import { CardShow } from "./CardShow";
 
 export const CardBox = (props: {
+  setGameState: (state: State) => void;
+  setError: (error: string) => void;
   cardId: CardId;
   state: State;
   view: View;
@@ -24,6 +26,7 @@ export const CardBox = (props: {
           }}
         >
           <CardShow
+            setError={props.setError}
             showExhausted={true}
             showTokens={true}
             content="image"

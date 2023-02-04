@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Ability } from "../types/basic";
 import { CardState, CardView } from "../types/state";
 import { PropertyView } from "./PropertyView";
 import { StateContext } from "./StateContext";
@@ -10,7 +11,7 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
     sideUp: "face",
     token: props.state.token,
     props: { ...props.view.props },
-    attachments: props.state.attachments,   
+    attachments: props.state.attachments,
     owner: props.state.owner,
     controller: props.state.controller,
   };
@@ -212,13 +213,14 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
             </td>
           </tr>
         )}
-        {/* {c.abilities
-          .filter((a) => !a.implicit)
-          .map((a, i) => (
+        {c.props.abilities &&
+          c.props.abilities.map((a, i) => (
             <tr key={i}>
-              <td colSpan={4}>{a.description}</td>
+              <td colSpan={4}>
+                <AbilityText key={i} ability={a} />
+              </td>
             </tr>
-          ))} */}
+          ))}
         {/* <tr>
       <td>
         <button disabled={c.exhausted} onClick={() => c.exhaust()}>
@@ -242,4 +244,18 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
       </tbody>
     </table>
   );
+};
+
+export const AbilityText = (props: { ability: Ability }) => {
+  switch (props.ability.type) {
+    case "Keyword":
+      return null;
+    case "CharacterAction":
+    case "EventAction":
+    case "ModifySelf":
+    case "Response":
+      return <>{props.ability.description}</>;
+    default:
+      return <>unknown ability: {JSON.stringify(props.ability)}</>;
+  }
 };

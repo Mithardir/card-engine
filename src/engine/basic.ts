@@ -23,6 +23,7 @@ import {
   CardDefinition,
   CardFilter,
   CardId,
+  CardPredicate,
   NumberValue,
   PlayerFilter,
   PlayerId,
@@ -465,6 +466,9 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
     case "Not": {
       return !evaluateBool(expr.value, state);
     }
+    case "CardBoolValue": {
+      return evaluateCardPredicate(state, expr.card, expr.predicate);
+    }
   }
 
   throw new Error(`unknown expression: ${JSON.stringify(expr)}`);
@@ -492,6 +496,13 @@ export function executeCardAction(
         case "TravelTo":
           moveCard(state, card.id, gameZone("activeLocation"));
           break;
+        case "Discard":
+          if (card.owner === "game") {
+            moveCard(state, card.id, gameZone("discardPile"));
+          } else {
+            moveCard(state, card.id, playerZone(card.owner, "discardPile"));
+          }
+          break;
       }
     } else {
       switch (action.type) {
@@ -501,6 +512,15 @@ export function executeCardAction(
         }
         case "AddResources": {
           card.token.resources += evaluateNumber(action.amount, state);
+          break;
+        }
+        case "Heal": {
+          if (action.amount === "all") {
+            card.token.damage = 0;
+          } else {
+            const amount = evaluateNumber(action.amount, state);
+            card.token.damage = Math.max(0, card.token.damage - amount);
+          }
           break;
         }
         default: {
@@ -523,6 +543,14 @@ export function getCardsInPlay(state: State): CardId[] {
   ]);
 
   return [...gameCards, ...playerCards];
+}
+
+export function getCardsInHands(state: State): CardId[] {
+  const playerCards = values(state.players).flatMap((p) => [
+    ...p.zones.hand.cards,
+  ]);
+
+  return playerCards;
 }
 
 export function filterCard(
@@ -565,6 +593,9 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
     if (filter === "isTapped") {
       return allCards.filter((c) => c.tapped);
+    }
+    if (filter === "inHand") {
+      return filterCards(state, getCardsInHands(state));
     }
 
     return [state.cards[filter]!];
@@ -622,4 +653,21 @@ export function getZoneOfCard(state: State, id: CardId): ZoneState {
   }
 
   throw new Error("zone of card not found");
+}
+
+export function evaluateCardPredicate(
+  state: State,
+  card: CardId,
+  predicate: CardPredicate
+): boolean {
+  switch (predicate) {
+    case "inHand": {
+      return values(state.players).some((p) =>
+        p.zones.hand.cards.includes(card)
+      );
+    }
+    default: {
+      throw new Error("unknown predicate: " + JSON.stringify(predicate));
+    }
+  }
 }

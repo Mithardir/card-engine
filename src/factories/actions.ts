@@ -297,7 +297,7 @@ export function dealDamage(amount: number): CardAction {
   };
 }
 
-export function heal(amount: number): CardAction {
+export function heal(amount: number | "all"): CardAction {
   return {
     type: "Heal",
     amount,

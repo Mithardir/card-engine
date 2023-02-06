@@ -681,6 +681,11 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     case "HasResources": {
       return allCards.filter((c) => c.token.resources >= filter.amount);
     }
+
+    case "HasSphere": {
+      // TODO from view
+      return allCards.filter((c) => c.definition.face.sphere === filter.sphere);
+    }
   }
 
   throw new Error(`not implemented card filter: ${JSON.stringify(filter)} `);

@@ -5,7 +5,8 @@ import { DetailProvider } from "./components/DetailContext";
 import { GameView } from "./components/GameView";
 import { StateProvider } from "./components/StateContext";
 import { coreTactics } from "./decks/coreTactics";
-import { advanceToChoiceState, createState } from "./engine/basic";
+import { advanceToChoiceState } from "./engine/updates/advanceToChoiceState";
+import { createState } from "./engine/createState";
 import { beginScenario } from "./factories/actions";
 
 const state = createState(beginScenario(passageThroughMirkwood, coreTactics));

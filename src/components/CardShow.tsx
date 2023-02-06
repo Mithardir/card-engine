@@ -4,17 +4,17 @@ import resourceImage from "../images/tokens/resource.png";
 import progressImage from "../images/tokens/progress.png";
 import { DetailContext } from "./DetailContext";
 import { CardText } from "./CardText";
-import { CardState, CardView, State } from "../types/state";
-import { Action } from "../types/actions";
+import { CardState, CardView } from "../types/state";
 import produce from "immer";
-import { advanceToChoiceState, evaluateBool } from "../engine/basic";
+import { evaluateBool } from "../engine/queries/evaluateBool";
+import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
 import { StateContext } from "./StateContext";
 import { playerActions } from "../factories/actions";
 
 export const CardShow = (props: {
   setError: (error: string) => void;
-  state?: CardState;
-  view?: CardView;
+  state: CardState;
+  view: CardView;
   content: "image" | "text";
   showExhausted?: boolean;
   showTokens?: boolean;
@@ -40,7 +40,7 @@ export const CardShow = (props: {
     props.state.definition.orientation === "landscape" &&
     props.content === "image";
 
-  const isDetailCard = false; //c === game.detailCard;
+  const isDetailCard = false; //c === game.detailCard; TODO
 
   const margin = actions.length > 0 ? 1 : 3;
 

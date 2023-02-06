@@ -1,29 +1,12 @@
 import { Fab, Icon } from "@mui/material";
 import produce from "immer";
-import { State } from "../types/state";
-import { advanceToChoiceState } from "../engine/basic";
+import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
+import { useGameState } from "./StateContext";
 
 export const NextStepButton = (props: {
-  state: State;
-  setState: (state: State) => void;
   setError: (error: string) => void;
 }) => {
-  const state = props.state;
-
-  // useEffect(() => {
-  //   if (
-  //     state.choice &&
-  //     !state.choice.dialog &&
-  //     state.choice?.options.length === 0
-  //   ) {
-  //     const newState = produce(state, (draft) => {
-  //       draft.choice = undefined;
-  //       advanceToChoiceState(draft);
-  //     });
-
-  //     props.setState(newState);
-  //   }
-  // });
+  const { state, setState } = useGameState();
 
   if (state.choice && !state.choice.dialog) {
     return (
@@ -37,7 +20,7 @@ export const NextStepButton = (props: {
             advanceToChoiceState(draft, props.setError);
           });
 
-          props.setState(newState);
+          setState(newState);
         }}
       >
         <Icon>skip_next</Icon>

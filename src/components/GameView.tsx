@@ -7,10 +7,10 @@ import { ZoneShow } from "./ZoneShow";
 import { NextStepButton } from "./NextStepButton";
 import { CardShow } from "./CardShow";
 import { StateContext } from "./StateContext";
-import { toView } from "../engine/view";
+import { toView } from "../engine/view/toView";
 import { ChooseSingleDialog } from "./ChooseSingleDialog";
 import { ChooseMultipleDialog } from "./ChooseMultipleDialog";
-import { advanceToChoiceState } from "../engine/basic";
+import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
 import produce from "immer";
 import { sequence } from "../factories/actions";
 
@@ -57,12 +57,12 @@ export const GameView = (props: {}) => {
           )}
         </Paper>
         <Paper style={{ margin: 4 }}>
-          {/* <Typography>First player: {state.firstPlayer}</Typography> */}
+          {/* TODO <Typography>First player: {state.firstPlayer}</Typography>  */}
           <Typography>Phase: {state.phase}</Typography>
         </Paper>
         <Paper style={{ margin: 4 }}>
           <Typography>Effects:</Typography>
-          {/* {state.effects.map((e, index) => (
+          {/* TODO {state.effects.map((e, index) => (
             <Typography key={index}>{e.description}</Typography>
           ))} */}
         </Paper>
@@ -123,7 +123,7 @@ export const GameView = (props: {}) => {
           </>
         )}
 
-        <NextStepButton state={state} setState={setState} setError={setError} />
+        <NextStepButton setError={setError} />
       </div>
 
       <div
@@ -135,46 +135,15 @@ export const GameView = (props: {}) => {
         }}
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
-          <ZoneShow
-            type="stagingArea"
-            state={state}
-            view={view}
-            setError={setError}
-          />
-          <ZoneShow
-            type="activeLocation"
-            state={state}
-            view={view}
-            setError={setError}
-          />
-          <ZoneShow
-            type="questDeck"
-            state={state}
-            view={view}
-            setError={setError}
-          />
-          <ZoneShow
-            type="encounterDeck"
-            state={state}
-            view={view}
-            setError={setError}
-          />
-          <ZoneShow
-            type="discardPile"
-            state={state}
-            view={view}
-            setError={setError}
-          />
+          <ZoneShow type="stagingArea" setError={setError} />
+          <ZoneShow type="activeLocation" setError={setError} />
+          <ZoneShow type="questDeck" setError={setError} />
+          <ZoneShow type="encounterDeck" setError={setError} />
+          <ZoneShow type="discardPile" setError={setError} />
         </div>
         <div style={{ display: "flex" }}>
           {values(state.players).map((p) => (
-            <PlayerShow
-              setError={setError}
-              player={p}
-              key={p.id}
-              state={state}
-              view={view}
-            />
+            <PlayerShow setError={setError} player={p} key={p.id} />
           ))}
         </div>
       </div>

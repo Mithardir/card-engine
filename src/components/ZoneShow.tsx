@@ -1,40 +1,37 @@
 import { Divider, Paper } from "@mui/material";
 import { values } from "lodash";
 import { PlayerZoneType, GameZoneType, PlayerId } from "../types/basic";
-import { State, View, ZoneState } from "../types/state";
+import { ZoneState } from "../types/state";
 import { CardBox } from "./CardBox";
 import { CardShow } from "./CardShow";
+import { useGameState } from "./StateContext";
 
 export const ZoneShow = (
   props:
     | {
         setError: (error: string) => void;
-        state: State;
-        view: View;
         type: PlayerZoneType;
         owner: PlayerId;
         showAttachments?: boolean;
       }
     | {
         setError: (error: string) => void;
-        state: State;
-        view: View;
         type: GameZoneType;
         owner?: never;
         showAttachments?: boolean;
       }
 ) => {
+  const { state, view } = useGameState();
+
   const zone: ZoneState = props.owner
-    ? values(props.state.players).find((p) => p.id === props.owner)?.zones[
-        props.type
-      ]
-    : (props.state.zones as any)[props.type];
+    ? values(state.players).find((p) => p.id === props.owner)?.zones[props.type]
+    : (state.zones as any)[props.type];
 
   if (!zone) {
     return <>Zone not found</>;
   }
 
-  const zoneCards = zone.cards.map((id) => props.view.cards[id]!);
+  const zoneCards = zone.cards.map((id) => view.cards[id]!);
 
   return (
     <Paper
@@ -66,11 +63,9 @@ export const ZoneShow = (
             )
             .map((card) => (
               <CardBox
-                setError={props.setError}                
+                setError={props.setError}
                 key={card.id}
                 cardId={card.id}
-                state={props.state}
-                view={props.view}
               />
             ))}
 
@@ -78,8 +73,8 @@ export const ZoneShow = (
           <CardShow
             setError={props.setError}
             content="image"
-            state={props.state.cards[zone.cards[zone.cards.length - 1]]}
-            view={props.view.cards[zone.cards[zone.cards.length - 1]]}
+            state={state.cards[zone.cards[zone.cards.length - 1]]}
+            view={view.cards[zone.cards[zone.cards.length - 1]]}
             showTokens
           />
         )}

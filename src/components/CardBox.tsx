@@ -1,14 +1,13 @@
 import { CardId } from "../types/basic";
-import { State, View } from "../types/state";
 import { CardShow } from "./CardShow";
+import { useGameState } from "./StateContext";
 
 export const CardBox = (props: {
   setError: (error: string) => void;
   cardId: CardId;
-  state: State;
-  view: View;
 }) => {
-  const cards = [...props.state.cards[props.cardId].attachments, props.cardId];
+  const { state, view } = useGameState();
+  const cards = [...state.cards[props.cardId].attachments, props.cardId];
   return (
     <div
       style={{
@@ -30,8 +29,8 @@ export const CardBox = (props: {
             showTokens={true}
             content="image"
             key={c}
-            state={props.state.cards[c]}
-            view={props.view.cards[c]}
+            state={state.cards[c]}
+            view={view.cards[c]}
           />
         </div>
       ))}

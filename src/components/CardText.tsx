@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Ability } from "../types/basic";
 import { CardState, CardView } from "../types/state";
+import { AbilityText } from "./AbilityText";
 import { PropertyView } from "./PropertyView";
 import { StateContext } from "./StateContext";
 
@@ -95,9 +95,6 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
                 <button onClick={() => c.token.progress--}>-</button>
               </td>
             </tr>
-            <tr>
-              <td>{/* <button onClick={() => c.flip()}>Flip</button> */}</td>
-            </tr>
           </React.Fragment>
         )}
         {c.props.type === "enemy" && (
@@ -129,20 +126,6 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
             <tr>
               <td>Damage</td>
               <td>{c.token.damage}</td>
-              <td>
-                <button
-                  onClick={() => {
-                    //engine.do(addToken("damage")(c.id));
-                  }}
-                >
-                  +
-                </button>
-              </td>
-              <td>
-                {/* <button onClick={() => card.update(removeToken("damage"))}>
-                  -
-                </button> */}
-              </td>
             </tr>
           </React.Fragment>
         )}
@@ -175,34 +158,10 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
             <tr>
               <td>Damage</td>
               <td>{c.token.damage}</td>
-              <td>
-                <button
-                  onClick={() => {
-                    //engine.do(addToken("damage")(c.id));
-                  }}
-                >
-                  +
-                </button>
-              </td>
-              <td>
-                {/* <button onClick={() => card.update(removeToken("damage"))}>
-                  -
-                </button> */}
-              </td>
             </tr>
             <tr>
               <td>Resources</td>
               <td>{c.token.resources}</td>
-              <td>
-                {/* <button onClick={() => card.update(addToken("resources"))}>
-                  +
-                </button> */}
-              </td>
-              <td>
-                {/* <button onClick={() => card.update(removeToken("resources"))}>
-                  -
-                </button> */}
-              </td>
             </tr>
           </React.Fragment>
         )}
@@ -221,16 +180,6 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
               </td>
             </tr>
           ))}
-        {/* <tr>
-      <td>
-        <button disabled={c.exhausted} onClick={() => c.exhaust()}>
-          exhaust
-        </button>
-        <button disabled={!c.exhausted} onClick={() => c.ready()}>
-          ready
-        </button>
-      </td>
-    </tr> */}
         {c.attachments.length > 0 && (
           <tr>
             <td>
@@ -244,18 +193,4 @@ export const CardText = (props: { state: CardState; view: CardView }) => {
       </tbody>
     </table>
   );
-};
-
-export const AbilityText = (props: { ability: Ability }) => {
-  switch (props.ability.type) {
-    case "Keyword":
-      return null;
-    case "CharacterAction":
-    case "EventAction":
-    case "ModifySelf":
-    case "Response":
-      return <>{props.ability.description}</>;
-    default:
-      return <>unknown ability: {JSON.stringify(props.ability)}</>;
-  }
 };

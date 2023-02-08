@@ -14,9 +14,6 @@ export function evaluatePlayerPredicate(
     }
   } else {
     switch (predicate.type) {
-      case "CanPayCost": {
-        return true; // TODO
-      }
       default: {
         throw new Error("unknown predicate: " + JSON.stringify(predicate));
       }

@@ -16,17 +16,6 @@ export function and(...values: BoolValue[]): BoolValue {
   };
 }
 
-export function canPayCost(player: PlayerId, cost: PlayerAction): BoolValue {
-  return {
-    type: "PlayerBoolValue",
-    player,
-    predicate: {
-      type: "CanPayCost",
-      cost,
-    },
-  };
-}
-
 export function cardInHand(card: CardId): BoolValue {
   return { type: "CardBoolValue", card, predicate: "inHand" };
 }

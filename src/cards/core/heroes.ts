@@ -166,7 +166,7 @@ export const glorfindel = hero(
     cost: (caster, self) => targetCard(self).to(payCardResources(1)),
     effect: chooseCard({
       label: "Choose character to heal",
-      filter: "isCharacter", // TODO damaged
+      filter: "isCharacter",
       action: heal(1),
       optional: false,
     }),

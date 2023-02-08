@@ -140,7 +140,6 @@ export type CardPredicate =
 export type PlayerPredicate =
   | "active"
   | "first"
-  | { type: "CanPayCost"; cost: PlayerAction }
   | { type: "and"; predicates: PlayerPredicate[] }
   | { type: "or"; predicates: PlayerPredicate[] };
 

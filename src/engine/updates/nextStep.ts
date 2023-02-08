@@ -22,6 +22,7 @@ import { executeCardAction } from "./executeCardAction";
 import { executePlayerAction } from "./executePlayerAction";
 import { incrementThreat } from "../../factories/playerActions";
 import { topCard } from "../../factories/cardFilters";
+import { canExecuteCardAction } from "../queries/canExecuteCardAction";
 
 export function nextStep(state: State) {
   const action = state.next.shift();
@@ -239,13 +240,13 @@ export function nextStep(state: State) {
       case "ChooseCard": {
         const view = toView(state);
         const cards = filterCards(state, action.filter);
-        console.log("filter", action.filter);
-        console.log("cards", cards);
-        const options = cards.map((c) => ({
-          action: targetCard(c.id).to(action.action),
-          image: c.definition.face.image,
-          title: view.cards[c.id].props.name || "Unknown card",
-        }));
+        const options = cards
+          .filter((c) => canExecuteCardAction(action.action, c.id, state))
+          .map((c) => ({
+            action: targetCard(c.id).to(action.action),
+            image: c.definition.face.image,
+            title: view.cards[c.id].props.name || "Unknown card",
+          }));
         state.choice = {
           dialog: true,
           multi: action.multi,

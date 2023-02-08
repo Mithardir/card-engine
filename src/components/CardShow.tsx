@@ -11,6 +11,7 @@ import { evaluateBool } from "../engine/queries/evaluateBool";
 import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
 import { StateContext } from "./StateContext";
 import { playerActions } from "../factories/actions";
+import { canExecuteAction } from "../engine/queries/canExecuteAction";
 
 export const CardShow = (props: {
   setError: (error: string) => void;
@@ -30,8 +31,8 @@ export const CardShow = (props: {
     return <>empty</>;
   }
 
-  const actions = props.view.actions.filter((a) =>
-    evaluateBool(a.enabled, state)
+  const actions = props.view.actions.filter(
+    (a) => evaluateBool(a.enabled, state) && canExecuteAction(a.action, state)
   );
 
   const scale = props.scale || 0.28;

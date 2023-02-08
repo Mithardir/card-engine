@@ -57,14 +57,14 @@ export const GameView = (props: {}) => {
           )}
         </Paper>
         <Paper style={{ margin: 4 }}>
-          {/* TODO <Typography>First player: {state.firstPlayer}</Typography>  */}
+          <Typography>First player: {state.firstPlayer}</Typography>
           <Typography>Phase: {state.phase}</Typography>
         </Paper>
         <Paper style={{ margin: 4 }}>
           <Typography>Effects:</Typography>
-          {/* TODO {state.effects.map((e, index) => (
+          {state.effects.map((e, index) => (
             <Typography key={index}>{e.description}</Typography>
-          ))} */}
+          ))}
         </Paper>
 
         {state.choice && (

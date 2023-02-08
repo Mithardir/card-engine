@@ -1,6 +1,7 @@
 import { PlayerAction, CardAction } from "../types/actions";
 import { PlayerId, NumberValue, CardFilter } from "../types/basic";
 import { Sphere } from "../types/cards";
+import { and } from "./predicates";
 
 export const commitCharactersToQuest: (id: PlayerId) => PlayerAction = (
   player: PlayerId
@@ -8,7 +9,7 @@ export const commitCharactersToQuest: (id: PlayerId) => PlayerAction = (
   return playerChooseCards({
     action: "CommitToQuest",
     label: "Choose characters commiting to quest",
-    filter: { type: "HasController", player: player },
+    filter: and(["isCharacter", { type: "HasController", player: player }]),
   });
 };
 

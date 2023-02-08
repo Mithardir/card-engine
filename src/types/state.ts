@@ -36,6 +36,8 @@ export type ZoneState = {
 
 export type State = {
   phase: Phase;
+  firstPlayer: PlayerId;
+  effects: Array<{ description: string }>;
   players: Partial<Record<PlayerId, PlayerState>>;
   zones: Record<GameZoneType, ZoneState>;
   cards: Record<CardId, CardState>;

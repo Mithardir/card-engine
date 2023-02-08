@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import damageImage from "../images/tokens/damage.png";
 import resourceImage from "../images/tokens/resource.png";
 import progressImage from "../images/tokens/progress.png";
@@ -24,6 +24,7 @@ export const CardShow = (props: {
 }) => {
   const { state, setState } = useContext(StateContext);
   const detail = useContext(DetailContext);
+  const [zoom, setZoom] = useState(false);
 
   if (!props.state || !props.view) {
     return <>empty</>;
@@ -41,7 +42,7 @@ export const CardShow = (props: {
     props.state.definition.orientation === "landscape" &&
     props.content === "image";
 
-  const isDetailCard = false; //c === game.detailCard; TODO
+  const isDetailCard = props.content === "image" && zoom;
 
   const margin = actions.length > 0 ? 1 : 3;
 
@@ -68,6 +69,9 @@ export const CardShow = (props: {
         if (props.state) {
           detail.setDetail(props.state?.id);
         }
+      }}
+      onWheel={(e) => {
+        setZoom((p) => !p);
       }}
       onClick={async () => {
         if (actions.length === 0 || !state.choice || state.choice.dialog) {

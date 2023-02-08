@@ -5,6 +5,7 @@ export function createState(program: Action): State {
   return {
     phase: "setup",
     players: {},
+    firstPlayer: "A",
     zones: {
       activeLocation: { cards: [], stack: false },
       discardPile: { cards: [], stack: true },
@@ -18,5 +19,6 @@ export function createState(program: Action): State {
     flags: {},
     nextId: 1,
     cards: {},
+    effects: [],
   };
 }

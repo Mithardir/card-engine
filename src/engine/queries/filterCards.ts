@@ -4,6 +4,8 @@ import { CardState, State } from "../../types/state";
 import { getZone } from "./getZone";
 import { getCardsInPlay } from "./getCardsInPlay";
 import { getCardsInHands } from "../queries/getCardsInHands";
+import { toView } from "../view/toView";
+import { getControllingCards } from "./getControllingCards";
 
 export function filterCards(state: State, filter: CardFilter): CardState[] {
   if (typeof filter === "number") {
@@ -14,25 +16,22 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     return filter.map((v) => state.cards[v]!);
   }
 
-  const allCards = values(state.cards);
+  const view = toView(state);
+  const allCards = values(view.cards);
   if (typeof filter === "string") {
     if (filter === "inPlay") {
       return filterCards(state, getCardsInPlay(state));
     }
     if (filter === "isAlly") {
-      // TODO from view
-      return allCards.filter((c) => c.definition.face.type === "ally");
+      return allCards.filter((c) => c.props.type === "ally");
     }
     if (filter === "isCharacter") {
-      // TODO from view
       return allCards.filter(
-        (c) =>
-          c.definition.face.type === "ally" || c.definition.face.type === "hero"
+        (c) => c.props.type === "ally" || c.props.type === "hero"
       );
     }
     if (filter === "isHero") {
-      // TODO from view
-      return allCards.filter((c) => c.definition.face.type === "hero");
+      return allCards.filter((c) => c.props.type === "hero");
     }
     if (filter === "isTapped") {
       return allCards.filter((c) => c.tapped);
@@ -61,8 +60,8 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
 
     case "HasController": {
-      // TODO
-      return allCards.filter((c) => c.definition.face.type === "hero");
+      const controlling = getControllingCards(filter.player, state);
+      return filterCards(state, controlling);
     }
 
     case "HasMark": {
@@ -74,8 +73,7 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
 
     case "HasSphere": {
-      // TODO from view
-      return allCards.filter((c) => c.definition.face.sphere === filter.sphere);
+      return allCards.filter((c) => c.props.sphere === filter.sphere);
     }
   }
 

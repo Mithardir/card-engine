@@ -1,11 +1,24 @@
 import { intersectionBy, isArray, last, values } from "lodash";
-import { CardFilter } from "../../types/basic";
+import { CardFilter, CardId } from "../../types/basic";
 import { CardState, State } from "../../types/state";
 import { getZone } from "./getZone";
 import { getCardsInPlay } from "./getCardsInPlay";
 import { getCardsInHands } from "../queries/getCardsInHands";
 import { toView } from "../view/toView";
 import { getControllingCards } from "./getControllingCards";
+import { CardView, View } from "../../types/view";
+
+export function filterCardViews(
+  state: State,
+  condition: (card: CardView) => boolean
+): CardState[] {
+  const view = toView(state);
+  const cardIds = values(view.cards)
+    .filter(condition)
+    .map((c) => c.id);
+
+  return cardIds.map((id) => state.cards[id]!);
+}
 
 export function filterCards(state: State, filter: CardFilter): CardState[] {
   if (typeof filter === "number") {
@@ -16,22 +29,22 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     return filter.map((v) => state.cards[v]!);
   }
 
-  const view = toView(state);
-  const allCards = values(view.cards);
+  const allCards = values(state.cards);
   if (typeof filter === "string") {
     if (filter === "inPlay") {
       return filterCards(state, getCardsInPlay(state));
     }
     if (filter === "isAlly") {
-      return allCards.filter((c) => c.props.type === "ally");
+      return filterCardViews(state, (c) => c.props.type === "ally");
     }
     if (filter === "isCharacter") {
-      return allCards.filter(
+      return filterCardViews(
+        state,
         (c) => c.props.type === "ally" || c.props.type === "hero"
       );
     }
     if (filter === "isHero") {
-      return allCards.filter((c) => c.props.type === "hero");
+      return filterCardViews(state, (c) => c.props.type === "hero");
     }
     if (filter === "isTapped") {
       return allCards.filter((c) => c.tapped);
@@ -73,7 +86,7 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
 
     case "HasSphere": {
-      return allCards.filter((c) => c.props.sphere === filter.sphere);
+      return filterCardViews(state, (c) => c.props.sphere === filter.sphere);
     }
   }
 

@@ -7,14 +7,14 @@ export const loreOfImladris = event(
   {
     name: "Lore of Imladris",
     cost: 2,
-    sphere: "lore",
+    sphere: "tactics", // TODO lore
   },
   eventAction({
     description:
       "Action: Choose a character. Heal all damage from that character.",
     effect: chooseCard({
       label: "Choose character to heal",
-      filter: "isCharacter", // TODO damaged
+      filter: "isCharacter",
       action: heal("all"),
       optional: false,
     }),

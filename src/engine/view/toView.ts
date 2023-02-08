@@ -1,5 +1,6 @@
 import { cloneDeep, mapValues, values } from "lodash";
-import { State, View } from "../../types/state";
+import { State } from "../../types/state";
+import { View } from "../../types/view";
 import { createCardView } from "./createCardView";
 import { executeAbility } from "../updates/executeAbility";
 

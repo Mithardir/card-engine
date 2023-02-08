@@ -3,21 +3,25 @@ import {
   Scenario,
   PlayerDeck,
   Phase,
-  CardPredicate,
-  PlayerPredicate,
   NumberValue,
   GameZoneType,
-  Zone,
   CardFilter,
   Side,
   PlayerId,
-  PlayerZoneType,
   BoolValue,
   PlayerFilter,
-  CardModifier,
   Mark,
-  Sphere,
+  CardId,
 } from "../types/basic";
+import { and } from "./predicates";
+import { gameZone } from "./zones";
+import {
+  shuffleLibrary,
+  draw,
+  incrementThreat,
+  commitCharactersToQuest,
+} from "./playerActions";
+import { topCard } from "./cardFilters";
 
 export function setupScenario(scenario: Scenario): Action {
   const addQuestCards: GameAction[] = scenario.questCards.map((card) => ({
@@ -122,16 +126,6 @@ export function repeat(amount: NumberValue, action: Action): Action {
   };
 }
 
-const commitCharactersToQuest: (id: PlayerId) => PlayerAction = (
-  player: PlayerId
-) => {
-  return playerChooseCards({
-    action: "CommitToQuest",
-    label: "Choose characters commiting to quest",
-    filter: { type: "HasController", player: player },
-  });
-};
-
 export const phaseQuest = sequence(
   beginPhase("quest"),
   eachPlayer(commitCharactersToQuest),
@@ -153,9 +147,9 @@ export const phaseTravel = sequence(
 
 export const phaseEncounter = sequence(
   beginPhase("encounter"),
-  //eachPlayer(optionalEngagement()),
+  // TODO eachPlayer(optionalEngagement()),
   playerActions("Engagement Checks"),
-  //whileDo("EnemiesToEngage", eachPlayer(engagementCheck())),
+  // TODO whileDo("EnemiesToEngage", eachPlayer(engagementCheck())),
   playerActions("Next encounter phase"),
   endPhase()
 );
@@ -164,10 +158,10 @@ export const phaseCombat = sequence(
   beginPhase("combat"),
   "DealShadowCards",
   playerActions("Resolve enemy attacks"),
-  //eachPlayer(resolveEnemyAttacks()),
+  // TODO eachPlayer(resolveEnemyAttacks()),
   clearMarks("attacked"),
   playerActions("Resolve player attacks"),
-  //eachPlayer(resolvePlayerAttacks()),
+  // TODO eachPlayer(resolvePlayerAttacks()),
   clearMarks("attacked"),
   playerActions("End combat phase"),
   endPhase()
@@ -193,12 +187,6 @@ export function endPhase(): GameAction {
   return "EndPhase";
 }
 
-export function and<T extends CardPredicate | PlayerPredicate>(
-  values: T[]
-): { type: "and"; values: T[] } {
-  return { type: "and", values };
-}
-
 export function gameRound(): Action {
   return sequence(
     phaseResource,
@@ -210,27 +198,6 @@ export function gameRound(): Action {
     phaseRefresh,
     "EndRound"
   );
-}
-
-export function gameZone(type: GameZoneType): Zone {
-  return {
-    owner: "game",
-    type,
-  };
-}
-
-export function playerZone(player: PlayerId, type: PlayerZoneType): Zone {
-  return {
-    owner: player,
-    type,
-  };
-}
-
-export function topCard(zone: Zone): CardFilter {
-  return {
-    type: "TopCard",
-    zone,
-  };
 }
 
 export function flip(side: Side, card: CardFilter): Action {
@@ -248,20 +215,6 @@ export function shuffleZone(zone: GameZoneType): GameAction {
   return {
     type: "ShuffleZone",
     zone,
-  };
-}
-
-export function shuffleLibrary(): PlayerAction {
-  return {
-    type: "ShuffleZone",
-    zone: "library",
-  };
-}
-
-export function draw(amount: NumberValue): PlayerAction {
-  return {
-    type: "Draw",
-    amount,
   };
 }
 
@@ -286,27 +239,6 @@ export function eachCard(card: CardFilter, action: CardAction): Action {
 export function placeProgress(amount: NumberValue): Action {
   return {
     type: "PlaceProgress",
-    amount,
-  };
-}
-
-export function dealDamage(amount: number): CardAction {
-  return {
-    type: "DealDamage",
-    amount,
-  };
-}
-
-export function heal(amount: number | "all"): CardAction {
-  return {
-    type: "Heal",
-    amount,
-  };
-}
-
-export function incrementThreat(amount: number): PlayerAction {
-  return {
-    type: "IncrementThreat",
     amount,
   };
 }
@@ -353,33 +285,6 @@ export function targetPlayer(
   };
 }
 
-export function discard(amount: NumberValue): PlayerAction {
-  throw new Error("not implemented");
-}
-
-export function payResources(
-  amount: NumberValue,
-  sphere: Sphere | "any"
-): PlayerAction {
-  return {
-    type: "PayResources",
-    amount,
-    sphere,
-  };
-}
-
-export function exhaust(): CardAction {
-  throw new Error("not implemented");
-}
-
-export function modify(params: {
-  description: string;
-  modifier: CardModifier;
-  until: "end_of_phase";
-}): CardAction {
-  throw new Error("not implemented");
-}
-
 export function choosePlayer(params: {
   filter?: PlayerFilter;
   label: string;
@@ -404,26 +309,10 @@ export function chooseCard(params: {
   };
 }
 
-export function playerChooseCard(params: {
-  filter: CardFilter;
-  label: string;
-  action: CardAction;
-}): PlayerAction {
+export function discardCard(card: CardId): Action {
   return {
-    type: "ChooseCard",
-    multi: false,
-    ...params,
-  };
-}
-
-export function playerChooseCards(params: {
-  filter: CardFilter;
-  label: string;
-  action: CardAction;
-}): PlayerAction {
-  return {
-    type: "ChooseCard",
-    multi: true,
-    ...params,
+    type: "CardAction",
+    card,
+    action: "Discard",
   };
 }

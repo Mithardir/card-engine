@@ -1,10 +1,8 @@
-import { payResources, sequence, targetPlayer } from "../../factories/actions";
-import { and } from "../../factories/boolValues";
+import { discardCard, sequence, targetPlayer } from "../../factories/actions";
+import { and, canPayCost, cardInHand } from "../../factories/boolValues";
 import { EventActionAbility } from "../../types/basic";
-import { ActionView, CardView } from "../../types/state";
-import { discardCard } from "../../factories/discardCard";
-import { canPayCost } from "../../factories/canPayCost";
-import { cardInHand } from "../../factories/cardInHand";
+import { ActionView, CardView } from "../../types/view";
+import { payResources } from "../../factories/playerActions";
 
 export function createEventActionView(
   ability: EventActionAbility,

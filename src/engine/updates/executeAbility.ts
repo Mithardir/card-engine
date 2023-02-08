@@ -1,7 +1,6 @@
 import { Ability } from "../../types/basic";
-import { CardView } from "../../types/state";
+import { CardView } from "../../types/view";
 import { createEventActionView } from "../view/createEventActionView";
-
 
 export function executeAbility(ability: Ability, card: CardView): void {
   switch (ability.type) {

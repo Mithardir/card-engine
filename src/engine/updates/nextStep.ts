@@ -2,14 +2,11 @@ import { mapValues, sumBy, values } from "lodash";
 import {
   chooseCard,
   eachPlayer,
-  gameZone,
-  incrementThreat,
   placeProgress,
-  playerZone,
   repeat,
   targetCard,
-  topCard,
 } from "../../factories/actions";
+import { gameZone, playerZone } from "../../factories/zones";
 import { Action } from "../../types/actions";
 import { State } from "../../types/state";
 import { shuffleArray } from "../../utils";
@@ -23,6 +20,8 @@ import { filterCards } from "../queries/filterCards";
 import { getZone } from "../queries/getZone";
 import { executeCardAction } from "./executeCardAction";
 import { executePlayerAction } from "./executePlayerAction";
+import { incrementThreat } from "../../factories/playerActions";
+import { topCard } from "../../factories/cardFilters";
 
 export function nextStep(state: State) {
   const action = state.next.shift();

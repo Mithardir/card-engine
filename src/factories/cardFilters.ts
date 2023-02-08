@@ -1,5 +1,5 @@
-import { CardFilter, Sphere } from "../types/basic";
-
+import { CardFilter, Zone } from "../types/basic";
+import { Sphere } from "../types/cards";
 
 export function canPayResources(
   amount: number,
@@ -29,4 +29,11 @@ export function canPayResources(
       ],
     };
   }
+}
+
+export function topCard(zone: Zone): CardFilter {
+  return {
+    type: "TopCard",
+    zone,
+  };
 }

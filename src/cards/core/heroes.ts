@@ -1,25 +1,20 @@
-import { action, modifySelf } from "../../factories/abilities";
+import { action, modifySelf, response } from "../../factories/abilities";
 import {
   addResources,
   chooseCard,
   choosePlayer,
-  dealDamage,
-  discard,
-  draw,
-  exhaust,
-  heal,
-  modify,
   payCardResources,
   placeProgress,
   targetCard,
   targetPlayer,
 } from "../../factories/actions";
+import { dealDamage, exhaust, heal, modify } from "../../factories/cardActions";
 import { hero } from "../../factories/cards";
-import { keyword } from "../../factories/keyword";
-import { response } from "../../factories/responses";
+import { keyword } from "../../factories/keywords";
 import { and, isQuesting, isEnemy } from "../../factories/boolValues";
 import { addWillpower } from "../../factories/modifiers";
 import { eachPlayerOncePerRound, oncePerRound } from "../../factories/limits";
+import { discard, draw } from "../../factories/playerActions";
 
 export const gimli = hero(
   {

@@ -1,12 +1,12 @@
 import { last } from "lodash";
 import {
-  playerZone,
   targetCard,
   chooseCard,
   payCardResources,
   repeat,
 } from "../../factories/actions";
-import { canPayResources } from "../../factories/canPayResources";
+import { playerZone } from "../../factories/zones";
+import { canPayResources } from "../../factories/cardFilters";
 import { PlayerAction } from "../../types/actions";
 import { PlayerFilter, PlayerId } from "../../types/basic";
 import { State } from "../../types/state";

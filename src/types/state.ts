@@ -4,15 +4,12 @@ import {
   PlayerId,
   GameZoneType,
   CardId,
-  CardDefinition,
   PlayerZoneType,
   Side,
   Marks,
   Tokens,
-  PrintedProps,
-  BoolValue,
-  Ability,
 } from "./basic";
+import { CardDefinition } from "./cards";
 
 export type CardState = {
   id: CardId;
@@ -24,22 +21,6 @@ export type CardState = {
   attachments: CardId[];
   owner: PlayerId | "game";
   controller: PlayerId | "game";
-};
-
-export type ActionView = {
-  enabled: BoolValue;
-  action: Action;
-};
-
-export type CardView = {
-  props: PrintedProps;
-  setup?: Action;
-  actions: Array<ActionView>;
-  abilities: Array<{ applied: boolean; ability: Ability }>;
-} & CardState;
-
-export type View = {
-  cards: Record<CardId, CardView>;
 };
 
 export type PlayerState = {

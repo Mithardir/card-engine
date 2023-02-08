@@ -1,4 +1,5 @@
-import { CardState, CardView } from "../../types/state";
+import { CardState } from "../../types/state";
+import { CardView } from "../../types/view";
 
 export function createCardView(state: CardState): CardView {
   const printed = state.definition[state.sideUp];

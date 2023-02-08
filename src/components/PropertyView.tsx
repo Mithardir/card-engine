@@ -1,6 +1,7 @@
 import * as React from "react";
-import { PrintedProps } from "../types/basic";
-import { CardView, CardState } from "../types/state";
+import { PrintedProps } from "../types/cards";
+import { CardState } from "../types/state";
+import { CardView } from "../types/view";
 
 export const PropertyView = (props: {
   view: CardView;

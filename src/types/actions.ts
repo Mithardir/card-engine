@@ -1,18 +1,17 @@
 import {
-  BoolValue,
-  CardDefinition,
-  CardFilter,
-  GameZoneType,
-  Mark,
-  NumberValue,
-  Phase,
-  PlayerDeck,
-  PlayerFilter,
-  PlayerId,
-  PlayerZoneType,
   Side,
-  Sphere,
+  NumberValue,
+  PlayerZoneType,
+  CardFilter,
+  PlayerDeck,
+  GameZoneType,
+  Phase,
+  PlayerFilter,
+  Mark,
+  PlayerId,
+  BoolValue,
 } from "./basic";
+import { Sphere, CardDefinition } from "./cards";
 
 export type CardAction =
   | "Tap"

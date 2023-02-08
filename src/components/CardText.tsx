@@ -1,5 +1,6 @@
 import * as React from "react";
-import { CardState, CardView } from "../types/state";
+import { CardState } from "../types/state";
+import { CardView } from "../types/view";
 import { AbilityText } from "./AbilityText";
 import { PropertyView } from "./PropertyView";
 import { StateContext } from "./StateContext";

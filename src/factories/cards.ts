@@ -1,5 +1,5 @@
+import { Ability } from "../types/basic";
 import {
-  Ability,
   AllyProps,
   AttachmentProps,
   CardDefinition,
@@ -8,7 +8,7 @@ import {
   HeroProps,
   LocationProps,
   TreacheryProps,
-} from "../types/basic";
+} from "../types/cards";
 import playerBack from "../images/back/card.jpg";
 import encounterBack from "../images/back/encounter.jpg";
 

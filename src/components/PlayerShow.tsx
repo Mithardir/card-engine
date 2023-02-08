@@ -1,5 +1,6 @@
 import { Divider, Paper } from "@mui/material";
-import { PlayerState, State, View } from "../types/state";
+import { PlayerState, State } from "../types/state";
+import { View } from "../types/view";
 import { useGameState } from "./StateContext";
 import { ZoneShow } from "./ZoneShow";
 

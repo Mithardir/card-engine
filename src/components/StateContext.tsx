@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useMemo } from "react";
 import { toView } from "../engine/view/toView";
-import { State, View } from "../types/state";
+import { State } from "../types/state";
+import { View } from "../types/view";
 
 export const StateContext = React.createContext<{
   state: State;

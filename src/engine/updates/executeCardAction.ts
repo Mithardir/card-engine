@@ -1,4 +1,4 @@
-import { gameZone, playerZone } from "../../factories/actions";
+import { gameZone, playerZone } from "../../factories/zones";
 import { CardAction } from "../../types/actions";
 import { CardFilter } from "../../types/basic";
 import { State } from "../../types/state";

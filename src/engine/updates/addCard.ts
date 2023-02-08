@@ -1,4 +1,5 @@
-import { CardDefinition, Side, Zone } from "../../types/basic";
+import { Side, Zone } from "../../types/basic";
+import { CardDefinition } from "../../types/cards";
 import { State } from "../../types/state";
 import { getZone } from "../queries/getZone";
 

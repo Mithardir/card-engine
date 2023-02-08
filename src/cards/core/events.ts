@@ -1,5 +1,6 @@
 import { eventAction } from "../../factories/abilities";
-import { chooseCard, heal } from "../../factories/actions";
+import { chooseCard } from "../../factories/actions";
+import { heal } from "../../factories/cardActions";
 import { event } from "../../factories/cards";
 
 export const loreOfImladris = event(

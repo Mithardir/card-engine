@@ -13,6 +13,8 @@ export function canExecuteCardAction(
     switch (action) {
       case "Discard":
         return true;
+      case "TravelTo":
+        return true;
       default:
         throw new Error(
           `unknown card action for result: ${JSON.stringify(action)}`

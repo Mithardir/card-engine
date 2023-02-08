@@ -12,7 +12,7 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
   if (typeof expr === "string") {
     switch (expr) {
       case "EnemiesToEngage":
-        // TODO
+        // TODO enemies to engage
         return true;
       case "GameFinished":
         return !!state.result;

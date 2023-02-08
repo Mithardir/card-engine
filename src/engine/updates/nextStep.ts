@@ -1,6 +1,7 @@
 import { mapValues, sumBy, values } from "lodash";
 import {
   chooseCard,
+  discardCard,
   eachPlayer,
   placeProgress,
   repeat,
@@ -20,9 +21,10 @@ import { filterCards } from "../queries/filterCards";
 import { getZone } from "../queries/getZone";
 import { executeCardAction } from "./executeCardAction";
 import { executePlayerAction } from "./executePlayerAction";
-import { incrementThreat } from "../../factories/playerActions";
+import { discard, incrementThreat } from "../../factories/playerActions";
 import { topCard } from "../../factories/cardFilters";
 import { canExecuteCardAction } from "../queries/canExecuteCardAction";
+import { moveCard } from "./moveCard";
 
 export function nextStep(state: State) {
   const action = state.next.shift();
@@ -127,10 +129,21 @@ export function nextStep(state: State) {
       }
 
       case "PassFirstPlayerToken":
-        // TODO
+        if (state.firstPlayer === "A") {
+          state.firstPlayer = state.players.B ? "B" : "A";
+        }
+        if (state.firstPlayer === "B") {
+          state.firstPlayer = state.players.C ? "C" : "A";
+        }
+        if (state.firstPlayer === "C") {
+          state.firstPlayer = state.players.D ? "D" : "A";
+        }
+        if (state.firstPlayer === "D") {
+          state.firstPlayer = "A";
+        }
         return;
       case "DealShadowCards":
-        // TODO
+        // TODO deal shadow cards
         return;
     }
 
@@ -230,11 +243,32 @@ export function nextStep(state: State) {
         }
       }
       case "PlaceProgress": {
-        // TODO add to active location
-        const questCard = filterCard(state, topCard(gameZone("questDeck")));
-        if (questCard) {
-          questCard.token.progress += evaluateNumber(action.amount, state);
+        let amount = evaluateNumber(action.amount, state);
+
+        const activeLocation = filterCard(
+          state,
+          topCard(gameZone("activeLocation"))
+        );
+
+        if (activeLocation) {
+          const questPoints =
+            toView(state).cards[activeLocation.id].props.questPoints || 0;
+
+          activeLocation.token.progress += amount;
+          if (activeLocation.token.progress >= questPoints) {
+            amount = activeLocation.token.progress - questPoints;
+            activeLocation.token.progress = 0;
+            moveCard(state, activeLocation.id, gameZone("discardPile"));
+          }
         }
+
+        if (amount > 0) {
+          const questCard = filterCard(state, topCard(gameZone("questDeck")));
+          if (questCard) {
+            questCard.token.progress += amount;
+          }
+        }
+
         return;
       }
       case "ChooseCard": {

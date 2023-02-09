@@ -62,6 +62,10 @@ export function executeCardAction(
           }
           break;
         }
+        case "DealDamage": {
+          card.token.damage += evaluateNumber(action.amount, state);
+          break;
+        }
         default: {
           throw new Error(`unknown card action: ${JSON.stringify(action)}`);
         }

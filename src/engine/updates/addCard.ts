@@ -33,4 +33,5 @@ export function addCard(
   state.nextId++;
 
   getZone(zone, state).cards.push(id);
+  return id;
 }

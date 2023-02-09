@@ -1,15 +1,24 @@
-import { describe, it } from "vitest";
+import { expect, it } from "vitest";
+import { createState } from "../../engine/createState";
+import { advanceToChoiceState } from "../../engine/updates/advanceToChoiceState";
+import { toView } from "../../engine/view/toView";
+import { beginScenario } from "../../factories/actions";
+import { gimli } from "./heroes";
 
-// The two tests marked with concurrent will be run in parallel
-describe("suite", () => {
-  it("serial test", async () => {
-    /* ... */
-  });
-  it.concurrent("concurrent test 1", async () => {
-    /* ... */
-    throw new Error("XXX")
-  });
-  it.concurrent("concurrent test 2", async () => {
-    /* ... */
-  });
+it("gimli ability", async () => {
+  const state = createState(
+    beginScenario(
+      {
+        name: "gimliTest",
+        questCards: [],
+        encounterCards: [],
+      },
+      { heroes: [gimli], library: [], name: "test" }
+    )
+  );
+  advanceToChoiceState(state);
+
+  state.cards[1].token.damage += 5;
+  const view = toView(state);
+  expect(view.cards[1].props.attack).toBe(7);
 });

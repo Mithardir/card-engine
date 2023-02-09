@@ -15,7 +15,7 @@ export function toView(state: State): View {
     for (const card of values(view.cards)) {
       for (const ability of card.abilities.filter((a) => !a.applied)) {
         allApplied = false;
-        executeAbility(ability.ability, card);
+        executeAbility(ability.ability, card, state);
         ability.applied = true;
       }
     }

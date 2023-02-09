@@ -3,7 +3,7 @@ import { nextStep } from "./nextStep";
 
 export function advanceToChoiceState(
   state: State,
-  onError: (error: string) => void
+  onError?: (error: string) => void
 ) {
   while (true) {
     if (state.next.length === 0) {
@@ -17,7 +17,11 @@ export function advanceToChoiceState(
     try {
       nextStep(state);
     } catch (error) {
-      onError(error.message);
+      if (onError) {
+        onError(error.message);
+      } else {
+        throw error;
+      }
     }
   }
 }

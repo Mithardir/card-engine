@@ -1,4 +1,4 @@
-import { last } from "lodash";
+import { last, max } from "lodash";
 import {
   targetCard,
   chooseCard,
@@ -42,15 +42,47 @@ export function executePlayerAction(
   for (const player of players) {
     if (typeof action === "string") {
       switch (action) {
-        case "OptionalEngagement":
-          const choose = playerChooseCard({
+        case "OptionalEngagement": {
+          const choice = playerChooseCard({
             label: "Choose enemy to optionally engage",
             filter: and(["isEnemy", "inStagingArea"]),
             action: { type: "EngagePlayer", player: player.id },
             optional: true,
           });
+          state.next = [targetPlayer(player.id).to(choice), ...state.next];
+          break;
+        }
+        case "EngagementCheck": {
+          const threat = player.thread;
+          const view = toView(state);
+          const enemies = filterCards(
+            state,
+            and(["isEnemy", "inStagingArea"])
+          ).map((s) => view.cards[s.id]);
+
+          const maxEngagement = max(
+            enemies
+              .filter((e) => e.props.engagement && e.props.engagement <= threat)
+              .map((e) => e.props.engagement)
+          );
+
+          if (maxEngagement === undefined) {
+            break;
+          }
+
+          const enemyChoices = enemies.filter(
+            (e) => e.props.engagement === maxEngagement
+          );
+
+          const choose = playerChooseCard({
+            label: "Choose enemy to engage",
+            filter: enemyChoices.map((e) => e.id),
+            action: { type: "EngagePlayer", player: player.id },
+            optional: false,
+          });
           state.next = [targetPlayer(player.id).to(choose), ...state.next];
           break;
+        }
       }
 
       break;
@@ -91,9 +123,10 @@ export function executePlayerAction(
           dialog: true,
           multi: action.multi,
           title: action.label,
-          options: action.optional && !action.multi
-            ? [...options, { title: "None", action: "Empty" }]
-            : options,
+          options:
+            action.optional && !action.multi
+              ? [...options, { title: "None", action: "Empty" }]
+              : options,
         };
         break;
       }

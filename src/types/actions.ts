@@ -31,6 +31,7 @@ export type CardAction =
 
 export type PlayerAction =
   | "OptionalEngagement"
+  | "EngagementCheck"
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType }

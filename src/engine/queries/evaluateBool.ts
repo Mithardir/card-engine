@@ -1,8 +1,12 @@
+import { mapValues, max, min, values } from "lodash";
+import { and } from "../../factories/predicates";
 import { BoolValue } from "../../types/basic";
 import { State } from "../../types/state";
+import { toView } from "../view/toView";
 import { evaluateCardPredicate } from "./evaluateCardPredicate";
 import { evaluateNumber } from "./evaluateNumber";
 import { evaluatePlayerPredicate } from "./evaluatePlayerPredicate";
+import { filterCards } from "./filterCards";
 
 export function evaluateBool(expr: BoolValue, state: State): boolean {
   if (typeof expr === "boolean") {
@@ -11,9 +15,17 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
 
   if (typeof expr === "string") {
     switch (expr) {
-      case "EnemiesToEngage":
-        // TODO enemies to engage
-        return true;
+      case "EnemiesToEngage":        
+        const playerThreats = values(state.players).map((p) => p.thread);
+        const enemies = filterCards(state, and(["isEnemy", "inStagingArea"]));
+        const view = toView(state);
+        const enemyEngagements = enemies
+          .map((e) => view.cards[e.id])
+          .flatMap((e) => (e.props.engagement ? [e.props.engagement] : []));
+        if (enemyEngagements.length === 0 || playerThreats.length === 0) {
+          return false;
+        }
+        return min(enemyEngagements)! <= max(playerThreats)!;
       case "GameFinished":
         return !!state.result;
       default:

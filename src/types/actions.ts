@@ -26,9 +26,11 @@ export type CardAction =
   | { type: "AddResources"; amount: NumberValue }
   | { type: "PayResources"; amount: NumberValue }
   | { type: "DealDamage"; amount: NumberValue }
-  | { type: "Heal"; amount: NumberValue | "all" };
+  | { type: "Heal"; amount: NumberValue | "all" }
+  | { type: "EngagePlayer"; player: PlayerId };
 
 export type PlayerAction =
+  | "OptionalEngagement"
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType }
@@ -36,6 +38,7 @@ export type PlayerAction =
   | {
       type: "ChooseCard";
       multi: boolean;
+      optional: boolean;
       label: string;
       action: CardAction;
       filter: CardFilter;

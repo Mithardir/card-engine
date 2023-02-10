@@ -147,7 +147,7 @@ export const phaseTravel = sequence(
 
 export const phaseEncounter = sequence(
   beginPhase("encounter"),
-  // TODO eachPlayer(optionalEngagement()),
+  eachPlayer("OptionalEngagement"),
   playerActions("Engagement Checks"),
   // TODO whileDo("EnemiesToEngage", eachPlayer(engagementCheck())),
   playerActions("Next encounter phase"),

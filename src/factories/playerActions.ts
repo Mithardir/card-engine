@@ -10,6 +10,7 @@ export const commitCharactersToQuest: (id: PlayerId) => PlayerAction = (
     action: "CommitToQuest",
     label: "Choose characters commiting to quest",
     filter: and(["isCharacter", { type: "HasController", player: player }]),
+    optional: true,
   });
 };
 
@@ -53,6 +54,7 @@ export function playerChooseCard(params: {
   filter: CardFilter;
   label: string;
   action: CardAction;
+  optional: boolean;
 }): PlayerAction {
   return {
     type: "ChooseCard",
@@ -62,9 +64,10 @@ export function playerChooseCard(params: {
 }
 
 export function playerChooseCards(params: {
-  filter: CardFilter;
   label: string;
+  filter: CardFilter;
   action: CardAction;
+  optional: boolean;
 }): PlayerAction {
   return {
     type: "ChooseCard",

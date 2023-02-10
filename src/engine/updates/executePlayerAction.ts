@@ -4,6 +4,7 @@ import {
   chooseCard,
   payCardResources,
   repeat,
+  targetPlayer,
 } from "../../factories/actions";
 import { playerZone } from "../../factories/zones";
 import { canPayResources } from "../../factories/cardFilters";
@@ -16,6 +17,8 @@ import { filterCards } from "../queries/filterCards";
 import { getPlayers } from "../queries/getPlayers";
 import { getZone } from "../queries/getZone";
 import { toView } from "../view/toView";
+import { and } from "../../factories/predicates";
+import { playerChooseCard } from "../../factories/playerActions";
 
 export function executePlayerAction(
   state: State,
@@ -37,6 +40,22 @@ export function executePlayerAction(
   }
 
   for (const player of players) {
+    if (typeof action === "string") {
+      switch (action) {
+        case "OptionalEngagement":
+          const choose = playerChooseCard({
+            label: "Choose enemy to optionally engage",
+            filter: and(["isEnemy", "inStagingArea"]),
+            action: { type: "EngagePlayer", player: player.id },
+            optional: true,
+          });
+          state.next = [targetPlayer(player.id).to(choose), ...state.next];
+          break;
+      }
+
+      break;
+    }
+
     switch (action.type) {
       case "ShuffleZone": {
         const zone = getZone(playerZone(player.id, action.zone), state);
@@ -58,15 +77,23 @@ export function executePlayerAction(
       case "ChooseCard": {
         const view = toView(state);
         const cards = filterCards(state, action.filter);
+        const options = cards.map((c) => ({
+          action: targetCard(c.id).to(action.action),
+          image: c.definition.face.image,
+          title: view.cards[c.id].props.name || "Unknown card",
+        }));
+
+        if (options.length === 0 && action.optional) {
+          break;
+        }
+
         state.choice = {
           dialog: true,
           multi: action.multi,
           title: action.label,
-          options: cards.map((c) => ({
-            action: targetCard(c.id).to(action.action),
-            image: c.definition.face.image,
-            title: view.cards[c.id].props.name || "Unknown card",
-          })),
+          options: action.optional && !action.multi
+            ? [...options, { title: "None", action: "Empty" }]
+            : options,
         };
         break;
       }

@@ -7,6 +7,7 @@ import { getCardsInHands } from "../queries/getCardsInHands";
 import { toView } from "../view/toView";
 import { getControllingCards } from "./getControllingCards";
 import { CardView, View } from "../../types/view";
+import { getCardsInStagingArea } from "./getCardsInStagingArea";
 
 export function filterCardViews(
   state: State,
@@ -51,6 +52,12 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
     if (filter === "inHand") {
       return filterCards(state, getCardsInHands(state));
+    }
+    if (filter === "isEnemy") {
+      return filterCardViews(state, (c) => c.props.type === "enemy");
+    }
+    if (filter === "inStagingArea") {
+      return filterCards(state, getCardsInStagingArea(state));
     }
 
     return [state.cards[filter]!];

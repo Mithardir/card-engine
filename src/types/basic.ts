@@ -131,6 +131,8 @@ export type CardPredicate =
   | "isHero"
   | "isAlly"
   | "inHand"
+  | "inStagingArea"
+  | "isEnemy"
   | { type: "HasResources"; amount: number }
   | { type: "HasMark"; mark: Mark }
   | { type: "HasSphere"; sphere: Sphere }

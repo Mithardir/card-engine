@@ -66,6 +66,10 @@ export function executeCardAction(
           card.token.damage += evaluateNumber(action.amount, state);
           break;
         }
+        case "EngagePlayer": {
+          moveCard(state, card.id, playerZone(action.player, "engaged"));
+          break;
+        }
         default: {
           throw new Error(`unknown card action: ${JSON.stringify(action)}`);
         }

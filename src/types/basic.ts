@@ -1,6 +1,7 @@
 import { Action, PlayerAction } from "./actions";
 import { Events } from "./events";
 import { CardDefinition, Keywords, Sphere } from "./cards";
+import { CardNumberProp } from "../factories/cardModifiers";
 
 export interface Flavoring<FlavorT> {
   _type?: FlavorT;
@@ -105,7 +106,7 @@ export type ResponseAbility<T extends keyof Events> = {
 
 export type CardModifier = {
   type: "increment";
-  property: "attack" | "willpower";
+  property: CardNumberProp;
   amount: NumberValue;
 };
 

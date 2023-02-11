@@ -9,7 +9,11 @@ import {
   whileDo,
 } from "../../factories/actions";
 import { playerZone } from "../../factories/zones";
-import { canPayResources } from "../../factories/cardFilters";
+import {
+  canPayResources,
+  hasMark,
+  isInZone,
+} from "../../factories/cardFilters";
 import { PlayerAction } from "../../types/actions";
 import { PlayerFilter, PlayerId } from "../../types/basic";
 import { State } from "../../types/state";
@@ -21,7 +25,13 @@ import { getZone } from "../queries/getZone";
 import { toView } from "../view/toView";
 import { and, not } from "../../factories/predicates";
 import { playerChooseCard } from "../../factories/playerActions";
-import { dealDamage } from "../../factories/cardActions";
+import {
+  dealDamage,
+  engagePlayer,
+  mark,
+  resolveEnemyAttacking,
+} from "../../factories/cardActions";
+import { someCard } from "../../factories/boolValues";
 
 export function executePlayerAction(
   state: State,
@@ -49,7 +59,7 @@ export function executePlayerAction(
           const choice = playerChooseCard({
             label: "Choose enemy to optionally engage",
             filter: and(["isEnemy", "inStagingArea"]),
-            action: { type: "EngagePlayer", player: player.id },
+            action: engagePlayer(player.id),
             optional: true,
           });
           state.next = [targetPlayer(player.id).to(choice), ...state.next];
@@ -80,7 +90,7 @@ export function executePlayerAction(
           const choose = playerChooseCard({
             label: "Choose enemy to engage",
             filter: enemyChoices.map((e) => e.id),
-            action: { type: "EngagePlayer", player: player.id },
+            action: engagePlayer(player.id),
             optional: false,
           });
           state.next = [targetPlayer(player.id).to(choose), ...state.next];
@@ -89,20 +99,17 @@ export function executePlayerAction(
         case "ResolveEnemyAttacks": {
           const attackerFilter = and([
             "isEnemy",
-            not({ type: "HasMark", mark: "attacked" }),
-            { type: "IsInZone", zone: playerZone(player.id, "engaged") },
+            not(hasMark("attacked")),
+            isInZone(playerZone(player.id, "engaged")),
           ]);
 
           state.next = [
             whileDo(
-              { type: "SomeCard", predicate: attackerFilter },
+              someCard(attackerFilter),
               chooseCard({
                 label: "Choose enemy attacker",
                 filter: attackerFilter,
-                action: {
-                  type: "ResolveEnemyAttacking",
-                  player: player.id,
-                },
+                action: resolveEnemyAttacking(player.id),
                 optional: false,
               })
             ),
@@ -117,9 +124,9 @@ export function executePlayerAction(
               filter: and([
                 "isReady",
                 "isCharacter",
-                { type: "IsInZone", zone: playerZone(player.id, "playerArea") },
+                isInZone(playerZone(player.id, "playerArea")),
               ]),
-              action: sequence("Tap", { type: "Mark", mark: "defending" }),
+              action: sequence("Tap", mark("defending")),
               optional: true,
             }),
             ...state.next,
@@ -127,15 +134,12 @@ export function executePlayerAction(
           break;
         }
         case "DetermineCombatDamage": {
-          const defending = filterCards(state, {
-            type: "HasMark",
-            mark: "defending",
-          });
+          const defending = filterCards(state, hasMark("defending"));
 
           const attack = sum(
             mapCardViews(
               state,
-              { type: "HasMark", mark: "attacking" },
+              hasMark("attacking"),
               (v) => v.props.attack || 0
             )
           );
@@ -143,7 +147,7 @@ export function executePlayerAction(
           const defense = sum(
             mapCardViews(
               state,
-              { type: "HasMark", mark: "defending" },
+              hasMark("defending"),
               (v) => v.props.defense || 0
             )
           );
@@ -154,10 +158,7 @@ export function executePlayerAction(
                 label: "Choose hero for undefended attack",
                 filter: and([
                   "isHero",
-                  {
-                    type: "IsInZone",
-                    zone: playerZone(player.id, "playerArea"),
-                  },
+                  isInZone(playerZone(player.id, "playerArea")),
                 ]),
                 action: dealDamage(attack),
                 optional: false,

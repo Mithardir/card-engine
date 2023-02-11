@@ -1,5 +1,12 @@
 import { PlayerAction } from "../types/actions";
-import { BoolValue, CardId, PlayerId } from "../types/basic";
+import {
+  BoolValue,
+  CardFilter,
+  CardId,
+  CardPredicate,
+  NumberValue,
+  PlayerId,
+} from "../types/basic";
 
 export function isQuesting(card: CardId): BoolValue {
   throw new Error("not implemented");
@@ -18,4 +25,8 @@ export function and(...values: BoolValue[]): BoolValue {
 
 export function cardInHand(card: CardId): BoolValue {
   return { type: "CardBoolValue", card, predicate: "inHand" };
+}
+
+export function someCard(predicate: CardPredicate): BoolValue {
+  return { type: "SomeCard", predicate };
 }

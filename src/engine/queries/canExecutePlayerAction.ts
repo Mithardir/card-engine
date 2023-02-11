@@ -1,4 +1,5 @@
 import { sumBy } from "lodash";
+import { hasConstroller, hasSphere } from "../../factories/cardFilters";
 import { and } from "../../factories/predicates";
 import { PlayerAction } from "../../types/actions";
 import { PlayerId } from "../../types/basic";
@@ -19,16 +20,9 @@ export function canExecutePlayerAction(
           sphere !== "any"
             ? filterCards(
                 state,
-                and([
-                  "isHero",
-                  { type: "HasSphere", sphere },
-                  { type: "HasController", player },
-                ])
+                and(["isHero", hasSphere(sphere), hasConstroller(player)])
               )
-            : filterCards(
-                state,
-                and(["isHero", { type: "HasController", player }])
-              );
+            : filterCards(state, and(["isHero", hasConstroller(player)]));
 
         const resources = sumBy(heroes, (h) => h.token.resources);
         const amount = evaluateNumber(action.amount, state);

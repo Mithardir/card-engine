@@ -22,7 +22,7 @@ import { getZone } from "../queries/getZone";
 import { executeCardAction } from "./executeCardAction";
 import { executePlayerAction } from "./executePlayerAction";
 import { discard, incrementThreat } from "../../factories/playerActions";
-import { topCard } from "../../factories/cardFilters";
+import { hasMark, topCard } from "../../factories/cardFilters";
 import { canExecuteCardAction } from "../queries/canExecuteCardAction";
 import { moveCard } from "./moveCard";
 
@@ -73,10 +73,9 @@ export function nextStep(state: State) {
       }
 
       case "ResolveQuesting": {
-        const questerIds = filterCards(state, {
-          type: "HasMark",
-          mark: "questing",
-        }).map((c) => c.id);
+        const questerIds = filterCards(state, hasMark("questing")).map(
+          (c) => c.id
+        );
 
         const inStagingIds = getZone(gameZone("stagingArea"), state).cards;
 

@@ -15,6 +15,8 @@ import { and, isQuesting, isEnemy } from "../../factories/boolValues";
 import { addWillpower } from "../../factories/modifiers";
 import { eachPlayerOncePerRound, oncePerRound } from "../../factories/limits";
 import { discard, draw } from "../../factories/playerActions";
+import { cardNumberValue } from "../../factories/numberValues";
+import { increment } from "../../factories/cardModifiers";
 
 export const gimli = hero(
   {
@@ -29,11 +31,7 @@ export const gimli = hero(
   },
   modifySelf({
     description: "Gimli gets +1 [attack] for each damage token on him.",
-    modifier: (self) => ({
-      type: "increment",
-      property: "attack",
-      amount: { type: "CardNumberValue", card: self, property: "damage" },
-    }),
+    modifier: (self) => increment("attack", cardNumberValue(self, "damage")),
   })
 );
 

@@ -92,6 +92,11 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
         .reduce((p, c) => intersectionBy(p, c, (item) => item.id));
     }
 
+    case "not": {
+      const filtered = filterCards(state, filter.value).map((f) => f.id);
+      return allCards.filter((c) => !filtered.includes(c.id));
+    }
+
     case "HasController": {
       const controlling = getControllingCards(filter.player, state);
       return filterCards(state, controlling);
@@ -107,6 +112,11 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
 
     case "HasSphere": {
       return filterCardViews(state, (c) => c.props.sphere === filter.sphere);
+    }
+
+    case "IsInZone": {
+      const zone = getZone(filter.zone, state);
+      return zone.cards.map((id) => state.cards[id]);
     }
   }
 

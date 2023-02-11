@@ -12,9 +12,10 @@ export function canExecuteCardAction(
   if (typeof action === "string") {
     switch (action) {
       case "Discard":
-        return true;
       case "TravelTo":
         return true;
+      case "Tap":
+        return !card.tapped;
       default:
         throw new Error(
           `unknown card action for result: ${JSON.stringify(action)}`
@@ -22,11 +23,19 @@ export function canExecuteCardAction(
     }
   } else {
     switch (action.type) {
+      case "DealDamage":
+      case "ResolveEnemyAttacking":
+      case "Mark":
+        return true;
       case "Heal":
         return card.token.damage > 0;
       case "PayResources":
         const amount = evaluateNumber(action.amount, state);
         return card.token.resources >= amount;
+      case "Sequence":
+        return action.actions.every((a) =>
+          canExecuteCardAction(a, card.id, state)
+        );
       default: {
         throw new Error(
           `unknown card action for result: ${JSON.stringify(action)}`

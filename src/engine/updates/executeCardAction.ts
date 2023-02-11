@@ -77,6 +77,11 @@ export function executeCardAction(
           moveCard(state, card.id, playerZone(action.player, "engaged"));
           break;
         }
+        
+        case "Mark": {
+          card.mark[action.mark] = true;
+          break;
+        }
         case "ResolveEnemyAttacking": {
           state.next = [
             sequence(
@@ -88,6 +93,13 @@ export function executeCardAction(
               clearMarks("defending"),
               targetCard(card.id).to({ type: "Mark", mark: "attacked" })
             ),
+            ...state.next,
+          ];
+          break;
+        }
+        case "Sequence": {
+          state.next = [
+            sequence(...action.actions.map((a) => targetCard(card.id).to(a))),
             ...state.next,
           ];
           break;

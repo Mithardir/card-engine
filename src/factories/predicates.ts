@@ -5,3 +5,9 @@ export function and<T extends CardPredicate | PlayerPredicate>(
 ): { type: "and"; values: T[] } {
   return { type: "and", values };
 }
+
+export function not<T extends CardPredicate | PlayerPredicate>(
+  value: T
+): { type: "not"; value: T } {
+  return { type: "not", value };
+}

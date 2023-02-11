@@ -46,7 +46,15 @@ export function setupScenario(scenario: Scenario): Action {
   };
 }
 
-export function sequence(...actions: Action[]): Action {
+export function sequence(
+  ...actions: Action[]
+): { type: "Sequence"; actions: Action[] };
+export function sequence(
+  ...actions: CardAction[]
+): { type: "Sequence"; actions: CardAction[] };
+export function sequence<T extends Action | CardAction>(
+  ...actions: T[]
+): { type: "Sequence"; actions: T[] } {
   return {
     type: "Sequence",
     actions,
@@ -158,10 +166,10 @@ export const phaseCombat = sequence(
   beginPhase("combat"),
   "DealShadowCards",
   playerActions("Resolve enemy attacks"),
-  // TODO eachPlayer(resolveEnemyAttacks()),
+  eachPlayer("ResolveEnemyAttacks"),
   clearMarks("attacked"),
   playerActions("Resolve player attacks"),
-  // TODO eachPlayer(resolvePlayerAttacks()),
+  eachPlayer("ResolvePlayerAttacks"),
   clearMarks("attacked"),
   playerActions("End combat phase"),
   endPhase()

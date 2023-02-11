@@ -21,6 +21,16 @@ export function filterCardViews(
   return cardIds.map((id) => state.cards[id]!);
 }
 
+export function mapCardViews<T>(
+  state: State,
+  filter: CardFilter,
+  mapping: (card: CardView) => T
+) {
+  const cards = filterCards(state, filter);
+  const view = toView(state);
+  return cards.map((card) => view.cards[card.id]).map(mapping);
+}
+
 export function filterCards(state: State, filter: CardFilter): CardState[] {
   if (typeof filter === "number") {
     return [state.cards[filter]!];
@@ -49,6 +59,9 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     }
     if (filter === "isTapped") {
       return allCards.filter((c) => c.tapped);
+    }
+    if (filter === "isReady") {
+      return allCards.filter((c) => !c.tapped);
     }
     if (filter === "inHand") {
       return filterCards(state, getCardsInHands(state));

@@ -27,11 +27,18 @@ export type CardAction =
   | { type: "PayResources"; amount: NumberValue }
   | { type: "DealDamage"; amount: NumberValue }
   | { type: "Heal"; amount: NumberValue | "all" }
-  | { type: "EngagePlayer"; player: PlayerId };
+  | { type: "EngagePlayer"; player: PlayerId }
+  | { type: "ResolveEnemyAttacking"; player: PlayerId }
+  | { type: "Mark"; mark: Mark }
+  | { type: "Sequence"; actions: CardAction[] };
 
 export type PlayerAction =
   | "OptionalEngagement"
   | "EngagementCheck"
+  | "ResolveEnemyAttacks"
+  | "ResolvePlayerAttacks"
+  | "DeclareDefender"
+  | "DetermineCombatDamage"
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType }

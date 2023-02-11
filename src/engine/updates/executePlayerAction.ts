@@ -1,10 +1,12 @@
-import { last, max } from "lodash";
+import { last, max, sum } from "lodash";
 import {
   targetCard,
   chooseCard,
   payCardResources,
   repeat,
   targetPlayer,
+  sequence,
+  whileDo,
 } from "../../factories/actions";
 import { playerZone } from "../../factories/zones";
 import { canPayResources } from "../../factories/cardFilters";
@@ -13,12 +15,13 @@ import { PlayerFilter, PlayerId } from "../../types/basic";
 import { State } from "../../types/state";
 import { shuffleArray } from "../../utils";
 import { evaluateNumber } from "../queries/evaluateNumber";
-import { filterCards } from "../queries/filterCards";
+import { filterCards, mapCardViews } from "../queries/filterCards";
 import { getPlayers } from "../queries/getPlayers";
 import { getZone } from "../queries/getZone";
 import { toView } from "../view/toView";
-import { and } from "../../factories/predicates";
+import { and, not } from "../../factories/predicates";
 import { playerChooseCard } from "../../factories/playerActions";
+import { dealDamage } from "../../factories/cardActions";
 
 export function executePlayerAction(
   state: State,
@@ -82,6 +85,98 @@ export function executePlayerAction(
           });
           state.next = [targetPlayer(player.id).to(choose), ...state.next];
           break;
+        }
+        case "ResolveEnemyAttacks": {
+          const attackerFilter = and([
+            "isEnemy",
+            not({ type: "HasMark", mark: "attacked" }),
+            { type: "IsInZone", zone: playerZone(player.id, "engaged") },
+          ]);
+
+          state.next = [
+            whileDo(
+              { type: "SomeCard", predicate: attackerFilter },
+              chooseCard({
+                label: "Choose enemy attacker",
+                filter: attackerFilter,
+                action: {
+                  type: "ResolveEnemyAttacking",
+                  player: player.id,
+                },
+                optional: false,
+              })
+            ),
+            ...state.next,
+          ];
+          break;
+        }
+        case "DeclareDefender": {
+          state.next = [
+            chooseCard({
+              label: "Declare defender",
+              filter: and([
+                "isReady",
+                "isCharacter",
+                { type: "IsInZone", zone: playerZone(player.id, "playerArea") },
+              ]),
+              action: sequence("Tap", { type: "Mark", mark: "defending" }),
+              optional: true,
+            }),
+            ...state.next,
+          ];
+          break;
+        }
+        case "DetermineCombatDamage": {
+          const defending = filterCards(state, {
+            type: "HasMark",
+            mark: "defending",
+          });
+
+          const attack = sum(
+            mapCardViews(
+              state,
+              { type: "HasMark", mark: "attacking" },
+              (v) => v.props.attack || 0
+            )
+          );
+
+          const defense = sum(
+            mapCardViews(
+              state,
+              { type: "HasMark", mark: "defending" },
+              (v) => v.props.defense || 0
+            )
+          );
+
+          if (defending.length === 0) {
+            state.next = [
+              chooseCard({
+                label: "Choose hero for undefended attack",
+                filter: and([
+                  "isHero",
+                  {
+                    type: "IsInZone",
+                    zone: playerZone(player.id, "playerArea"),
+                  },
+                ]),
+                action: dealDamage(attack),
+                optional: false,
+              }),
+              ...state.next,
+            ];
+          } else {
+            const damage = attack - defense;
+            if (damage > 0) {
+              if (defending.length === 1) {
+                state.next = [
+                  targetCard(defending[0].id).to(dealDamage(damage)),
+                  ...state.next,
+                ];
+              } else {
+                // TODO multiple defenders
+              }
+            }
+          }
         }
       }
 

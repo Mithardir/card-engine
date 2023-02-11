@@ -1,3 +1,10 @@
+import {
+  clearMarks,
+  playerActions,
+  sequence,
+  targetCard,
+  targetPlayer,
+} from "../../factories/actions";
 import { gameZone, playerZone } from "../../factories/zones";
 import { CardAction } from "../../types/actions";
 import { CardFilter } from "../../types/basic";
@@ -68,6 +75,21 @@ export function executeCardAction(
         }
         case "EngagePlayer": {
           moveCard(state, card.id, playerZone(action.player, "engaged"));
+          break;
+        }
+        case "ResolveEnemyAttacking": {
+          state.next = [
+            sequence(
+              targetCard(card.id).to({ type: "Mark", mark: "attacking" }),
+              playerActions("Declare defender"),
+              targetPlayer(action.player).to("DeclareDefender"),
+              targetPlayer(action.player).to("DetermineCombatDamage"),
+              clearMarks("attacking"),
+              clearMarks("defending"),
+              targetCard(card.id).to({ type: "Mark", mark: "attacked" })
+            ),
+            ...state.next,
+          ];
           break;
         }
         default: {

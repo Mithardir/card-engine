@@ -15,7 +15,7 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
 
   if (typeof expr === "string") {
     switch (expr) {
-      case "EnemiesToEngage":        
+      case "EnemiesToEngage":
         const playerThreats = values(state.players).map((p) => p.thread);
         const enemies = filterCards(state, and(["isEnemy", "inStagingArea"]));
         const view = toView(state);
@@ -59,6 +59,9 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
     }
     case "IsMore": {
       return evaluateNumber(expr.a, state) > evaluateNumber(expr.b, state);
+    }
+    case "SomeCard": {
+      return filterCards(state, expr.predicate).length > 0;
     }
     default: {
       throw new Error(`unknown expression: ${JSON.stringify(expr)}`);

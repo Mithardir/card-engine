@@ -125,6 +125,7 @@ export type CardFilter =
 export type PlayerFilter = PlayerPredicate | PlayerId | PlayerId[];
 
 export type CardPredicate =
+  | "isReady"
   | "isTapped"
   | "inPlay"
   | "isCharacter"
@@ -134,10 +135,12 @@ export type CardPredicate =
   | "inStagingArea"
   | "isEnemy"
   | { type: "HasResources"; amount: number }
+  | { type: "IsInZone"; zone: Zone }
   | { type: "HasMark"; mark: Mark }
   | { type: "HasSphere"; sphere: Sphere }
   | { type: "HasController"; player: PlayerId }
-  | { type: "and"; values: CardPredicate[] };
+  | { type: "and"; values: CardPredicate[] }
+  | { type: "not"; value: CardPredicate };
 
 export type PlayerPredicate =
   | "active"
@@ -172,7 +175,8 @@ export type BoolValue =
   | { type: "Or"; values: BoolValue[] }
   | { type: "Not"; value: BoolValue }
   | { type: "CardBoolValue"; card: CardId; predicate: CardPredicate }
-  | { type: "PlayerBoolValue"; player: PlayerId; predicate: PlayerPredicate };
+  | { type: "PlayerBoolValue"; player: PlayerId; predicate: PlayerPredicate }
+  | { type: "SomeCard"; predicate: CardPredicate };
 
 export type NumberValue =
   | number

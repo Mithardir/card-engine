@@ -58,7 +58,7 @@ export function hasSphere(sphere: Sphere): CardPredicate {
   };
 }
 
-export function hasConstroller(player: PlayerId): CardPredicate {
+export function hasController(player: PlayerId): CardPredicate {
   return {
     type: "HasController",
     player,

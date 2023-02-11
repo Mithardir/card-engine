@@ -15,12 +15,7 @@ import {
 } from "../types/basic";
 import { and } from "./predicates";
 import { gameZone } from "./zones";
-import {
-  shuffleLibrary,
-  draw,
-  incrementThreat,
-  commitCharactersToQuest,
-} from "./playerActions";
+import { shuffleLibrary, draw, incrementThreat } from "./playerActions";
 import { topCard } from "./cardFilters";
 
 export function setupScenario(scenario: Scenario): Action {
@@ -136,7 +131,7 @@ export function repeat(amount: NumberValue, action: Action): Action {
 
 export const phaseQuest = sequence(
   beginPhase("quest"),
-  eachPlayer(commitCharactersToQuest),
+  eachPlayer("CommitCharactersToQuest"),
   playerActions("Staging"),
   repeat("countOfPlayers", "RevealEncounterCard"),
   playerActions("Quest resolution"),
@@ -226,9 +221,7 @@ export function shuffleZone(zone: GameZoneType): GameAction {
   };
 }
 
-export function eachPlayer(
-  action: PlayerAction | ((player: PlayerId) => PlayerAction)
-): Action {
+export function eachPlayer(action: PlayerAction): Action {
   return {
     type: "PlayerAction",
     player: "active",

@@ -11,6 +11,7 @@ import {
 import { playerZone } from "../../factories/zones";
 import {
   canPayResources,
+  hasController,
   hasMark,
   isInZone,
 } from "../../factories/cardFilters";
@@ -24,7 +25,10 @@ import { getPlayers } from "../queries/getPlayers";
 import { getZone } from "../queries/getZone";
 import { toView } from "../view/toView";
 import { and, not } from "../../factories/predicates";
-import { playerChooseCard } from "../../factories/playerActions";
+import {
+  playerChooseCard,
+  playerChooseCards,
+} from "../../factories/playerActions";
 import {
   dealDamage,
   engagePlayer,
@@ -36,25 +40,28 @@ import { someCard } from "../../factories/boolValues";
 export function executePlayerAction(
   state: State,
   filter: PlayerFilter,
-  action: PlayerAction | ((player: PlayerId) => PlayerAction)
+  action: PlayerAction
 ) {
   const players = getPlayers(state, filter);
-
-  if (typeof action === "function") {
-    for (const player of players) {
-      state.next.unshift({
-        type: "PlayerAction",
-        player: player.id,
-        action: action(player.id),
-      });
-    }
-
-    return;
-  }
 
   for (const player of players) {
     if (typeof action === "string") {
       switch (action) {
+        case "CommitCharactersToQuest": {
+          state.next = [
+            targetPlayer(player.id).to(
+              playerChooseCards({
+                action: "CommitToQuest",
+                label: "Choose characters commiting to quest",
+                filter: and(["isCharacter", hasController(player.id)]),
+                optional: true,
+              })
+            ),
+            ...state.next,
+          ];
+
+          break;
+        }
         case "OptionalEngagement": {
           const choice = playerChooseCard({
             label: "Choose enemy to optionally engage",

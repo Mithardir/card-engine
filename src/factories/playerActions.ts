@@ -3,17 +3,6 @@ import { PlayerId, NumberValue, CardFilter } from "../types/basic";
 import { Sphere } from "../types/cards";
 import { and } from "./predicates";
 
-export const commitCharactersToQuest: (id: PlayerId) => PlayerAction = (
-  player: PlayerId
-) => {
-  return playerChooseCards({
-    action: "CommitToQuest",
-    label: "Choose characters commiting to quest",
-    filter: and(["isCharacter", { type: "HasController", player: player }]),
-    optional: true,
-  });
-};
-
 export function shuffleLibrary(): PlayerAction {
   return {
     type: "ShuffleZone",

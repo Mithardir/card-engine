@@ -33,6 +33,7 @@ export type CardAction =
   | { type: "Sequence"; actions: CardAction[] };
 
 export type PlayerAction =
+  | "CommitCharactersToQuest"
   | "OptionalEngagement"
   | "EngagementCheck"
   | "ResolveEnemyAttacks"
@@ -98,7 +99,7 @@ export type Action =
   | {
       type: "PlayerAction";
       player: PlayerFilter;
-      action: PlayerAction | ((player: PlayerId) => PlayerAction);
+      action: PlayerAction;
     }
   | { type: "Sequence"; actions: Action[] }
   | {

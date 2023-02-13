@@ -29,6 +29,7 @@ export type CardAction =
   | { type: "Heal"; amount: NumberValue | "all" }
   | { type: "EngagePlayer"; player: PlayerId }
   | { type: "ResolveEnemyAttacking"; player: PlayerId }
+  | { type: "ResolvePlayerAttacking"; player: PlayerId }
   | { type: "Mark"; mark: Mark }
   | { type: "Sequence"; actions: CardAction[] };
 

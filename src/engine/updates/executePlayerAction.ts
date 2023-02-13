@@ -34,6 +34,7 @@ import {
   engagePlayer,
   mark,
   resolveEnemyAttacking,
+  resolvePlayerAttacking,
 } from "../../factories/cardActions";
 import { someCard } from "../../factories/boolValues";
 
@@ -122,6 +123,40 @@ export function executePlayerAction(
             ),
             ...state.next,
           ];
+          break;
+        }
+        case "ResolvePlayerAttacks": {
+          const enemies = filterCards(
+            state,
+            and([
+              "isEnemy",
+              not(hasMark("attacked")),
+              isInZone(playerZone(player.id, "engaged")),
+            ])
+          );
+
+          const attackers = filterCards(
+            state,
+            and([
+              "isReady",
+              "isCharacter",
+              isInZone(playerZone(player.id, "playerArea")),
+            ])
+          );
+
+          if (enemies && attackers && attackers.length > 0) {
+            state.next = [
+              // TODO chooseAction
+              chooseCard({
+                label: "Choose enemy to attack",
+                filter: enemies.map((e) => e.id),
+                action: sequence(resolvePlayerAttacking(player.id)),
+                optional: true,
+              }),
+              targetPlayer(player.id).to("ResolvePlayerAttacks"),
+              ...state.next,
+            ];
+          }
           break;
         }
         case "DeclareDefender": {

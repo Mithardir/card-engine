@@ -41,3 +41,7 @@ export function engagePlayer(player: PlayerId): CardAction {
 export function resolveEnemyAttacking(player: PlayerId): CardAction {
   return { type: "ResolveEnemyAttacking", player };
 }
+
+export function resolvePlayerAttacking(player: PlayerId): CardAction {
+  return { type: "ResolvePlayerAttacking", player };
+}

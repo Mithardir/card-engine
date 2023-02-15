@@ -1,6 +1,4 @@
-import { CardId, NumberValue } from "../types/basic";
-
-export type CardNumberValue = "damage";
+import { CardId, CardNumberValue, NumberValue } from "../types/basic";
 
 export function cardNumberValue(
   card: CardId,

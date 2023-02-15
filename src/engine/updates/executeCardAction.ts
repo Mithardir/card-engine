@@ -6,6 +6,8 @@ import {
   targetPlayer,
 } from "../../factories/actions";
 import { mark } from "../../factories/cardActions";
+import { cardNumberValue } from "../../factories/numberValues";
+import { declareAttackers } from "../../factories/playerActions";
 import { gameZone, playerZone } from "../../factories/zones";
 import { CardAction } from "../../types/actions";
 import { CardFilter } from "../../types/basic";
@@ -93,6 +95,23 @@ export function executeCardAction(
               clearMarks("attacking"),
               clearMarks("defending"),
               targetCard(card.id).to(mark("attacked"))
+            ),
+            ...state.next,
+          ];
+          break;
+        }
+        case "ResolvePlayerAttacking": {
+          const enemy = card.id;
+          state.next = [
+            sequence(
+              targetCard(enemy).to(mark("defending")),
+              playerActions("Declare attackers"),
+              targetPlayer(action.player).to(declareAttackers(enemy)),
+              playerActions("Determine combat damage"),
+              targetPlayer(action.player).to("DetermineCombatDamage"),
+              clearMarks("attacking"),
+              clearMarks("defending"),
+              targetCard(enemy).to(mark("attacked"))
             ),
             ...state.next,
           ];

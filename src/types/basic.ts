@@ -179,10 +179,12 @@ export type BoolValue =
   | { type: "PlayerBoolValue"; player: PlayerId; predicate: PlayerPredicate }
   | { type: "SomeCard"; predicate: CardPredicate };
 
+export type CardNumberValue = "damage" | "defense";
+
 export type NumberValue =
   | number
   | "countOfPlayers"
-  | { type: "CardNumberValue"; card: CardId; property: "damage" };
+  | { type: "CardNumberValue"; card: CardId; property: CardNumberValue };
 
 export type Tokens = Record<Token, number>;
 

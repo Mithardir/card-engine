@@ -1,5 +1,5 @@
 import { PlayerAction, CardAction } from "../types/actions";
-import { PlayerId, NumberValue, CardFilter } from "../types/basic";
+import { PlayerId, NumberValue, CardFilter, CardId } from "../types/basic";
 import { Sphere } from "../types/cards";
 import { and } from "./predicates";
 
@@ -62,5 +62,12 @@ export function playerChooseCards(params: {
     type: "ChooseCard",
     multi: true,
     ...params,
+  };
+}
+
+export function declareAttackers(enemy: CardId): PlayerAction {
+  return {
+    type: "DeclareAttackers",
+    enemy,
   };
 }

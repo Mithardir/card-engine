@@ -10,6 +10,7 @@ import {
   Mark,
   PlayerId,
   BoolValue,
+  CardId,
 } from "./basic";
 import { Sphere, CardDefinition } from "./cards";
 
@@ -41,6 +42,7 @@ export type PlayerAction =
   | "ResolvePlayerAttacks"
   | "DeclareDefender"
   | "DetermineCombatDamage"
+  | { type: "DeclareAttackers"; enemy: CardId }
   | { type: "IncrementThreat"; amount: NumberValue }
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType }
@@ -84,6 +86,13 @@ export type GameAction =
       label: string;
       action: CardAction;
       filter: CardFilter;
+      multi: boolean;
+      optional: boolean;
+    }
+  | {
+      type: "ChooseAction";
+      label: string;
+      options: Array<{ title: string; cardId?: CardId; action: Action }>;
       multi: boolean;
       optional: boolean;
     }

@@ -310,6 +310,18 @@ export function chooseCard(params: {
   };
 }
 
+export function chooseAction(params: {
+  label: string;
+  options: Array<{ title: string; cardId?: CardId; action: Action }>;
+  optional: boolean;
+}): Action {
+  return {
+    type: "ChooseAction",
+    multi: false,
+    ...params,
+  };
+}
+
 export function discardCard(card: CardId): Action {
   return {
     type: "CardAction",

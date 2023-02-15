@@ -7,6 +7,7 @@ import {
   targetPlayer,
   sequence,
   whileDo,
+  chooseAction,
 } from "../../factories/actions";
 import { playerZone } from "../../factories/zones";
 import {
@@ -16,7 +17,7 @@ import {
   isInZone,
 } from "../../factories/cardFilters";
 import { PlayerAction } from "../../types/actions";
-import { PlayerFilter, PlayerId } from "../../types/basic";
+import { PlayerFilter } from "../../types/basic";
 import { State } from "../../types/state";
 import { shuffleArray } from "../../utils";
 import { evaluateNumber } from "../queries/evaluateNumber";
@@ -144,16 +145,35 @@ export function executePlayerAction(
             ])
           );
 
-          if (enemies && attackers && attackers.length > 0) {
+          if (
+            enemies &&
+            attackers &&
+            attackers.length > 0 &&
+            enemies.length > 0
+          ) {
             state.next = [
-              // TODO chooseAction
-              chooseCard({
+              chooseAction({
                 label: "Choose enemy to attack",
-                filter: enemies.map((e) => e.id),
-                action: sequence(resolvePlayerAttacking(player.id)),
-                optional: true,
+                options: [
+                  ...enemies.map((enemy) => {
+                    return {
+                      title: enemy.id.toString(),
+                      image: enemy.definition.face.image, // TODO from view
+                      action: sequence(
+                        targetCard(enemy.id).to(
+                          resolvePlayerAttacking(player.id)
+                        ),
+                        targetPlayer(player.id).to("ResolvePlayerAttacks")
+                      ),
+                    };
+                  }),
+                  {
+                    title: "Stop attacking",
+                    action: "Empty",
+                  },
+                ],
+                optional: false,
               }),
-              targetPlayer(player.id).to("ResolvePlayerAttacks"),
               ...state.next,
             ];
           }
@@ -176,25 +196,18 @@ export function executePlayerAction(
           break;
         }
         case "DetermineCombatDamage": {
-          const defending = filterCards(state, hasMark("defending"));
+          const attacking = mapCardViews(state, hasMark("attacking"), (c) => c);
+          const defending = mapCardViews(state, hasMark("defending"), (c) => c);
 
-          const attack = sum(
-            mapCardViews(
-              state,
-              hasMark("attacking"),
-              (v) => v.props.attack || 0
-            )
-          );
+          const attack = sum(attacking.map((a) => a.props.attack || 0));
+          const defense = sum(defending.map((d) => d.props.defense || 0));
 
-          const defense = sum(
-            mapCardViews(
-              state,
-              hasMark("defending"),
-              (v) => v.props.defense || 0
-            )
-          );
+          debugger;
 
-          if (defending.length === 0) {
+          if (
+            defending.length === 0 &&
+            attacking.some((a) => a.props.type === "enemy")
+          ) {
             state.next = [
               chooseCard({
                 label: "Choose hero for undefended attack",
@@ -287,6 +300,20 @@ export function executePlayerAction(
           ...state.next,
         ];
 
+        break;
+      }
+      case "DeclareAttackers": {
+        state.next = [
+          targetPlayer(player.id).to(
+            playerChooseCards({
+              label: "Declare attackers",
+              action: sequence(mark("attacking"), "Tap"),
+              filter: and(["isCharacter", hasController(player.id)]),
+              optional: true,
+            })
+          ),
+          ...state.next,
+        ];
         break;
       }
       default: {

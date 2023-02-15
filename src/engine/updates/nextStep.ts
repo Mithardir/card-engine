@@ -290,6 +290,17 @@ export function nextStep(state: State) {
         };
         return;
       }
+      case "ChooseAction": {
+        state.choice = {
+          dialog: true,
+          multi: action.multi,
+          title: action.label,
+          options: action.optional
+            ? [...action.options, { action: "Empty", title: "None" }]
+            : action.options,
+        };
+        return;
+      }
     }
   }
 

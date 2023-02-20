@@ -7,6 +7,7 @@ import {
   EventActionAbility,
   ModifySelfAbility,
   ResponseAbility,
+  SetupAbility,
 } from "../types/basic";
 import { Events } from "../types/events";
 
@@ -42,5 +43,15 @@ export function response<TE extends keyof Events>(params: {
       condition: params.condition,
       action: params.action,
     },
+  };
+}
+
+export function setup(params: {
+  description: string;
+  action: Action;
+}): SetupAbility {
+  return {
+    type: "Setup",
+    ...params,
   };
 }

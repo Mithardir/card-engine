@@ -17,6 +17,7 @@ import { and } from "./predicates";
 import { gameZone } from "./zones";
 import { shuffleLibrary, draw, incrementThreat } from "./playerActions";
 import { topCard } from "./cardFilters";
+import { reverse } from "lodash";
 
 export function setupScenario(scenario: Scenario): Action {
   const addQuestCards: GameAction[] = scenario.questCards.map((card) => ({
@@ -35,10 +36,7 @@ export function setupScenario(scenario: Scenario): Action {
     })
   );
 
-  return {
-    type: "Sequence",
-    actions: [...addQuestCards, ...addEncounterCards],
-  };
+  return sequence(...reverse(addQuestCards), ...addEncounterCards);
 }
 
 export function sequence(
@@ -327,5 +325,12 @@ export function discardCard(card: CardId): Action {
     type: "CardAction",
     card,
     action: "Discard",
+  };
+}
+
+export function addToStagingArea(name: string): Action {
+  return {
+    type: "AddToStagingArea",
+    name,
   };
 }

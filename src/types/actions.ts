@@ -97,7 +97,8 @@ export type GameAction =
       optional: boolean;
     }
   | { type: "PlaceProgress"; amount: NumberValue }
-  | { type: "ClearMarks"; mark: Mark };
+  | { type: "ClearMarks"; mark: Mark }
+  | { type: "AddToStagingArea"; name: string };
 
 export type Action =
   | GameAction

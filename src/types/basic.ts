@@ -85,11 +85,18 @@ export type KeywordAbility = {
   keyword: keyof Keywords;
 };
 
+export type SetupAbility = {
+  type: "Setup";
+  description: string;
+  action: Action;
+};
+
 export type Ability =
   | ModifySelfAbility
   | KeywordAbility
   | CharacterActionAbility
   | EventActionAbility
+  | SetupAbility
   | ResponseAbility<"cardReveladed">
   | ResponseAbility<"enemyDestroyed">
   | ResponseAbility<"receivedDamage">;

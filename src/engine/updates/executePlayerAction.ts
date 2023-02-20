@@ -202,8 +202,6 @@ export function executePlayerAction(
           const attack = sum(attacking.map((a) => a.props.attack || 0));
           const defense = sum(defending.map((d) => d.props.defense || 0));
 
-          debugger;
-
           if (
             defending.length === 0 &&
             attacking.some((a) => a.props.type === "enemy")

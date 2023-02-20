@@ -10,7 +10,7 @@ export type ActionView = {
 
 export type CardView = {
   props: PrintedProps;
-  setup?: Action;
+  setup: Action[];
   actions: Array<ActionView>;
   abilities: Array<{ applied: boolean; ability: Ability }>;
 } & CardState;

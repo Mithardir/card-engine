@@ -20,6 +20,9 @@ export function executeAbility(
       const modifier = ability.modifier(card.id);
       applyCardModifier(modifier, card, state);
       return;
+    case "Setup":
+      card.setup.push(ability.action);
+      return;
     default:
       return;
   }

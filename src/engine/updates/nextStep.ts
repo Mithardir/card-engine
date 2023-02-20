@@ -17,7 +17,7 @@ import { addCard } from "./addCard";
 import { evaluateBool } from "../queries/evaluateBool";
 import { evaluateNumber } from "../queries/evaluateNumber";
 import { filterCard } from "../queries/filterCard";
-import { filterCards } from "../queries/filterCards";
+import { filterCards, mapCardViews } from "../queries/filterCards";
 import { getZone } from "../queries/getZone";
 import { executeCardAction } from "./executeCardAction";
 import { executePlayerAction } from "./executePlayerAction";
@@ -25,6 +25,7 @@ import { discard, incrementThreat } from "../../factories/playerActions";
 import { hasMark, topCard } from "../../factories/cardFilters";
 import { canExecuteCardAction } from "../queries/canExecuteCardAction";
 import { moveCard } from "./moveCard";
+import { vi } from "vitest";
 
 export function nextStep(state: State) {
   const action = state.next.shift();
@@ -36,9 +37,9 @@ export function nextStep(state: State) {
         return;
       case "SetupActions": {
         const view = toView(state);
-        const actions = values(mapValues(view.cards, (c) => c.setup)).map(
+        const actions = values(mapValues(view.cards, (c) => c.setup)).flatMap(
           (a) => a
-        ) as Action[];
+        );
         state.next = [...actions, ...state.next];
         return;
       }
@@ -299,6 +300,16 @@ export function nextStep(state: State) {
             ? [...action.options, { action: "Empty", title: "None" }]
             : action.options,
         };
+        return;
+      }
+      case "AddToStagingArea": {
+        const card = values(state.cards).find(
+          (c) => c.definition.face.name === action.name
+        );
+        if (card) {
+          card.sideUp = "face";
+          moveCard(state, card.id, gameZone("stagingArea"));
+        }
         return;
       }
     }

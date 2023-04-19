@@ -6,7 +6,7 @@ import { DetailContext } from "./DetailContext";
 import { CardText } from "./CardText";
 import { CardState } from "../types/state";
 import { CardView } from "../types/view";
-import produce from "immer";
+import { produce } from "immer";
 import { evaluateBool } from "../engine/queries/evaluateBool";
 import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
 import { StateContext } from "./StateContext";

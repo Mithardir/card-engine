@@ -1,5 +1,5 @@
 import { Fab, Icon } from "@mui/material";
-import produce from "immer";
+import { produce } from "immer";
 import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
 import { useGameState } from "./StateContext";
 

@@ -11,7 +11,7 @@ import { toView } from "../engine/view/toView";
 import { ChooseSingleDialog } from "./ChooseSingleDialog";
 import { ChooseMultipleDialog } from "./ChooseMultipleDialog";
 import { advanceToChoiceState } from "../engine/updates/advanceToChoiceState";
-import produce from "immer";
+import { produce } from "immer";
 import { sequence } from "../factories/actions";
 
 export const GameView = (props: {}) => {

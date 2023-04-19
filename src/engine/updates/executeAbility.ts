@@ -13,7 +13,14 @@ export function executeAbility(
 ): void {
   switch (ability.type) {
     case "Keyword":
+      return;
     case "Response":
+      if (ability.response.type === "receivedDamage") {
+        card.responses.receivedDamage.push({
+          description: ability.description,
+          response: ability.response,
+        });
+      }
       return;
     case "EventAction":
       card.actions.push(createEventActionView(ability, card));

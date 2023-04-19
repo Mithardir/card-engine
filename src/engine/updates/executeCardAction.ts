@@ -1,4 +1,6 @@
+import { values } from "lodash";
 import {
+  chooseAction,
   clearMarks,
   playerActions,
   sequence,
@@ -14,7 +16,9 @@ import { CardFilter } from "../../types/basic";
 import { State } from "../../types/state";
 import { evaluateNumber } from "../queries/evaluateNumber";
 import { filterCards } from "../queries/filterCards";
+import { toView } from "../view/toView";
 import { moveCard } from "./moveCard";
+import { Events } from "../../types/events";
 
 export function executeCardAction(
   state: State,
@@ -73,7 +77,34 @@ export function executeCardAction(
           break;
         }
         case "DealDamage": {
-          card.token.damage += evaluateNumber(action.amount, state);
+          // TODO generic response
+
+          const view = toView(state);
+
+          const amount = evaluateNumber(action.amount, state);
+          card.token.damage += amount;
+
+          const event: Events["receivedDamage"] = { card: card.id, amount };
+
+          const responses = values(view.cards).flatMap((c) =>
+            c.responses.receivedDamage.filter((r) =>
+              r.response.condition(event, c.id)
+            )
+          );
+
+          if (responses.length > 0) {
+            state.next.unshift(
+              chooseAction({
+                label: "Choose response for dealing damage",
+                optional: true,
+                options: responses.map((r) => ({
+                  title: r.description,
+                  action: r.response.action(event, card.id),
+                })),
+              })
+            );
+          }
+
           break;
         }
         case "EngagePlayer": {

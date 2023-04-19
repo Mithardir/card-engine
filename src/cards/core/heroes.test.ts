@@ -28,14 +28,16 @@ it("Glorfindel's action", async () => {
   expect(game.actions.length).toEqual(0);
 });
 
-// it("Gloin's resource generator", async () => {
-//   const game = new GameEngine({ choices: [0] });
-//   const gloin = game.addHero(hero.gloin);
-//   expect(gloin.get.resources).toEqual(0);
-//   expect(game.view.responses.receivedDamage.length).toEqual(1);
-//   await gloin.receiveDamage(2, []);
-//   expect(gloin.get.resources).toEqual(2);
-// });
+it("Gloin's resource generator", async () => {
+  const game = new GameEngine();
+  const gloin = game.addHero(hero.gloin);
+  expect(gloin.token.resources).toEqual(0);
+  expect(gloin.responses.receivedDamage.length).toEqual(1);
+  gloin.update(dealDamage(2));
+  expect(game.state.choice).toBeTruthy();
+  game.choose(0);
+  expect(gloin.token.resources).toEqual(2);
+});
 
 // it("Beravor's card drawing action", async () => {
 //   const game = createGame();

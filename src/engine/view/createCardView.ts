@@ -6,6 +6,9 @@ export function createCardView(state: CardState): CardView {
   return {
     props: printed,
     actions: [],
+    responses: {
+      receivedDamage: [],
+    },
     setup: [],
     abilities: printed.abilities
       ? printed.abilities.map((a) => ({ applied: false, ability: a }))

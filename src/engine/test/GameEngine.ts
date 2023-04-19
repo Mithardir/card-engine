@@ -21,6 +21,16 @@ export class GameEngine {
     advanceToChoiceState(this.state);
   }
 
+  choose(option: number) {
+    if (!this.state.choice) {
+      throw new Error("no choice");
+    }
+
+    const action = this.state.choice.options[option].action;
+    this.state.choice = undefined;
+    this.do(action);
+  }
+
   addHero(hero: CardDefinition): CardProxy {
     if (!this.state.players.A) {
       this.do(addPlayer({ name: "TEST A", library: [], heroes: [] }));

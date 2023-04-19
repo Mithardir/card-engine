@@ -22,4 +22,9 @@ export class CardProxy {
     const view = toView(this.state);
     return view.cards[this.id].token;
   }
+
+  get responses() {
+    const view = toView(this.state);
+    return view.cards[this.id].responses;
+  }
 }

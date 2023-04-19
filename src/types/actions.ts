@@ -47,6 +47,7 @@ export type PlayerAction =
   | { type: "Draw"; amount: NumberValue }
   | { type: "ShuffleZone"; zone: PlayerZoneType }
   | { type: "PayResources"; amount: NumberValue; sphere: Sphere | "any" }
+  | { type: "Sequence"; actions: PlayerAction[] }
   | {
       type: "ChooseCard";
       multi: boolean;

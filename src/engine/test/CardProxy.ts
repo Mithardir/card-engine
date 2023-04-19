@@ -17,4 +17,9 @@ export class CardProxy {
     const view = toView(this.state);
     return view.cards[this.id].props;
   }
+
+  get token() {
+    const view = toView(this.state);
+    return view.cards[this.id].token;
+  }
 }

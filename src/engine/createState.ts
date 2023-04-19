@@ -1,7 +1,7 @@
 import { Action } from "../types/actions";
 import { State } from "../types/state";
 
-export function createState(program: Action): State {
+export function createState(program?: Action): State {
   return {
     phase: "setup",
     players: {},
@@ -14,7 +14,7 @@ export function createState(program: Action): State {
       stagingArea: { cards: [], stack: false },
       victoryDisplay: { cards: [], stack: true },
     },
-    next: [program],
+    next: program ? [program] : [],
     triggers: { end_of_phase: [], end_of_round: [] },
     flags: {},
     nextId: 1,

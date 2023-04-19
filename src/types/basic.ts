@@ -1,4 +1,4 @@
-import { Action, PlayerAction } from "./actions";
+import { Action } from "./actions";
 import { Events } from "./events";
 import { CardDefinition, Keywords, Sphere } from "./cards";
 import { CardNumberProp } from "../factories/cardModifiers";

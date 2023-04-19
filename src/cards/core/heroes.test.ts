@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import { GameEngine } from "../../engine/test/GameEngine";
 import { dealDamage, heal } from "../../factories/cardActions";
 import * as hero from "./heroes";
+import { addResources } from "../../factories/actions";
 
 it("Gimli's attack bonus", () => {
   const game = new GameEngine();
@@ -13,20 +14,19 @@ it("Gimli's attack bonus", () => {
   expect(gimli.props.attack).toEqual(2);
 });
 
-// it("Glorfindel's action", async () => {
-//   const game = new GameEngine({ choices: [0] });
-//   const gimli = game.addHero(hero.gimli);
-//   const glorfindel = game.addHero(hero.glorfindel);
-//   gimli.update(addToken("damage", 2));
-//   glorfindel.update(addToken("resources", 2));
-//   expect(glorfindel.actions[0].enabled).toEqual(true);
-//   await glorfindel.actions[0].do();
-//   expect(glorfindel.get.resources).toEqual(1);
-//   expect(gimli.get.damage).toEqual(1);
-//   expect(glorfindel.actions[0].enabled).toEqual(false);
-//   await game.execute(endRound());
-//   expect(glorfindel.actions[0].enabled).toEqual(true);
-// });
+it("Glorfindel's action", async () => {
+  const game = new GameEngine();
+  const glorfindel = game.addHero(hero.glorfindel);
+  expect(game.actions.length).toEqual(0);
+  glorfindel.update(addResources(1));
+  expect(game.actions.length).toEqual(0);
+  glorfindel.update(dealDamage(1));
+  expect(game.actions.length).toEqual(1);
+  game.do(game.actions[0].action);
+  expect(glorfindel.token.resources).toEqual(0);
+  expect(glorfindel.token.damage).toEqual(0);
+  expect(game.actions.length).toEqual(0);
+});
 
 // it("Gloin's resource generator", async () => {
 //   const game = new GameEngine({ choices: [0] });

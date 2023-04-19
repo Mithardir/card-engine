@@ -45,7 +45,10 @@ export function sequence(
 export function sequence(
   ...actions: CardAction[]
 ): { type: "Sequence"; actions: CardAction[] };
-export function sequence<T extends Action | CardAction>(
+export function sequence(
+  ...actions: PlayerAction[]
+): { type: "Sequence"; actions: PlayerAction[] };
+export function sequence<T extends Action | CardAction | PlayerAction>(
   ...actions: T[]
 ): { type: "Sequence"; actions: T[] } {
   return {

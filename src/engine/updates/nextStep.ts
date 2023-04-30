@@ -44,8 +44,11 @@ export function nextStep(state: State) {
         return;
       }
       case "EndPhase":
+        state.limits = state.limits.filter((l) => l.limit.type !== "phase");
         return;
       case "EndRound":
+        state.round++;
+        state.limits = state.limits.filter((l) => l.limit.type !== "round");
         return;
       case "RevealEncounterCard": {
         const encounterDeck = getZone(gameZone("encounterDeck"), state);
@@ -325,6 +328,22 @@ export function nextStep(state: State) {
         if (card) {
           card.sideUp = "face";
           moveCard(state, card.id, gameZone("stagingArea"));
+        }
+        return;
+      }
+      case "Limit": {
+        const existing = state.limits.find(
+          (l) => l.actionId === action.actionId
+        );
+
+        if (existing) {
+          existing.used.push(action.playerId);
+        } else {
+          state.limits.push({
+            actionId: action.actionId,
+            limit: action.limit,
+            used: [action.playerId],
+          });
         }
         return;
       }

@@ -11,6 +11,7 @@ import {
   PlayerId,
   BoolValue,
   CardId,
+  ActionLimit,
 } from "./basic";
 import { Sphere, CardDefinition } from "./cards";
 
@@ -101,7 +102,13 @@ export type GameAction =
     }
   | { type: "PlaceProgress"; amount: NumberValue }
   | { type: "ClearMarks"; mark: Mark }
-  | { type: "AddToStagingArea"; name: string };
+  | { type: "AddToStagingArea"; name: string }
+  | {
+      type: "Limit";
+      limit: ActionLimit;      
+      actionId: string;
+      playerId: PlayerId;
+    };
 
 export type Action =
   | GameAction

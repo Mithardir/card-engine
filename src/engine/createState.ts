@@ -3,6 +3,7 @@ import { State } from "../types/state";
 
 export function createState(program?: Action): State {
   return {
+    round: 1,
     phase: "setup",
     players: {},
     firstPlayer: "A",
@@ -20,5 +21,6 @@ export function createState(program?: Action): State {
     nextId: 1,
     cards: {},
     effects: [],
+    limits: [],
   };
 }

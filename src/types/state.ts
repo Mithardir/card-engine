@@ -8,6 +8,7 @@ import {
   Side,
   Marks,
   Tokens,
+  ActionLimit,
 } from "./basic";
 import { CardDefinition } from "./cards";
 
@@ -35,6 +36,7 @@ export type ZoneState = {
 };
 
 export type State = {
+  round: number;
   phase: Phase;
   firstPlayer: PlayerId;
   effects: Array<{ description: string }>;
@@ -55,4 +57,9 @@ export type State = {
   result?: "win" | "lost";
   flags: Record<string, any>;
   nextId: CardId;
+  limits: Array<{
+    actionId: string;
+    limit: ActionLimit;
+    used: PlayerId[];
+  }>;
 };

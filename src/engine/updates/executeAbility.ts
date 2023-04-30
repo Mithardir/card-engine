@@ -1,5 +1,10 @@
 import { sequence } from "../../factories/actions";
-import { Ability, CardModifier, PlayerId } from "../../types/basic";
+import { toAction } from "../../factories/limits";
+import {
+  Ability,
+  CardModifier,
+  PlayerId,
+} from "../../types/basic";
 import { State } from "../../types/state";
 import { CardView } from "../../types/view";
 import { canExecuteAction } from "../queries/canExecuteAction";
@@ -33,13 +38,15 @@ export function executeAbility(
       card.setup.push(ability.action);
       return;
     case "CharacterAction":
+      const actionId = `${card.id}/${card.actions.length}`;
       const action = (caster: PlayerId) => {
         const effect =
           typeof ability.effect === "function"
             ? ability.effect(caster, card.id)
             : ability.effect;
         const cost = ability.cost(caster, card.id);
-        return sequence(cost, effect);
+        const limit = toAction(ability.limit, actionId, caster);
+        return sequence(limit, cost, effect);
       };
 
       card.actions.push({

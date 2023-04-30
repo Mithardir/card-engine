@@ -16,19 +16,39 @@ export class GameEngine {
     state.next = [];
   }
 
-  do(action: Action) {
+  private do(action: Action) {
     this.state.next.unshift(action);
     advanceToChoiceState(this.state);
   }
 
-  choose(option: number) {
+  doAction(title: string) {
+    const action = this.actions.find((a) => a.description === title);
+    if (action) {
+      this.do(action.action);
+    } else {
+      throw new Error(
+        "action not found, choices are: \r\n" +
+          this.actions.map((o) => o.description).join("\r\n")
+      );
+    }
+  }
+
+  chooseOption(title: string) {
     if (!this.state.choice) {
       throw new Error("no choice");
     }
 
-    const action = this.state.choice.options[option].action;
-    this.state.choice = undefined;
-    this.do(action);
+    const option = this.state.choice.options.find((o) => o.title === title);
+
+    if (option) {
+      this.state.choice = undefined;
+      this.do(option.action);
+    } else {
+      throw new Error(
+        "option not found, choices are: \r\n" +
+          this.state.choice.options.map((o) => o.title).join("\r\n")
+      );
+    }
   }
 
   addHero(hero: CardDefinition): CardProxy {

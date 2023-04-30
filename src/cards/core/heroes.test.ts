@@ -22,7 +22,9 @@ it("Glorfindel's action", async () => {
   expect(game.actions.length).toEqual(0);
   glorfindel.update(dealDamage(1));
   expect(game.actions.length).toEqual(1);
-  game.do(game.actions[0].action);
+  game.doAction(
+    "Pay 1 resource from Glorfindel's pool to heal 1 damage on any character. (Limit once per round.)"
+  );
   expect(glorfindel.token.resources).toEqual(0);
   expect(glorfindel.token.damage).toEqual(0);
   expect(game.actions.length).toEqual(0);
@@ -34,8 +36,10 @@ it("Gloin's resource generator", async () => {
   expect(gloin.token.resources).toEqual(0);
   expect(gloin.responses.receivedDamage.length).toEqual(1);
   gloin.update(dealDamage(2));
-  expect(game.state.choice).toBeTruthy();
-  game.choose(0);
+  expect(game.state.choice?.title).toBe("Choose response for dealing damage");
+  game.chooseOption(
+    "After Glóin suffers damage, add 1 resource to his resource pool for each point of damage he just suffered."
+  );
   expect(gloin.token.resources).toEqual(2);
 });
 

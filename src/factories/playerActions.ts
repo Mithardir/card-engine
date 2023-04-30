@@ -1,7 +1,6 @@
 import { PlayerAction, CardAction } from "../types/actions";
-import { PlayerId, NumberValue, CardFilter, CardId } from "../types/basic";
+import { NumberValue, CardFilter, CardId } from "../types/basic";
 import { Sphere } from "../types/cards";
-import { and } from "./predicates";
 
 export function shuffleLibrary(): PlayerAction {
   return {

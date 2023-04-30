@@ -1,4 +1,4 @@
-import { mapValues, max, min, values } from "lodash";
+import { max, min, values } from "lodash";
 import { and } from "../../factories/predicates";
 import { BoolValue } from "../../types/basic";
 import { State } from "../../types/state";

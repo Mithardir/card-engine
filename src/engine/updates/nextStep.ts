@@ -1,7 +1,6 @@
 import { mapValues, sumBy, values } from "lodash";
 import {
   chooseCard,
-  discardCard,
   eachPlayer,
   placeProgress,
   repeat,
@@ -9,7 +8,6 @@ import {
   targetPlayer,
 } from "../../factories/actions";
 import { gameZone, playerZone } from "../../factories/zones";
-import { Action } from "../../types/actions";
 import { State } from "../../types/state";
 import { shuffleArray } from "../../utils";
 import { whileDo } from "../../factories/actions";
@@ -18,15 +16,14 @@ import { addCard } from "./addCard";
 import { evaluateBool } from "../queries/evaluateBool";
 import { evaluateNumber } from "../queries/evaluateNumber";
 import { filterCard } from "../queries/filterCard";
-import { filterCards, mapCardViews } from "../queries/filterCards";
+import { filterCards } from "../queries/filterCards";
 import { getZone } from "../queries/getZone";
 import { executeCardAction } from "./executeCardAction";
 import { executePlayerAction } from "./executePlayerAction";
-import { discard, incrementThreat } from "../../factories/playerActions";
+import { incrementThreat } from "../../factories/playerActions";
 import { hasMark, topCard } from "../../factories/cardFilters";
 import { canExecuteCardAction } from "../queries/canExecuteCardAction";
 import { moveCard } from "./moveCard";
-import { vi } from "vitest";
 import { filterPlayers } from "../queries/filterPlayers";
 import { canExecutePlayerAction } from "../queries/canExecutePlayerAction";
 

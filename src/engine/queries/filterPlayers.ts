@@ -48,5 +48,6 @@ export function filterPlayers(
       );
   }
 
+  // eslint-disable-next-line no-unreachable
   throw new Error(`not implemented player filter: ${JSON.stringify(filter)} `);
 }

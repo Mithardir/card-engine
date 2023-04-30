@@ -8,7 +8,6 @@ import {
   targetPlayer,
 } from "../../factories/actions";
 import { mark } from "../../factories/cardActions";
-import { cardNumberValue } from "../../factories/numberValues";
 import { declareAttackers } from "../../factories/playerActions";
 import { gameZone, playerZone } from "../../factories/zones";
 import { CardAction } from "../../types/actions";

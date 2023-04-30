@@ -1,7 +1,5 @@
 import { Divider, Paper } from "@mui/material";
-import { PlayerState, State } from "../types/state";
-import { View } from "../types/view";
-import { useGameState } from "./StateContext";
+import { PlayerState } from "../types/state";
 import { ZoneShow } from "./ZoneShow";
 
 export const PlayerShow = (props: {

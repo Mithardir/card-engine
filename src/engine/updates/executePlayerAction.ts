@@ -188,7 +188,7 @@ export function executePlayerAction(
                 "isCharacter",
                 isInZone(playerZone(player.id, "playerArea")),
               ]),
-              action: sequence("Tap", mark("defending")),
+              action: sequence("Exhaust", mark("defending")),
               optional: true,
             }),
             ...state.next,
@@ -305,7 +305,7 @@ export function executePlayerAction(
           targetPlayer(player.id).to(
             playerChooseCards({
               label: "Declare attackers",
-              action: sequence(mark("attacking"), "Tap"),
+              action: sequence(mark("attacking"), "Exhaust"),
               filter: and(["isCharacter", hasController(player.id)]),
               optional: true,
             })

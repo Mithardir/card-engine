@@ -134,7 +134,7 @@ export type PlayerFilter = PlayerPredicate | PlayerId | PlayerId[];
 
 export type CardPredicate =
   | "isReady"
-  | "isTapped"
+  | "isExhausted"
   | "inPlay"
   | "isCharacter"
   | "isHero"

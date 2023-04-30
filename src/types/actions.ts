@@ -16,9 +16,7 @@ import {
 import { Sphere, CardDefinition } from "./cards";
 
 export type CardAction =
-  | "Tap"
   | "Exhaust"
-  | "Untap"
   | "Ready"
   | "CommitToQuest"
   | "TravelTo"
@@ -105,7 +103,7 @@ export type GameAction =
   | { type: "AddToStagingArea"; name: string }
   | {
       type: "Limit";
-      limit: ActionLimit;      
+      limit: ActionLimit;
       actionId: string;
       playerId: PlayerId;
     };

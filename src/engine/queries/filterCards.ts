@@ -57,7 +57,7 @@ export function filterCards(state: State, filter: CardFilter): CardState[] {
     if (filter === "isHero") {
       return filterCardViews(state, (c) => c.props.type === "hero");
     }
-    if (filter === "isTapped") {
+    if (filter === "isExhausted") {
       return allCards.filter((c) => c.tapped);
     }
     if (filter === "isReady") {

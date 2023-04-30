@@ -172,7 +172,7 @@ export const phaseCombat = sequence(
 
 export const phaseRefresh = sequence(
   beginPhase("refresh"),
-  eachCard("isTapped", "Untap"),
+  eachCard("isExhausted", "Ready"),
   eachPlayer(incrementThreat(1)),
   "PassFirstPlayerToken",
   playerActions("End refresh phase and round"),

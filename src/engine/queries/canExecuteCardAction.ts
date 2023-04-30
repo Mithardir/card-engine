@@ -14,11 +14,9 @@ export function canExecuteCardAction(
       case "Discard":
       case "TravelTo":
         return true;
-      case "Exhaust":
-      case "Tap":
+      case "Exhaust":      
         return !card.tapped;
-      case "Ready":
-      case "Untap":
+      case "Ready":      
         return card.tapped;
       default:
         throw new Error(

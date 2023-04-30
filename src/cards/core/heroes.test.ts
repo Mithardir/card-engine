@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import { GameEngine } from "../../engine/test/GameEngine";
 import { dealDamage, heal } from "../../factories/cardActions";
 import * as hero from "./heroes";
+import * as ally from "./allies";
 import { addResources } from "../../factories/actions";
 
 it("Gimli's attack bonus", () => {
@@ -14,7 +15,7 @@ it("Gimli's attack bonus", () => {
   expect(gimli.props.attack).toEqual(2);
 });
 
-it("Glorfindel's action", async () => {
+it("Glorfindel's action", () => {
   const game = new GameEngine();
   const glorfindel = game.addHero(hero.glorfindel);
   expect(game.actions.length).toEqual(0);
@@ -30,7 +31,7 @@ it("Glorfindel's action", async () => {
   expect(game.actions.length).toEqual(0);
 });
 
-it("Gloin's resource generator", async () => {
+it("Gloin's resource generator", () => {
   const game = new GameEngine();
   const gloin = game.addHero(hero.gloin);
   expect(gloin.token.resources).toEqual(0);
@@ -43,24 +44,25 @@ it("Gloin's resource generator", async () => {
   expect(gloin.token.resources).toEqual(2);
 });
 
-// it("Beravor's card drawing action", async () => {
-//   const game = createGame();
-//   const player = game.addPlayer();
-//   const beravor = game.addCard("core", "beravor", player.playerArea);
-//   game.addCard("core", "veteranAxehand", player.library);
-//   game.addCard("core", "veteranAxehand", player.library);
-//   const action = () => beravor.playerActions[0];
-//   expect(player.hand.cards.length).toEqual(0);
-//   expect(action().canDo).toEqual(true);
-//   await action().do();
-//   expect(player.hand.cards.length).toEqual(2);
-//   expect(action().canDo).toEqual(false);
-//   beravor.ready();
-//   expect(action().canDo).toEqual(false);
-//   game.endTurn();
-//   game.addCard("core", "veteranAxehand", player.library);
-//   expect(action().canDo).toEqual(true);
-// });
+it("Beravor's card drawing action", () => {
+  const game = new GameEngine();
+  const player = game.addPlayer();
+  const beravor = game.addHero(hero.beravor);
+  game.addToLibrary(ally.veteranAxehand);
+  game.addToLibrary(ally.veteranAxehand);
+  expect(player.hand.cards.length).toEqual(0);
+  expect(game.actions.length).toEqual(1);
+  game.doAction(
+    "Exhaust Beravor to choose a player. That player draws 2 cards. Limit once per round."
+  );
+  expect(player.hand.cards.length).toEqual(2);
+  expect(game.actions.length).toEqual(0);
+  beravor.update("Ready");
+  expect(game.actions.length).toEqual(0);
+  game.do("EndRound");
+  game.addToLibrary(ally.veteranAxehand);
+  expect(game.actions.length).toEqual(1);
+});
 
 // it("Eowyns bonus will", async () => {
 //   const game = createGame([0, 0]);

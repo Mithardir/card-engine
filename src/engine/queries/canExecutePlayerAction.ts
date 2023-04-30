@@ -28,6 +28,10 @@ export function canExecutePlayerAction(
         const amount = evaluateNumber(action.amount, state);
         return resources >= amount;
       }
+
+      case "Draw": {
+        return state.players[player]!.zones.library.cards.length >= 1;
+      }
     }
   }
 

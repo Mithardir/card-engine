@@ -34,8 +34,10 @@ export function executeCardAction(
           card.mark.questing = true;
           break;
         case "Tap":
+        case "Exhaust":
           card.tapped = true;
           break;
+        case "Ready":
         case "Untap":
           card.tapped = false;
           break;

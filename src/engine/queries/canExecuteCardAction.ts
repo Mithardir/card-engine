@@ -14,8 +14,12 @@ export function canExecuteCardAction(
       case "Discard":
       case "TravelTo":
         return true;
+      case "Exhaust":
       case "Tap":
         return !card.tapped;
+      case "Ready":
+      case "Untap":
+        return card.tapped;
       default:
         throw new Error(
           `unknown card action for result: ${JSON.stringify(action)}`

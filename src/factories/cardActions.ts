@@ -15,10 +15,6 @@ export function heal(amount: number | "all"): CardAction {
   };
 }
 
-export function exhaust(): CardAction {
-  throw new Error("not implemented");
-}
-
 export function mark(mark: Mark): CardAction {
   return {
     type: "Mark",

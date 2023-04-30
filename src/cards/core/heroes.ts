@@ -8,7 +8,7 @@ import {
   targetCard,
   targetPlayer,
 } from "../../factories/actions";
-import { dealDamage, exhaust, heal, modify } from "../../factories/cardActions";
+import { dealDamage, heal, modify } from "../../factories/cardActions";
 import { hero } from "../../factories/cards";
 import { keyword } from "../../factories/keywords";
 import { and, isQuesting, isEnemy } from "../../factories/boolValues";
@@ -139,7 +139,7 @@ export const beravor = hero(
     description:
       "Exhaust Beravor to choose a player. That player draws 2 cards. Limit once per round.",
     limit: oncePerRound(),
-    cost: (caster, self) => targetCard(self).to(exhaust()),
+    cost: (caster, self) => targetCard(self).to("Exhaust"),
     effect: choosePlayer({
       label: "Choose player to draw 2 cards",
       action: draw(2),

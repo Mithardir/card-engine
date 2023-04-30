@@ -8,6 +8,7 @@ import { toView } from "../view/toView";
 import { CardProxy } from "./CardProxy";
 import { Action } from "../../types/actions";
 import { addPlayer } from "../../factories/actions";
+import { PlayerProxy } from "./PlayerProxy";
 
 export class GameEngine {
   constructor(public state = createState()) {
@@ -16,7 +17,7 @@ export class GameEngine {
     state.next = [];
   }
 
-  private do(action: Action) {
+  do(action: Action) {
     this.state.next.unshift(action);
     advanceToChoiceState(this.state);
   }
@@ -51,12 +52,28 @@ export class GameEngine {
     }
   }
 
-  addHero(hero: CardDefinition): CardProxy {
+  private ensurePlayerA() {
     if (!this.state.players.A) {
-      this.do(addPlayer({ name: "TEST A", library: [], heroes: [] }));
+      this.addPlayer();
     }
+  }
+
+  addPlayer() {
+    this.do(addPlayer({ name: "TEST A", library: [], heroes: [] }));
+    return new PlayerProxy(this.state, "A");
+  }
+
+  addHero(hero: CardDefinition): CardProxy {
+    this.ensurePlayerA();
 
     const id = addCard(this.state, hero, "face", playerZone("A", "playerArea"));
+    return new CardProxy(this.state, id);
+  }
+
+  addToLibrary(card: CardDefinition): CardProxy {
+    this.ensurePlayerA();
+
+    const id = addCard(this.state, card, "back", playerZone("A", "library"));
     return new CardProxy(this.state, id);
   }
 

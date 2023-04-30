@@ -16,7 +16,9 @@ import { Sphere, CardDefinition } from "./cards";
 
 export type CardAction =
   | "Tap"
+  | "Exhaust"
   | "Untap"
+  | "Ready"
   | "CommitToQuest"
   | "TravelTo"
   | "Discard"

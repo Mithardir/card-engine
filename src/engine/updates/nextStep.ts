@@ -6,6 +6,7 @@ import {
   placeProgress,
   repeat,
   targetCard,
+  targetPlayer,
 } from "../../factories/actions";
 import { gameZone, playerZone } from "../../factories/zones";
 import { Action } from "../../types/actions";
@@ -26,6 +27,8 @@ import { hasMark, topCard } from "../../factories/cardFilters";
 import { canExecuteCardAction } from "../queries/canExecuteCardAction";
 import { moveCard } from "./moveCard";
 import { vi } from "vitest";
+import { filterPlayers } from "../queries/filterPlayers";
+import { canExecutePlayerAction } from "../queries/canExecutePlayerAction";
 
 export function nextStep(state: State) {
   const action = state.next.shift();
@@ -288,6 +291,22 @@ export function nextStep(state: State) {
           options: action.optional
             ? [...options, { action: "Empty", title: "None" }]
             : options,
+        };
+        return;
+      }
+      case "ChoosePlayer": {
+        const cards = filterPlayers(state, action.filter);
+        const options = cards
+          .filter((c) => canExecutePlayerAction(action.action, c.id, state))
+          .map((c) => ({
+            action: targetPlayer(c.id).to(action.action),
+            title: `Player ${c.id}`,
+          }));
+        state.choice = {
+          dialog: true,
+          multi: false,
+          title: action.label,
+          options,
         };
         return;
       }

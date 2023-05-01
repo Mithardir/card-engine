@@ -1,10 +1,7 @@
+import { values } from "lodash";
 import { sequence } from "../../factories/actions";
 import { toAction } from "../../factories/limits";
-import {
-  Ability,
-  CardModifier,
-  PlayerId,
-} from "../../types/basic";
+import { Ability, CardId, CardModifier } from "../../types/basic";
 import { State } from "../../types/state";
 import { CardView } from "../../types/view";
 import { canExecuteAction } from "../queries/canExecuteAction";
@@ -38,27 +35,39 @@ export function executeAbility(
       card.setup.push(ability.action);
       return;
     case "CharacterAction":
-      const actionId = `${card.id}/${card.actions.length}`;
-      const action = (caster: PlayerId) => {
+      const controller = getController(card.id, state);
+      if (controller) {
         const effect =
           typeof ability.effect === "function"
-            ? ability.effect(caster, card.id)
+            ? ability.effect(controller, card.id)
             : ability.effect;
-        const cost = ability.cost(caster, card.id);
-        const limit = toAction(ability.limit, actionId, caster);
-        return sequence(limit, cost, effect);
-      };
+        const cost = ability.cost(controller, card.id);
+        const limit = toAction(ability.limit, card.id, controller);
+        const action = sequence(limit, cost, effect);
 
-      card.actions.push({
-        description: ability.description,
-        enabled: (caster, state) => canExecuteAction(action(caster), state),
-        action: action,
-      });
+        card.actions.push({
+          description: ability.description,
+          enabled: canExecuteAction(action, state),
+          action: action,
+        });
+      }
 
       return;
     default:
       return;
   }
+}
+
+export function getController(cardId: CardId, state: State) {
+  for (const player of values(state.players)) {
+    for (const id of player.zones.playerArea.cards) {
+      if (id === cardId) {
+        return player.id;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 export function applyCardModifier(

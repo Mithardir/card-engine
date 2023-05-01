@@ -44,11 +44,15 @@ export function nextStep(state: State) {
         return;
       }
       case "EndPhase":
-        state.limits = state.limits.filter((l) => l.limit.type !== "phase");
+        for (const card of values(state.cards)) {
+          card.limitUses.perPhase = {};
+        }
         return;
       case "EndRound":
         state.round++;
-        state.limits = state.limits.filter((l) => l.limit.type !== "round");
+        for (const card of values(state.cards)) {
+          card.limitUses.perRound = {};
+        }
         return;
       case "RevealEncounterCard": {
         const encounterDeck = getZone(gameZone("encounterDeck"), state);
@@ -179,6 +183,7 @@ export function nextStep(state: State) {
             discardPile: { cards: [], stack: true },
             engaged: { cards: [], stack: false },
           },
+          limitUses: { perGame: {} },
         };
 
         for (const hero of action.deck.heroes) {
@@ -332,19 +337,7 @@ export function nextStep(state: State) {
         return;
       }
       case "Limit": {
-        const existing = state.limits.find(
-          (l) => l.actionId === action.actionId
-        );
-
-        if (existing) {
-          existing.used.push(action.playerId);
-        } else {
-          state.limits.push({
-            actionId: action.actionId,
-            limit: action.limit,
-            used: [action.playerId],
-          });
-        }
+        // TODO
         return;
       }
     }

@@ -103,8 +103,8 @@ export type GameAction =
   | { type: "AddToStagingArea"; name: string }
   | {
       type: "Limit";
-      limit: ActionLimit;
-      actionId: string;
+      limit: ActionLimit;      
+      cardId: CardId;      
       playerId: PlayerId;
     };
 

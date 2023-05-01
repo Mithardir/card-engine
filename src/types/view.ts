@@ -1,13 +1,13 @@
 import { Action } from "./actions";
-import { CardId, BoolValue, Ability, PlayerId } from "./basic";
+import { CardId, BoolValue, Ability } from "./basic";
 import { PrintedProps } from "./cards";
 import { Events } from "./events";
-import { CardState, State } from "./state";
+import { CardState } from "./state";
 
 export type ActionView = {
   description: string;
-  enabled: (player: PlayerId, state: State) => BoolValue;
-  action: (caster: PlayerId) => Action;
+  enabled: BoolValue;
+  action: Action;
 };
 
 export type ResponseView<T extends keyof Events> = {

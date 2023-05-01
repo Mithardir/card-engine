@@ -1,25 +1,33 @@
 import { Action } from "../types/actions";
-import { ActionLimit, PlayerId } from "../types/basic";
+import { ActionLimit, CardId, PlayerId } from "../types/basic";
 
-export function eachPlayerOncePerRound(): ActionLimit {
+export function perRound(amount: number, key: string): ActionLimit {
   return {
-    type: "phase",
-    amount: 1,
-    byPlayer: true,
+    type: "round",
+    key,
+    amount,
   };
 }
 
-export function oncePerRound(): ActionLimit {
+export function perGame(amount: number, key: string): ActionLimit {
   return {
-    type: "round",
-    amount: 1,
-    byPlayer: false,
+    type: "game",
+    key,
+    amount,
+  };
+}
+
+export function perPhase(amount: number, key: string): ActionLimit {
+  return {
+    type: "phase",
+    key,
+    amount,
   };
 }
 
 export function toAction(
   limit: ActionLimit | undefined,
-  actionId: string,
+  cardId: CardId,
   playerId: PlayerId
 ): Action {
   if (!limit) {
@@ -28,8 +36,8 @@ export function toAction(
 
   return {
     type: "Limit",
-    actionId,
     limit,
+    cardId,
     playerId,
   };
 }

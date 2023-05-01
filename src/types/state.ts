@@ -8,7 +8,6 @@ import {
   Side,
   Marks,
   Tokens,
-  ActionLimit,
 } from "./basic";
 import { CardDefinition } from "./cards";
 
@@ -22,12 +21,19 @@ export type CardState = {
   attachments: CardId[];
   owner: PlayerId | "game";
   controller: PlayerId | "game";
+  limitUses: {
+    perPhase: Record<string, number>;
+    perRound: Record<string, number>;
+  };
 };
 
 export type PlayerState = {
   id: PlayerId;
   zones: Record<PlayerZoneType, ZoneState>;
   thread: number;
+  limitUses: {
+    perGame: Record<string, number>;
+  };
 };
 
 export type ZoneState = {
@@ -57,9 +63,4 @@ export type State = {
   result?: "win" | "lost";
   flags: Record<string, any>;
   nextId: CardId;
-  limits: Array<{
-    actionId: string;
-    limit: ActionLimit;
-    used: PlayerId[];
-  }>;
 };

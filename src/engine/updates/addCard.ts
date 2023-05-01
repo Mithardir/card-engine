@@ -29,6 +29,10 @@ export function addCard(
     attachments: [],
     owner: zone.owner,
     controller: zone.owner,
+    limitUses: {
+      perPhase: {},
+      perRound: {},
+    },
   };
   state.nextId++;
 

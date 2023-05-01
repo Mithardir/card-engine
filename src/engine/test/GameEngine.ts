@@ -9,6 +9,7 @@ import { CardProxy } from "./CardProxy";
 import { Action } from "../../types/actions";
 import { addPlayer } from "../../factories/actions";
 import { PlayerProxy } from "./PlayerProxy";
+import { evaluateBool } from "../queries/evaluateBool";
 
 export class GameEngine {
   constructor(public state = createState()) {
@@ -86,7 +87,7 @@ export class GameEngine {
     return values(view.cards).flatMap((card) =>
       card.actions.flatMap((action) =>
         values(this.state.players).flatMap((player) => {
-          const enabled = action.enabled(player.id, this.state);
+          const enabled = evaluateBool(action.enabled, this.state);
           if (!enabled) {
             return [];
           }
@@ -94,7 +95,7 @@ export class GameEngine {
             {
               description: action.description,
               player: player.id,
-              action: action.action(player.id),
+              action: action.action,
             },
           ];
         })

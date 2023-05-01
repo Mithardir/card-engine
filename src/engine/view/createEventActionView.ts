@@ -11,6 +11,7 @@ export function createEventActionView(
   if (!card.props.sphere || card.owner === "game") {
     return {
       action: "Empty",
+      description: "",
       enabled: false,
     };
   }
@@ -26,6 +27,7 @@ export function createEventActionView(
       ability.effect,
       discardCard(card.id)
     ),
+    description: "",
     enabled: cardInHand(card.id),
   };
 }

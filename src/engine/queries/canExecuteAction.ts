@@ -43,19 +43,7 @@ export function canExecuteAction(action: Action, state: State): boolean {
         );
       }
       case "Limit": {
-        const limit = state.limits.find((l) => l.actionId === action.actionId);
-        if (!limit) {
-          return true;
-        } else {
-          if (limit.limit.byPlayer) {
-            return (
-              limit.limit.amount >
-              limit.used.filter((p) => p === action.playerId).length
-            );
-          } else {
-            return limit.limit.amount > limit.used.length;
-          }
-        }
+        // TODO
       }
     }
   }

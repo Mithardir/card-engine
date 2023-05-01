@@ -13,10 +13,10 @@ import { hero } from "../../factories/cards";
 import { keyword } from "../../factories/keywords";
 import { and, isQuesting, isEnemy } from "../../factories/boolValues";
 import { addWillpower } from "../../factories/modifiers";
-import { eachPlayerOncePerRound, oncePerRound } from "../../factories/limits";
 import { discard, draw } from "../../factories/playerActions";
 import { cardNumberValue } from "../../factories/numberValues";
 import { increment } from "../../factories/cardModifiers";
+import { perRound } from "../../factories/limits";
 
 export const gimli = hero(
   {
@@ -111,7 +111,7 @@ export const eowyn = hero(
     description:
       "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round.",
     caster: "any",
-    limit: eachPlayerOncePerRound(),
+    //limit: eachPlayerOncePerRound(), TODO
     cost: (caster, self) => targetPlayer(caster).to(discard(1)),
     effect: (caster, self) =>
       targetCard(self).to(
@@ -138,7 +138,7 @@ export const beravor = hero(
   action({
     description:
       "Exhaust Beravor to choose a player. That player draws 2 cards. Limit once per round.",
-    limit: oncePerRound(),
+    limit: perRound(1, "beravor_ability"),
     cost: (caster, self) => targetCard(self).to("Exhaust"),
     effect: choosePlayer({
       label: "Choose player to draw 2 cards",
@@ -162,12 +162,12 @@ export const glorfindel = hero(
     description:
       "Pay 1 resource from Glorfindel's pool to heal 1 damage on any character. (Limit once per round.)",
     cost: (caster, self) => targetCard(self).to(payCardResources(1)),
+    limit: perRound(1, "glorfindel_ability"),
     effect: chooseCard({
       label: "Choose character to heal",
       filter: "isCharacter",
       action: heal(1),
       optional: false,
     }),
-    limit: oncePerRound(),
   })
 );

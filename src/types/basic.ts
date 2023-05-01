@@ -199,6 +199,6 @@ export type Marks = Record<Mark, boolean>;
 
 export type ActionLimit = {
   type: "phase" | "round" | "game";
+  key: string;
   amount: number;
-  byPlayer: boolean;
 };

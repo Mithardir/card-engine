@@ -47,7 +47,7 @@ export function executeAbility(
 
         card.actions.push({
           description: ability.description,
-          enabled: canExecuteAction(action, state),
+          enabled: { type: "CanExecute", action },
           action: action,
         });
       }

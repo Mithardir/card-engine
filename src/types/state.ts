@@ -22,8 +22,8 @@ export type CardState = {
   owner: PlayerId | "game";
   controller: PlayerId | "game";
   limitUses: {
-    perPhase: Record<string, number>;
-    perRound: Record<string, number>;
+    phase: Record<string, number>;
+    round: Record<string, number>;
   };
 };
 
@@ -32,7 +32,7 @@ export type PlayerState = {
   zones: Record<PlayerZoneType, ZoneState>;
   thread: number;
   limitUses: {
-    perGame: Record<string, number>;
+    game: Record<string, number>;
   };
 };
 

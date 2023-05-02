@@ -43,7 +43,25 @@ export function canExecuteAction(action: Action, state: State): boolean {
         );
       }
       case "Limit": {
-        // TODO
+        const card = state.cards[action.cardId];
+        const player = state.players[action.playerId];
+
+        if (action.limit.type === "game") {
+          if (player) {
+            const uses = player.limitUses.game[action.limit.key] || 0;
+            return uses < action.limit.amount;
+          } else {
+            return false;
+          }
+        } else {
+          if (card) {
+            const uses =
+              card.limitUses[action.limit.type][action.limit.key] || 0;
+            return uses < action.limit.amount;
+          } else {
+            return false;
+          }
+        }
       }
     }
   }

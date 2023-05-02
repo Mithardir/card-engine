@@ -184,7 +184,8 @@ export type BoolValue =
   | { type: "Not"; value: BoolValue }
   | { type: "CardBoolValue"; card: CardId; predicate: CardPredicate }
   | { type: "PlayerBoolValue"; player: PlayerId; predicate: PlayerPredicate }
-  | { type: "SomeCard"; predicate: CardPredicate };
+  | { type: "SomeCard"; predicate: CardPredicate }
+  | { type: "CanExecute"; action: Action };
 
 export type CardNumberValue = "damage" | "defense";
 

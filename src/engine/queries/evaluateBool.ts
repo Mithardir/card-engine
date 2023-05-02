@@ -7,6 +7,7 @@ import { evaluateCardPredicate } from "./evaluateCardPredicate";
 import { evaluateNumber } from "./evaluateNumber";
 import { evaluatePlayerPredicate } from "./evaluatePlayerPredicate";
 import { filterCards } from "./filterCards";
+import { canExecuteAction } from "./canExecuteAction";
 
 export function evaluateBool(expr: BoolValue, state: State): boolean {
   if (typeof expr === "boolean") {
@@ -62,6 +63,9 @@ export function evaluateBool(expr: BoolValue, state: State): boolean {
     }
     case "SomeCard": {
       return filterCards(state, expr.predicate).length > 0;
+    }
+    case "CanExecute": {
+      return canExecuteAction(expr.action, state);
     }
     default: {
       throw new Error(`unknown expression: ${JSON.stringify(expr)}`);

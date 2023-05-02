@@ -30,8 +30,8 @@ export function addCard(
     owner: zone.owner,
     controller: zone.owner,
     limitUses: {
-      perPhase: {},
-      perRound: {},
+      phase: {},
+      round: {},
     },
   };
   state.nextId++;

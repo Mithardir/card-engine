@@ -45,13 +45,13 @@ export function nextStep(state: State) {
       }
       case "EndPhase":
         for (const card of values(state.cards)) {
-          card.limitUses.perPhase = {};
+          card.limitUses.phase = {};
         }
         return;
       case "EndRound":
         state.round++;
         for (const card of values(state.cards)) {
-          card.limitUses.perRound = {};
+          card.limitUses.round = {};
         }
         return;
       case "RevealEncounterCard": {
@@ -183,7 +183,7 @@ export function nextStep(state: State) {
             discardPile: { cards: [], stack: true },
             engaged: { cards: [], stack: false },
           },
-          limitUses: { perGame: {} },
+          limitUses: { game: {} },
         };
 
         for (const hero of action.deck.heroes) {
@@ -337,7 +337,24 @@ export function nextStep(state: State) {
         return;
       }
       case "Limit": {
-        // TODO
+        debugger;
+
+        const card = state.cards[action.cardId];
+        const player = state.players[action.playerId];
+
+        if (action.limit.type === "game") {
+          if (player) {
+            const current = player.limitUses.game[action.limit.key] || 0;
+            player.limitUses.game[action.limit.key] = current + 1;
+          }
+        } else {
+          if (card) {
+            const current =
+              card.limitUses[action.limit.type][action.limit.key] || 0;
+            card.limitUses[action.limit.type][action.limit.key] = current + 1;
+          }
+        }
+
         return;
       }
     }

@@ -41,9 +41,16 @@ export function executeAbility(
           typeof ability.effect === "function"
             ? ability.effect(controller, card.id)
             : ability.effect;
+
         const cost = ability.cost(controller, card.id);
-        const limit = toAction(ability.limit, card.id, controller);
-        const action = sequence(limit, cost, effect);
+
+        const limit = ability.limit
+          ? toAction(ability.limit, card.id, controller)
+          : undefined;
+
+        const action = limit
+          ? sequence(limit, cost, effect)
+          : sequence(cost, effect);
 
         card.actions.push({
           description: ability.description,

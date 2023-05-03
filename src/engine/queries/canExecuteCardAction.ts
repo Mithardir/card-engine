@@ -14,9 +14,9 @@ export function canExecuteCardAction(
       case "Discard":
       case "TravelTo":
         return true;
-      case "Exhaust":      
+      case "Exhaust":
         return !card.tapped;
-      case "Ready":      
+      case "Ready":
         return card.tapped;
       default:
         throw new Error(
@@ -28,6 +28,7 @@ export function canExecuteCardAction(
       case "DealDamage":
       case "ResolveEnemyAttacking":
       case "Mark":
+      case "AddModifier":
         return true;
       case "Heal":
         return card.token.damage > 0;

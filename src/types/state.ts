@@ -8,6 +8,7 @@ import {
   Side,
   Marks,
   Tokens,
+  CardModifier,
 } from "./basic";
 import { CardDefinition } from "./cards";
 
@@ -25,6 +26,13 @@ export type CardState = {
     phase: Record<string, number>;
     round: Record<string, number>;
   };
+  modifiers: Array<ModifierState>;
+};
+
+export type ModifierState = {
+  description: string;
+  modifier: CardModifier;
+  until: "end_of_phase";
 };
 
 export type PlayerState = {

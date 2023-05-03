@@ -111,7 +111,7 @@ export const eowyn = hero(
     description:
       "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round.",
     caster: "any",
-    //limit: eachPlayerOncePerRound(), TODO
+    //TODO limit: eachPlayerOncePerRound(),
     cost: (caster, self) => targetPlayer(caster).to(discard(1)),
     effect: (caster, self) =>
       targetCard(self).to(

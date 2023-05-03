@@ -154,6 +154,14 @@ export function executeCardAction(
           ];
           break;
         }
+        case "AddModifier": {
+          card.modifiers.push({
+            description: action.description,
+            modifier: action.modifier,
+            until: action.until,
+          });
+          break;
+        }
         default: {
           throw new Error(`unknown card action: ${JSON.stringify(action)}`);
         }

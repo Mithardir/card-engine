@@ -1,6 +1,7 @@
 import { PlayerAction, CardAction } from "../types/actions";
 import { NumberValue, CardFilter, CardId } from "../types/basic";
 import { Sphere } from "../types/cards";
+import { repeat } from "./actions";
 
 export function shuffleLibrary(): PlayerAction {
   return {
@@ -24,7 +25,10 @@ export function incrementThreat(amount: number): PlayerAction {
 }
 
 export function discard(amount: NumberValue): PlayerAction {
-  throw new Error("not implemented");
+  return {
+    type: "Discard",
+    amount,
+  };
 }
 
 export function payResources(

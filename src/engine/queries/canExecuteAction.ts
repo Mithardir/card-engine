@@ -7,6 +7,12 @@ import { filterCards } from "./filterCards";
 import { filterPlayers } from "./filterPlayers";
 
 export function canExecuteAction(action: Action, state: State): boolean {
+  if (typeof action === "string") {
+    if (action === "Empty") {
+      return false;
+    }
+  }
+
   if (typeof action === "object") {
     switch (action.type) {
       case "Sequence":

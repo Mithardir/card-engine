@@ -26,7 +26,7 @@ export function perPhase(amount: number, key: string): ActionLimit {
 }
 
 export function toAction(
-  limit: ActionLimit | undefined,
+  limit: ActionLimit,
   cardId: CardId,
   playerId: PlayerId
 ): Action {

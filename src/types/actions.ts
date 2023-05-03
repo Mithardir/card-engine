@@ -14,6 +14,7 @@ import {
   ActionLimit,
 } from "./basic";
 import { Sphere, CardDefinition } from "./cards";
+import { ModifierState } from "./state";
 
 export type CardAction =
   | "Exhaust"
@@ -33,7 +34,8 @@ export type CardAction =
   | { type: "ResolveEnemyAttacking"; player: PlayerId }
   | { type: "ResolvePlayerAttacking"; player: PlayerId }
   | { type: "Mark"; mark: Mark }
-  | { type: "Sequence"; actions: CardAction[] };
+  | { type: "Sequence"; actions: CardAction[] }
+  | ({ type: "AddModifier" } & ModifierState);
 
 export type PlayerAction =
   | "CommitCharactersToQuest"
@@ -49,6 +51,7 @@ export type PlayerAction =
   | { type: "ShuffleZone"; zone: PlayerZoneType }
   | { type: "PayResources"; amount: NumberValue; sphere: Sphere | "any" }
   | { type: "Sequence"; actions: PlayerAction[] }
+  | { type: "Discard"; amount: NumberValue }
   | {
       type: "ChooseCard";
       multi: boolean;
@@ -103,8 +106,8 @@ export type GameAction =
   | { type: "AddToStagingArea"; name: string }
   | {
       type: "Limit";
-      limit: ActionLimit;      
-      cardId: CardId;      
+      limit: ActionLimit;
+      cardId: CardId;
       playerId: PlayerId;
     };
 

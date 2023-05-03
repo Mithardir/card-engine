@@ -78,6 +78,11 @@ export class GameEngine {
     return new CardProxy(this.state, id);
   }
 
+  addToHand(card: CardDefinition, player: PlayerProxy): CardProxy {
+    const id = addCard(this.state, card, "back", playerZone(player.id, "hand"));
+    return new CardProxy(this.state, id);
+  }
+
   get view() {
     return toView(this.state);
   }
@@ -85,21 +90,18 @@ export class GameEngine {
   get actions() {
     const view = this.view;
     return values(view.cards).flatMap((card) =>
-      card.actions.flatMap((action) =>
-        values(this.state.players).flatMap((player) => {
-          const enabled = evaluateBool(action.enabled, this.state);
-          if (!enabled) {
-            return [];
-          }
-          return [
-            {
-              description: action.description,
-              player: player.id,
-              action: action.action,
-            },
-          ];
-        })
-      )
+      card.actions.flatMap((action) => {
+        const enabled = evaluateBool(action.enabled, this.state);
+        if (!enabled) {
+          return [];
+        }
+        return [
+          {
+            description: action.description,
+            action: action.action,
+          },
+        ];
+      })
     );
   }
 }

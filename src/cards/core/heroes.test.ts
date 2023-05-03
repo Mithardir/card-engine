@@ -65,31 +65,29 @@ it("Beravor's card drawing action", () => {
   expect(game.actions.length).toEqual(1);
 });
 
-// it("Eowyns bonus will", async () => {
-//   const game = createGame([0, 0]);
-//   const player1 = game.addPlayer();
-//   const player2 = game.addPlayer();
-//   const eowyn = game.addCard("core", "eowyn", player1.playerArea);
-//   game.addCard("core", "veteranAxehand", player1.hand);
-//   game.addCard("core", "veteranAxehand", player1.hand);
-//   game.addCard("core", "veteranAxehand", player2.hand);
-
-//   expect(eowyn.current.willpower).toEqual(4);
-//   expect(eowyn.playerActions.filter(a => a.canDo).length).toEqual(2);
-
-//   await eowyn.playerActions.find(a => a.player === player1)!.do();
-//   expect(eowyn.current.willpower).toEqual(5);
-//   expect(eowyn.playerActions.filter(a => a.canDo).length).toEqual(1);
-
-//   await eowyn.playerActions.find(a => a.player === player2)!.do();
-//   expect(eowyn.current.willpower).toEqual(6);
-//   expect(eowyn.playerActions.filter(a => a.canDo).length).toEqual(0);
-
-//   await game.endPhase();
-//   expect(eowyn.current.willpower).toEqual(4);
-//   await game.endTurn();
-//   expect(eowyn.playerActions.filter(a => a.canDo).length).toEqual(1);
-// });
+it("Eowyns bonus will", async () => {
+  const game = new GameEngine();
+  const player1 = game.addPlayer();
+  const player2 = game.addPlayer();
+  const eowyn = game.addHero(hero.eowyn);
+  game.addToHand(ally.veteranAxehand, player1);
+  game.addToHand(ally.veteranAxehand, player1);
+  game.addToHand(ally.veteranAxehand, player2);
+  expect(eowyn.props.willpower).toEqual(4);
+  expect(game.actions.length).toEqual(1);
+  game.doAction(
+    "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round."
+  );
+  expect(eowyn.props.willpower).toEqual(5);
+  expect(game.actions.length).toEqual(1);
+  game.doAction("XXX");
+  expect(eowyn.props.willpower).toEqual(6);
+  expect(game.actions.length).toEqual(0);
+  game.do("EndPhase");
+  expect(eowyn.props.willpower).toEqual(4);
+  game.do("EndRound");
+  expect(game.actions.length).toEqual(1);
+});
 
 // it("Lelogas placing progress", async () => {
 //   const game = new GameEngine({ choices: [0] });

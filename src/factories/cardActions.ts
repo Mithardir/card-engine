@@ -1,5 +1,6 @@
 import { CardAction } from "../types/actions";
 import { CardModifier, Mark, PlayerId } from "../types/basic";
+import { ModifierState } from "../types/state";
 
 export function dealDamage(amount: number): CardAction {
   return {
@@ -22,12 +23,11 @@ export function mark(mark: Mark): CardAction {
   };
 }
 
-export function modify(params: {
-  description: string;
-  modifier: CardModifier;
-  until: "end_of_phase";
-}): CardAction {
-  throw new Error("not implemented");
+export function modify(params: ModifierState): CardAction {
+  return {
+    type: "AddModifier",
+    ...params,
+  };
 }
 
 export function engagePlayer(player: PlayerId): CardAction {

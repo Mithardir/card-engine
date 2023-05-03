@@ -32,6 +32,12 @@ export function canExecutePlayerAction(
       case "Draw": {
         return state.players[player]!.zones.library.cards.length >= 1;
       }
+
+      case "Discard": {
+        const amount = evaluateNumber(action.amount, state);
+        const cards = state.players[player]!.zones.hand.cards.length;
+        return cards >= amount;
+      }
     }
   }
 

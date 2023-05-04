@@ -32,7 +32,7 @@ export type CardState = {
 export type ModifierState = {
   description: string;
   modifier: CardModifier;
-  until: "end_of_phase";
+  until: "end_of_phase" | "end_of_round";
 };
 
 export type PlayerState = {
@@ -42,6 +42,7 @@ export type PlayerState = {
   limitUses: {
     game: Record<string, number>;
   };
+  flags: Record<string, boolean>;
 };
 
 export type ZoneState = {

@@ -1,10 +1,12 @@
 import { action, modifySelf, response } from "../../factories/abilities";
 import {
   addResources,
+  atEndOfRound,
   chooseCard,
   choosePlayer,
   payCardResources,
   placeProgress,
+  sequence,
   targetCard,
   targetPlayer,
 } from "../../factories/actions";
@@ -13,7 +15,12 @@ import { hero } from "../../factories/cards";
 import { keyword } from "../../factories/keywords";
 import { and, isQuesting, isEnemy } from "../../factories/boolValues";
 import { addWillpower } from "../../factories/modifiers";
-import { discard, draw } from "../../factories/playerActions";
+import {
+  clearFlag,
+  discard,
+  draw,
+  setFlag,
+} from "../../factories/playerActions";
 import { cardNumberValue } from "../../factories/numberValues";
 import { increment } from "../../factories/cardModifiers";
 import { perRound } from "../../factories/limits";
@@ -111,8 +118,17 @@ export const eowyn = hero(
     description:
       "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round.",
     caster: "any",
-    //TODO limit: eachPlayerOncePerRound(),
-    cost: (caster, self) => targetPlayer(caster).to(discard(1)),
+    cost: () =>
+      choosePlayer({
+        action: (player) =>
+          sequence(
+            targetPlayer(player).to(
+              sequence(setFlag("eowyn_used"), discard(1))
+            ),
+            atEndOfRound(targetPlayer(player).to(clearFlag("eowyn_used")))
+          ),
+        label: "Choose player to discard 1 card",
+      }),
     effect: (caster, self) =>
       targetCard(self).to(
         modify({

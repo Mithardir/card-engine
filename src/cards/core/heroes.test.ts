@@ -4,6 +4,7 @@ import { dealDamage, heal } from "../../factories/cardActions";
 import * as hero from "./heroes";
 import * as ally from "./allies";
 import { addResources } from "../../factories/actions";
+import { canExecuteAction } from "../../engine/queries/canExecuteAction";
 
 it("Gimli's attack bonus", () => {
   const game = new GameEngine();
@@ -70,17 +71,19 @@ it("Eowyns bonus will", async () => {
   const player1 = game.addPlayer();
   const player2 = game.addPlayer();
   const eowyn = game.addHero(hero.eowyn);
+  const eowynAction =
+    "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round.";
   game.addToHand(ally.veteranAxehand, player1);
   game.addToHand(ally.veteranAxehand, player1);
   game.addToHand(ally.veteranAxehand, player2);
   expect(eowyn.props.willpower).toEqual(4);
   expect(game.actions.length).toEqual(1);
-  game.doAction(
-    "Discard 1 card from your hand to give Éowyn +1 [willpower] until the end of the phase. This effect may be triggered by each player once each round."
-  );
+  game.doAction(eowynAction);
+  game.makeChoice("Choose player to discard 1 card", 0);
+  game.makeChoice("Chooose card to discard", 0);
   expect(eowyn.props.willpower).toEqual(5);
   expect(game.actions.length).toEqual(1);
-  game.doAction("XXX");
+  game.doAction(eowynAction);
   expect(eowyn.props.willpower).toEqual(6);
   expect(game.actions.length).toEqual(0);
   game.do("EndPhase");

@@ -69,6 +69,8 @@ export function canExecuteAction(action: Action, state: State): boolean {
           }
         }
       }
+      case "TriggerAtEndOfRound":
+        return true;
     }
   }
 

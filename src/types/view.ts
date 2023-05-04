@@ -1,8 +1,8 @@
 import { Action } from "./actions";
-import { CardId, BoolValue, Ability } from "./basic";
+import { CardId, BoolValue, Ability, CardModifier } from "./basic";
 import { PrintedProps } from "./cards";
 import { Events } from "./events";
-import { CardState } from "./state";
+import { CardState, ModifierState } from "./state";
 
 export type ActionView = {
   description: string;
@@ -27,6 +27,7 @@ export type CardView = {
     receivedDamage: Array<ResponseView<"receivedDamage">>;
   };
   abilities: Array<{ applied: boolean; ability: Ability }>;
+  modifiers: Array<{ applied: boolean } & ModifierState>;
 } & CardState;
 
 export type View = {

@@ -38,6 +38,7 @@ export type CardAction =
   | ({ type: "AddModifier" } & ModifierState);
 
 export type PlayerAction =
+  | ((player: PlayerId) => Action)
   | "CommitCharactersToQuest"
   | "OptionalEngagement"
   | "EngagementCheck"
@@ -52,6 +53,8 @@ export type PlayerAction =
   | { type: "PayResources"; amount: NumberValue; sphere: Sphere | "any" }
   | { type: "Sequence"; actions: PlayerAction[] }
   | { type: "Discard"; amount: NumberValue }
+  | { type: "SetFlag"; flag: string }
+  | { type: "ClearFlag"; flag: string }
   | {
       type: "ChooseCard";
       multi: boolean;
@@ -104,6 +107,7 @@ export type GameAction =
   | { type: "PlaceProgress"; amount: NumberValue }
   | { type: "ClearMarks"; mark: Mark }
   | { type: "AddToStagingArea"; name: string }
+  | { type: "TriggerAtEndOfRound"; action: Action }
   | {
       type: "Limit";
       limit: ActionLimit;

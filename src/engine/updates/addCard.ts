@@ -33,6 +33,7 @@ export function addCard(
       phase: {},
       round: {},
     },
+    modifiers: [],
   };
   state.nextId++;
 

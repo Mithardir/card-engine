@@ -35,6 +35,20 @@ export class GameEngine {
     }
   }
 
+  makeChoice(title: string, index: number) {
+    if (this.state.choice) {
+      if (this.state.choice.title === title) {
+        const action = this.state.choice.options[index].action;
+        this.state.choice = undefined;
+        this.do(action);
+      } else {
+        throw new Error(`Different choice title: ${this.state.choice.title}`);
+      }
+    } else {
+      throw new Error("no choices");
+    }
+  }
+
   chooseOption(title: string) {
     if (!this.state.choice) {
       throw new Error("no choice");
@@ -60,8 +74,17 @@ export class GameEngine {
   }
 
   addPlayer() {
-    this.do(addPlayer({ name: "TEST A", library: [], heroes: [] }));
-    return new PlayerProxy(this.state, "A");
+    if (!this.state.players.A) {
+      this.do(addPlayer({ name: "TEST A", library: [], heroes: [] }));
+      return new PlayerProxy(this.state, "A");
+    }
+
+    if (!this.state.players.B) {
+      this.do(addPlayer({ name: "TEST B", library: [], heroes: [] }));
+      return new PlayerProxy(this.state, "B");
+    }
+
+    throw new Error("cant add new player");
   }
 
   addHero(hero: CardDefinition): CardProxy {

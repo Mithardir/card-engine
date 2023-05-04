@@ -8,6 +8,7 @@ import {
   sequence,
   whileDo,
   chooseAction,
+  choosePlayer,
 } from "../../factories/actions";
 import { playerZone } from "../../factories/zones";
 import {
@@ -47,6 +48,11 @@ export function executePlayerAction(
   const players = getPlayers(state, filter);
 
   for (const player of players) {
+    if (typeof action === "function") {
+      state.next.unshift(action(player.id));
+      continue;
+    }
+
     if (typeof action === "string") {
       switch (action) {
         case "CommitCharactersToQuest": {
@@ -314,6 +320,35 @@ export function executePlayerAction(
         ];
         break;
       }
+      case "SetFlag": {
+        player.flags[action.flag] = true;
+        break;
+      }
+      case "ClearFlag": {
+        delete player.flags[action.flag];
+        break;
+      }
+      case "Sequence": {
+        state.next = [
+          sequence(...action.actions.map((a) => targetPlayer(player.id).to(a))),
+          ...state.next,
+        ];
+        break;
+      }
+      case "Discard":
+        const amount = evaluateNumber(action.amount, state);
+        state.next.unshift(
+          repeat(
+            amount,
+            chooseCard({
+              action: "Discard",
+              filter: isInZone(playerZone(player.id, "hand")),
+              label: "Chooose card to discard",
+              optional: false,
+            })
+          )
+        );
+        break;
       default: {
         throw new Error(`unknown player action: ${JSON.stringify(action)}`);
       }

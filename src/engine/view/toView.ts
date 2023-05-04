@@ -2,7 +2,7 @@ import { cloneDeep, mapValues, values } from "lodash";
 import { State } from "../../types/state";
 import { View } from "../../types/view";
 import { createCardView } from "./createCardView";
-import { executeAbility } from "../updates/executeAbility";
+import { applyCardModifier, executeAbility } from "../updates/executeAbility";
 
 export function toView(state: State): View {
   const view: View = cloneDeep({
@@ -17,6 +17,12 @@ export function toView(state: State): View {
         allApplied = false;
         executeAbility(ability.ability, card, state);
         ability.applied = true;
+      }
+      
+      for (const modifier of card.modifiers.filter((m) => !m.applied)) {
+        allApplied = false;
+        applyCardModifier(modifier.modifier, card, state);
+        modifier.applied = true;
       }
     }
 

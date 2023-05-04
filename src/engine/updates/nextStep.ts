@@ -4,6 +4,7 @@ import {
   eachPlayer,
   placeProgress,
   repeat,
+  sequence,
   targetCard,
   targetPlayer,
 } from "../../factories/actions";
@@ -46,12 +47,22 @@ export function nextStep(state: State) {
       case "EndPhase":
         for (const card of values(state.cards)) {
           card.limitUses.phase = {};
+          card.modifiers = card.modifiers.filter(
+            (m) => m.until !== "end_of_phase"
+          );
         }
         return;
       case "EndRound":
         state.round++;
         for (const card of values(state.cards)) {
           card.limitUses.round = {};
+          card.modifiers = card.modifiers.filter(
+            (m) => m.until !== "end_of_round"
+          );
+        }
+        if (state.triggers.end_of_round.length > 0) {
+          state.next.unshift(sequence(...state.triggers.end_of_round));
+          state.triggers.end_of_round = [];
         }
         return;
       case "RevealEncounterCard": {
@@ -184,6 +195,7 @@ export function nextStep(state: State) {
             engaged: { cards: [], stack: false },
           },
           limitUses: { game: {} },
+          flags: {},
         };
 
         for (const hero of action.deck.heroes) {
@@ -337,8 +349,6 @@ export function nextStep(state: State) {
         return;
       }
       case "Limit": {
-        debugger;
-
         const card = state.cards[action.cardId];
         const player = state.players[action.playerId];
 
@@ -355,6 +365,10 @@ export function nextStep(state: State) {
           }
         }
 
+        return;
+      }
+      case "TriggerAtEndOfRound": {
+        state.triggers.end_of_round.push(action.action);
         return;
       }
     }

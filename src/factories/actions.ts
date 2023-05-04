@@ -11,6 +11,7 @@ import {
   PlayerFilter,
   Mark,
   CardId,
+  PlayerId,
 } from "../types/basic";
 import { and } from "./predicates";
 import { gameZone } from "./zones";
@@ -334,5 +335,12 @@ export function addToStagingArea(name: string): Action {
   return {
     type: "AddToStagingArea",
     name,
+  };
+}
+
+export function atEndOfRound(action: Action): Action {
+  return {
+    type: "TriggerAtEndOfRound",
+    action,
   };
 }

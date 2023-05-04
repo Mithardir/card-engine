@@ -1,7 +1,6 @@
 import { PlayerAction, CardAction } from "../types/actions";
 import { NumberValue, CardFilter, CardId } from "../types/basic";
 import { Sphere } from "../types/cards";
-import { repeat } from "./actions";
 
 export function shuffleLibrary(): PlayerAction {
   return {
@@ -72,5 +71,19 @@ export function declareAttackers(enemy: CardId): PlayerAction {
   return {
     type: "DeclareAttackers",
     enemy,
+  };
+}
+
+export function setFlag(flag: string): PlayerAction {
+  return {
+    type: "SetFlag",
+    flag,
+  };
+}
+
+export function clearFlag(flag: string): PlayerAction {
+  return {
+    type: "ClearFlag",
+    flag,
   };
 }

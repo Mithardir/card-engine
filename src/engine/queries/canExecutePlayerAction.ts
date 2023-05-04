@@ -6,12 +6,17 @@ import { PlayerId } from "../../types/basic";
 import { State } from "../../types/state";
 import { evaluateNumber } from "./evaluateNumber";
 import { filterCards } from "./filterCards";
+import { canExecuteAction } from "./canExecuteAction";
 
 export function canExecutePlayerAction(
   action: PlayerAction,
   player: PlayerId,
   state: State
 ): boolean {
+  if (typeof action === "function") {
+    return canExecuteAction(action(player), state);
+  }
+
   if (typeof action === "object") {
     switch (action.type) {
       case "PayResources": {
@@ -37,6 +42,16 @@ export function canExecutePlayerAction(
         const amount = evaluateNumber(action.amount, state);
         const cards = state.players[player]!.zones.hand.cards.length;
         return cards >= amount;
+      }
+
+      case "SetFlag": {
+        return state.players[player]!.flags[action.flag] !== true;
+      }
+
+      case "Sequence": {
+        return action.actions.every((a) =>
+          canExecutePlayerAction(a, player, state)
+        );
       }
     }
   }

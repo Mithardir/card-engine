@@ -1,5 +1,5 @@
 import { CardAction } from "../types/actions";
-import { CardModifier, Mark, PlayerId } from "../types/basic";
+import { Mark, PlayerId } from "../types/basic";
 import { ModifierState } from "../types/state";
 
 export function dealDamage(amount: number): CardAction {

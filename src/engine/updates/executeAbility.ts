@@ -4,9 +4,9 @@ import { toAction } from "../../factories/limits";
 import { Ability, CardId, CardModifier } from "../../types/basic";
 import { State } from "../../types/state";
 import { CardView } from "../../types/view";
-import { canExecuteAction } from "../queries/canExecuteAction";
 import { evaluateNumber } from "../queries/evaluateNumber";
 import { createEventActionView } from "../view/createEventActionView";
+import { replaceSelfReferencesInModifier } from "./self";
 
 export function executeAbility(
   ability: Ability,
@@ -28,7 +28,10 @@ export function executeAbility(
       card.actions.push(createEventActionView(ability, card));
       return;
     case "ModifySelf":
-      const modifier = ability.modifier(card.id);
+      const modifier = replaceSelfReferencesInModifier(
+        ability.modifier,
+        card.id
+      );
       applyCardModifier(modifier, card, state);
       return;
     case "Setup":

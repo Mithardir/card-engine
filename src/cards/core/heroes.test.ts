@@ -4,12 +4,11 @@ import { dealDamage, heal } from "../../factories/cardActions";
 import * as hero from "./heroes";
 import * as ally from "./allies";
 import { addResources } from "../../factories/actions";
-import { canExecuteAction } from "../../engine/queries/canExecuteAction";
 
 it("Gimli's attack bonus", () => {
   const game = new GameEngine();
   const gimli = game.addHero(hero.gimli);
-  expect(gimli.props.attack).toEqual(2);
+  expect(gimli.props.attack).toEqual(2);  
   gimli.update(dealDamage(1));
   expect(gimli.props.attack).toEqual(3);
   gimli.update(heal(1));

@@ -77,7 +77,7 @@ export type EventActionAbility = {
 export type ModifySelfAbility = {
   type: "ModifySelf";
   description: string;
-  modifier: (self: CardId) => CardModifier;
+  modifier: CardModifier;
 };
 
 export type KeywordAbility = {
@@ -189,10 +189,12 @@ export type BoolValue =
 
 export type CardNumberValue = "damage" | "defense";
 
+export type CardTarget = CardId | "self";
+
 export type NumberValue =
   | number
   | "countOfPlayers"
-  | { type: "CardNumberValue"; card: CardId; property: CardNumberValue };
+  | { type: "CardNumberValue"; card: CardTarget; property: CardNumberValue };
 
 export type Tokens = Record<Token, number>;
 

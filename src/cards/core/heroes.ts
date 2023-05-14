@@ -38,7 +38,7 @@ export const gimli = hero(
   },
   modifySelf({
     description: "Gimli gets +1 [attack] for each damage token on him.",
-    modifier: (self) => increment("attack", cardNumberValue(self, "damage")),
+    modifier: increment("attack", cardNumberValue("self", "damage")),
   })
 );
 

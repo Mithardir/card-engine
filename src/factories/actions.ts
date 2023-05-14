@@ -11,7 +11,6 @@ import {
   PlayerFilter,
   Mark,
   CardId,
-  PlayerId,
 } from "../types/basic";
 import { and } from "./predicates";
 import { gameZone } from "./zones";

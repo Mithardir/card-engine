@@ -1,5 +1,5 @@
 import { Action } from "./actions";
-import { CardId, BoolValue, Ability, CardModifier } from "./basic";
+import { CardId, BoolValue, Ability } from "./basic";
 import { PrintedProps } from "./cards";
 import { Events } from "./events";
 import { CardState, ModifierState } from "./state";

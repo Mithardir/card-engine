@@ -1,7 +1,7 @@
-import { CardId, CardNumberValue, NumberValue } from "../types/basic";
+import { CardNumberValue, CardTarget, NumberValue } from "../types/basic";
 
 export function cardNumberValue(
-  card: CardId,
+  card: CardTarget,
   property: CardNumberValue
 ): NumberValue {
   return {

@@ -8,7 +8,6 @@ import {
   sequence,
   whileDo,
   chooseAction,
-  choosePlayer,
 } from "../../factories/actions";
 import { playerZone } from "../../factories/zones";
 import {

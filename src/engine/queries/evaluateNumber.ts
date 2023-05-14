@@ -16,6 +16,9 @@ export function evaluateNumber(expr: NumberValue, state: State) {
 
   switch (expr.type) {
     case "CardNumberValue": {
+      if (expr.card === "self") {
+        throw new Error("self in evaluated expression");
+      }
       const cardState = state.cards[expr.card];
       if (cardState) {
         if (expr.property === "damage") {

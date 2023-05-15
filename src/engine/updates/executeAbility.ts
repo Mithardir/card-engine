@@ -6,7 +6,7 @@ import { State } from "../../types/state";
 import { CardView } from "../../types/view";
 import { evaluateNumber } from "../queries/evaluateNumber";
 import { createEventActionView } from "../view/createEventActionView";
-import { replaceSelfReferencesInModifier } from "./self";
+import { replaceSelf } from "../../factories/rulesModifiers";
 
 export function executeAbility(
   ability: Ability,
@@ -28,9 +28,8 @@ export function executeAbility(
       card.actions.push(createEventActionView(ability, card));
       return;
     case "ModifySelf":
-      const modifier = replaceSelfReferencesInModifier(
-        ability.modifier,
-        card.id
+      const modifier = replaceSelf(card.id).changeCardModifier(
+        ability.modifier
       );
       applyCardModifier(modifier, card, state);
       return;
